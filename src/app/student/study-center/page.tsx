@@ -62,6 +62,7 @@ import {
 import { getCourseCurriculum } from "@/lib/curriculum/course-details-data";
 import { Input } from "@/components/ui/input";
 import { useNotification } from "@/components/ui/notification-context";
+import { LessonDiscussionTab } from "@/components/study-center/lesson-discussion-tab";
 import {
   Module,
   SubModule,
@@ -389,7 +390,7 @@ function StudyCenterContent() {
 
   // Content tabs: comprehensive modes in reader
   const [contentTab, setContentTab] = React.useState<
-    "lecture" | "attachments" | "media" | "quizzes" | "viva" | "prev_questions" | "qas"
+    "lecture" | "attachments" | "media" | "quizzes" | "viva" | "prev_questions" | "qas" | "discussion"
   >("lecture");
 
   // Quiz interactive states in reader
@@ -1603,6 +1604,21 @@ function StudyCenterContent() {
                 </button>
               )}
 
+              {/* Discussion Tab (Real-Time Interactive Forum) */}
+              <button
+                type="button"
+                onClick={() => setContentTab("discussion")}
+                className={cn(
+                  "py-1.5 px-3 rounded-xl text-xs font-medium transition-all flex items-center space-x-1.5 min-h-[34px] shrink-0 cursor-pointer relative",
+                  contentTab === "discussion"
+                    ? "bg-primary text-primary-foreground shadow-xs font-semibold"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <MessageSquare className="h-3.5 w-3.5 shrink-0" />
+                <span>Discussion</span>
+              </button>
+
               {(mediaCount > 0 || isManagementRole) && (
                 <button
                   type="button"
@@ -1616,22 +1632,6 @@ function StudyCenterContent() {
                 >
                   <Video className="h-3.5 w-3.5 shrink-0" />
                   <span>Media ({mediaCount})</span>
-                </button>
-              )}
-
-              {(qaCount > 0 || isManagementRole) && (
-                <button
-                  type="button"
-                  onClick={() => setContentTab("qas")}
-                  className={cn(
-                    "py-1.5 px-3 rounded-xl text-xs font-medium transition-all flex items-center space-x-1.5 min-h-[34px] shrink-0 cursor-pointer",
-                    contentTab === "qas"
-                      ? "bg-primary text-primary-foreground shadow-xs font-semibold"
-                      : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
-                  <MessageSquare className="h-3.5 w-3.5 shrink-0" />
-                  <span>Q&amp;A ({qaCount})</span>
                 </button>
               )}
             </div>
@@ -2174,71 +2174,15 @@ function StudyCenterContent() {
               </div>
             )}
 
-            {/* TAB 6: Q&A */}
-            {contentTab === "qas" && (
-              <div className="space-y-5 animate-in fade-in">
-                <div className="flex items-center justify-between pb-1 border-b border-border">
-                  <span className="text-xs font-semibold text-foreground">
-                    Clinical Q&A Forum ({currentLesson.qas?.length || 0})
-                  </span>
-                </div>
-
-                {currentLesson.qas && currentLesson.qas.length > 0 ? (
-                  <div className="space-y-3">
-                    {currentLesson.qas.map((qa) => (
-                      <div key={qa.id} className="p-4 rounded-2xl border border-border bg-card space-y-2 shadow-2xs">
-                        <div className="flex items-center justify-between text-xs">
-                          <Badge variant="outline" className="text-[10px]">{qa.category || "Clinical Practice"}</Badge>
-                          <span className="text-[11px] text-muted-foreground">{qa.askedBy || "Student Query"}</span>
-                        </div>
-                        <h6 className="text-xs sm:text-sm font-semibold text-foreground">{qa.question}</h6>
-                        <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs space-y-1">
-                          <strong className="text-primary block">Faculty Response:</strong>
-                          <p className="text-muted-foreground leading-relaxed font-normal">{qa.answer}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground italic">No questions posted yet.</p>
-                )}
-
-                <form onSubmit={handleUserSubmitQuestion} className="p-4 rounded-2xl border border-border bg-muted/20 space-y-3">
-                  <span className="text-xs font-semibold text-foreground flex items-center space-x-1.5">
-                    <MessageSquare className="h-4 w-4 text-primary" />
-                    <span>Ask a Question on this Lesson</span>
-                  </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="sm:col-span-2">
-                      <Input
-                        required
-                        placeholder="Type your clinical question here..."
-                        value={userQText}
-                        onChange={(e) => setUserQText(e.target.value)}
-                        className="h-10 text-xs rounded-xl bg-card"
-                      />
-                    </div>
-                    <div>
-                      <select
-                        value={userQCategory}
-                        onChange={(e) => setUserQCategory(e.target.value)}
-                        className="w-full h-10 px-3 rounded-xl border border-border bg-card text-xs"
-                      >
-                        <option value="Clinical Practice">Clinical Practice</option>
-                        <option value="Pre-Analytical">Pre-Analytical</option>
-                        <option value="Analytical Error">Analytical Error</option>
-                        <option value="Quality Control">Quality Control</option>
-                        <option value="Viva Voce">Viva Voce</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="flex justify-end">
-                    <Button type="submit" size="sm" className="bg-primary text-primary-foreground font-semibold rounded-xl text-xs h-9">
-                      <Send className="h-3.5 w-3.5 mr-1" /> Post Question
-                    </Button>
-                  </div>
-                </form>
-              </div>
+            {/* TAB 6: DISCUSSION (REAL-TIME INTERACTIVE FORUM WITH LIKES, DISLIKES, REPLIES) */}
+            {contentTab === "discussion" && (
+              <LessonDiscussionTab
+                lessonId={currentLesson.id}
+                lessonTitle={currentLesson.title}
+                subjectCode={activeSubject.code}
+                subjectName={activeSubject.name}
+                initialQas={currentLesson.qas}
+              />
             )}
           </CardContent>
         </Card>
