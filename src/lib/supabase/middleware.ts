@@ -7,9 +7,6 @@ export async function updateSession(request: NextRequest) {
     request,
   });
 
-  const supabaseUrl = normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL);
-  const supabaseAnonKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
-
   const pathname = request.nextUrl.pathname;
 
   const isProtectedPath =
@@ -22,32 +19,28 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/register") ||
     pathname.startsWith("/forgot-password");
 
-  // Check cookies
-  const allCookies = request.cookies.getAll();
-  const hasSupabaseCookie = allCookies.some(
-    (c) => c.name.startsWith("sb-") && c.name.includes("-auth-token")
-  );
-  const hasLocalSession = allCookies.some(
-    (c) => c.name === "labtutor-session" && c.value === "true"
-  );
-  const hasAnyAuth = hasSupabaseCookie || hasLocalSession;
-
-  // 1. If public route and no auth cookie present, return immediately
-  if (!isProtectedPath && !isAuthPath && !hasAnyAuth) {
+  // 1. Fast path: If public route, exit immediately with zero latency
+  if (!isProtectedPath && !isAuthPath) {
     return supabaseResponse;
   }
 
-  // 2. If protected route and definitely no auth cookie or local session, redirect to login
-  if (isProtectedPath && !hasAnyAuth) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    url.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(url);
-  }
+  // 2. Fast cookie inspect
+  const allCookies = request.cookies.getAll();
+  const hasLocalSession = allCookies.some(
+    (c) => c.name === "labtutor-session" && c.value === "true"
+  );
+  const hasSupabaseCookie = allCookies.some(
+    (c) => c.name.startsWith("sb-") && c.name.includes("-auth-token")
+  );
 
-  // 3. If Supabase credentials are placeholders or not configured, allow local session
-  if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes("placeholder-project")) {
-    if (hasLocalSession && isAuthPath) {
+  // 3. Fast path: local session active (zero network overhead)
+  if (hasLocalSession) {
+    if (isAuthPath) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/student";
+      return NextResponse.redirect(url);
+    }
+    if (pathname.startsWith("/super-admin") || pathname.startsWith("/admin")) {
       const url = request.nextUrl.clone();
       url.pathname = "/student";
       return NextResponse.redirect(url);
@@ -55,13 +48,22 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse;
   }
 
-  // 4. Initialize Supabase SSR client
-  let user = null;
-  try {
-    const supabase = createServerClient(
-      supabaseUrl,
-      supabaseAnonKey,
-      {
+  // 4. If protected path and definitely no auth cookies, redirect to /login immediately
+  if (isProtectedPath && !hasSupabaseCookie) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(url);
+  }
+
+  // 5. If hasSupabaseCookie, query Supabase SSR with a strict timeout to prevent network freezes
+  const supabaseUrl = normalizeSupabaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL);
+  const supabaseAnonKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+
+  if (hasSupabaseCookie && supabaseUrl && supabaseAnonKey && !supabaseUrl.includes("placeholder-project")) {
+    let user = null;
+    try {
+      const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
         cookies: {
           getAll() {
             return request.cookies.getAll();
@@ -78,38 +80,39 @@ export async function updateSession(request: NextRequest) {
             );
           },
         },
-      }
-    );
+      });
 
-    const { data } = await supabase.auth.getUser();
-    user = data?.user || null;
-  } catch {
-    // Supabase network / connection issue
+      const authPromise = supabase.auth.getUser();
+      const timeoutPromise = new Promise<{ data: { user: null } }>((res) =>
+        setTimeout(() => res({ data: { user: null } }), 1200)
+      );
+      const { data } = await Promise.race([authPromise, timeoutPromise]);
+      user = data?.user || null;
+    } catch {
+      // network timeout or offline
+    }
+
+    if (user) {
+      if (isAuthPath) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/student";
+        return NextResponse.redirect(url);
+      }
+      if (pathname.startsWith("/super-admin") || pathname.startsWith("/admin")) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/student";
+        return NextResponse.redirect(url);
+      }
+      return supabaseResponse;
+    }
   }
 
-  const isAuthenticated = !!user || hasLocalSession;
-
-  if (!isAuthenticated && isProtectedPath) {
+  // 6. If not authenticated and attempting to access protected route
+  if (isProtectedPath) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirect", pathname);
     return NextResponse.redirect(url);
-  }
-
-  if (isAuthenticated) {
-    // If authenticated user is on login/register page, redirect to unified dashboard
-    if (isAuthPath) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/student";
-      return NextResponse.redirect(url);
-    }
-
-    // Unified single dashboard architecture: redirect legacy admin routes to /student
-    if (pathname.startsWith("/super-admin") || pathname.startsWith("/admin")) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/student";
-      return NextResponse.redirect(url);
-    }
   }
 
   return supabaseResponse;

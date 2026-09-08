@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   poweredByHeader: false,
   compress: true,
   experimental: {
@@ -9,10 +9,14 @@ const nextConfig: NextConfig = {
       "lucide-react",
       "@supabase/ssr",
       "@supabase/supabase-js",
+      "clsx",
+      "tailwind-merge",
+      "class-variance-authority",
     ],
   },
   images: {
     formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 2592000,
     remotePatterns: [
       {
         protocol: "https",

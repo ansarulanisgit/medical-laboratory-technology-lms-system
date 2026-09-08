@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
  * 1. Server & client auth cookies (labtutor-session, sb-*-auth-token)
  * 2. Supabase client session state
  * 3. LocalStorage & SessionStorage cached profile & token state
- * 4. Redirects to /?auth=login via window.location for full state reset
+ * 4. Redirects to home page (/) via window.location for full state reset
  */
 export async function handleSignOut(): Promise<void> {
   // 1. Call server logout API to expire HTTP cookies
@@ -64,8 +64,8 @@ export async function handleSignOut(): Promise<void> {
     }
   }
 
-  // 5. Hard redirect to /?auth=login for fresh state
+  // 5. Hard redirect to home page (/) for fresh state
   if (typeof window !== "undefined") {
-    window.location.href = "/?auth=login";
+    window.location.href = "/";
   }
 }
