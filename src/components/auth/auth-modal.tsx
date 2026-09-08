@@ -651,42 +651,34 @@ export function AuthModal() {
         {/* ============================================================== */}
         <div className="flex-1 flex flex-col overflow-hidden bg-card">
           {/* Header Bar */}
-          <div className="flex items-center justify-between px-6 sm:px-8 py-3.5 border-b border-border/70 bg-muted/20 shrink-0">
-            {/* Mobile-only brand badge */}
-            <div className="flex md:hidden items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shadow-xs">
-                <Microscope className="h-4 w-4" />
-              </div>
-              <span className="text-sm font-bold text-foreground">LabTutor Academy</span>
-            </div>
-
+          <div className="flex items-center justify-between px-4 sm:px-8 py-3 sm:py-3.5 border-b border-border/70 bg-muted/20 shrink-0">
             {/* Segmented Tab Switcher */}
-            <div className="flex-1 max-w-[320px] sm:max-w-sm mx-auto md:mx-0">
-              <div className="grid grid-cols-2 gap-1.5 p-1.5 bg-muted/70 rounded-2xl border border-border/70 text-sm font-semibold">
+            <div className="flex-1 max-w-xs sm:max-w-sm mx-auto md:mx-0">
+              <div className="grid grid-cols-2 gap-1 p-1 sm:gap-1.5 sm:p-1.5 bg-muted/70 rounded-2xl border border-border/70 text-sm font-semibold">
                 <button
                   type="button"
                   onClick={() => setActiveTab("LOGIN")}
                   className={cn(
-                    "py-2 px-3 rounded-xl transition-all text-center cursor-pointer flex items-center justify-center gap-2 text-sm sm:text-base font-bold",
+                    "py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-xl transition-all text-center cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-base font-bold",
                     activeTab === "LOGIN"
                       ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
                       : "text-muted-foreground hover:text-foreground font-semibold"
                   )}
                 >
-                  <Lock className="h-4 w-4" />
+                  <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Sign In</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("REGISTER")}
                   className={cn(
-                    "py-2 px-3 rounded-xl transition-all text-center cursor-pointer flex items-center justify-center gap-2 text-sm sm:text-base font-bold",
+                    "py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-xl transition-all text-center cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-base font-bold",
                     activeTab === "REGISTER"
                       ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
                       : "text-muted-foreground hover:text-foreground font-semibold"
                   )}
                 >
-                  <GraduationCap className="h-4 w-4" />
+                  <GraduationCap className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Create Account</span>
                 </button>
               </div>
@@ -696,10 +688,10 @@ export function AuthModal() {
             <button
               type="button"
               onClick={closeAuthModal}
-              className="h-9 w-9 rounded-xl border border-border/60 hover:bg-muted/80 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer ml-3 shrink-0"
+              className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl border border-border/60 hover:bg-muted/80 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer ml-3 shrink-0"
               aria-label="Close dialog"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
           </div>
 
