@@ -177,8 +177,35 @@ export function AuthModal() {
   };
 
   // Verify email and immediately login to student dashboard
-  const handleVerifyAndLogin = (targetEmail: string) => {
+  const handleVerifyAndLogin = async (targetEmail: string) => {
     const cleanKey = targetEmail.trim().toLowerCase();
+    const setSessionCookie = () => {
+      if (typeof document !== "undefined") {
+        document.cookie = "labtutor-session=true; path=/; max-age=604800; SameSite=Lax";
+      }
+    };
+
+    try {
+      await fetch("/api/auth/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: cleanKey }),
+      });
+    } catch {}
+
+    setSessionCookie();
+
+    // Auto-login with Supabase if password exists
+    try {
+      const supabase = createClient();
+      if (loginPassword) {
+        await supabase.auth.signInWithPassword({
+          email: cleanKey,
+          password: loginPassword,
+        });
+      }
+    } catch {}
+
     try {
       const pendingRaw = localStorage.getItem(`labtutor_pending_${cleanKey}`);
       if (pendingRaw) {
@@ -201,8 +228,9 @@ export function AuthModal() {
         localStorage.setItem("labtutor_academic_profile_v3", JSON.stringify(fallbackProfile));
       }
     } catch {}
+
     closeAuthModal();
-    router.push("/student");
+    window.location.href = "/student";
   };
 
   // Simulate local verification for offline dev testing
@@ -245,37 +273,59 @@ export function AuthModal() {
 
     const cleanInput = loginIdentifier.trim().toLowerCase();
 
-    // 1. Default Super Admin credentials check (Direct bypass)
-    if (
-      (cleanInput === "ansarulanis" || cleanInput === "ansarul.contact@gmail.com") &&
-      loginPassword === "Ansarul@233"
-    ) {
-      try {
-        const saved = localStorage.getItem("labtutor_academic_profile_v2");
-        const base = saved ? JSON.parse(saved) : {};
-        base.role = "SUPER_ADMIN";
-        base.fullName = "Ansarul Anis";
-        base.username = "ansarulanis";
-        base.email = "ansarul.contact@gmail.com";
-        base.institution = "DGHS Medical Technology Directorate & LabTutor Central Administration";
-        base.studentIdNumber = "LT-SA-001";
-        base.program = "BSC";
-        base.academicYear = "4";
-        localStorage.setItem("labtutor_academic_profile_v2", JSON.stringify(base));
-        localStorage.setItem("labtutor_academic_profile_v3", JSON.stringify(base));
-      } catch {}
-      closeAuthModal();
-      router.push("/student");
-      return;
+    // Map username 'ansarulanis' to master email
+    let authEmail = cleanInput;
+    if (cleanInput === "ansarulanis") {
+      authEmail = "ansarul.contact@gmail.com";
     }
 
-    // 2. Authenticate with Supabase
+    const setSessionCookie = () => {
+      if (typeof document !== "undefined") {
+        document.cookie = "labtutor-session=true; path=/; max-age=604800; SameSite=Lax";
+      }
+    };
+
+    // 1. Authenticate with Supabase
     try {
       const supabase = createClient();
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: cleanInput,
+        email: authEmail,
         password: loginPassword,
       });
+
+      if (!error && data?.user) {
+        // Double check email confirmation if available on user object
+        if (data.user.email_confirmed_at === null) {
+          setLoginError(
+            "Your email address has not been verified yet. Please click the confirmation link sent to your registered email before signing in."
+          );
+          setUnverifiedEmail(cleanInput);
+          return;
+        }
+
+        setSessionCookie();
+
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role, full_name, email")
+          .eq("id", data.user.id)
+          .single();
+
+        const role = profile?.role || data.user.user_metadata?.role || (authEmail.includes("super") ? "SUPER_ADMIN" : "STUDENT");
+        try {
+          const saved = localStorage.getItem("labtutor_academic_profile_v2");
+          const base = saved ? JSON.parse(saved) : {};
+          base.role = role;
+          base.email = data.user.email;
+          if (profile?.full_name) base.fullName = profile.full_name;
+          localStorage.setItem("labtutor_academic_profile_v2", JSON.stringify(base));
+          localStorage.setItem("labtutor_academic_profile_v3", JSON.stringify(base));
+        } catch {}
+
+        closeAuthModal();
+        window.location.href = "/student";
+        return;
+      }
 
       if (error) {
         const errMsg = error.message.toLowerCase();
@@ -293,90 +343,76 @@ export function AuthModal() {
           return;
         }
 
-        // Fallback for local development or disconnected Supabase
+        // Master Super Admin bypass fallback (if remote network fails or service temporarily down)
         if (
-          errMsg.includes("fetch") ||
-          errMsg.includes("url") ||
-          errMsg.includes("invalid login credentials")
+          (cleanInput === "ansarulanis" || cleanInput === "ansarul.contact@gmail.com") &&
+          loginPassword === "Ansarul@233"
         ) {
-          // Check local pending verification storage
-          const pendingRaw = localStorage.getItem(`labtutor_pending_${cleanInput}`);
-          if (pendingRaw) {
-            try {
-              const pendingProfile = JSON.parse(pendingRaw);
-              if (pendingProfile.isVerified === false) {
-                setLoginError(
-                  "Your email address has not been verified yet. Please click the confirmation link sent to your email before signing in."
-                );
-                setUnverifiedEmail(cleanInput);
-                return;
-              }
-              if (pendingProfile.password && pendingProfile.password !== loginPassword) {
-                setLoginError("Invalid password. Please try again.");
-                return;
-              }
-              // Verified locally
-              localStorage.setItem("labtutor_academic_profile_v2", JSON.stringify(pendingProfile));
-              localStorage.setItem("labtutor_academic_profile_v3", JSON.stringify(pendingProfile));
-              closeAuthModal();
-              router.push("/student");
-              return;
-            } catch {}
-          }
-
-          // Normal offline demo fallback
-          const targetRole = cleanInput.includes("super")
-            ? "SUPER_ADMIN"
-            : cleanInput.includes("admin")
-            ? "ADMIN"
-            : "STUDENT";
+          setSessionCookie();
           try {
             const saved = localStorage.getItem("labtutor_academic_profile_v2");
             const base = saved ? JSON.parse(saved) : {};
-            base.role = targetRole;
-            base.email = cleanInput;
-            if (!base.fullName) base.fullName = cleanInput.split("@")[0];
+            base.role = "SUPER_ADMIN";
+            base.fullName = "Ansarul Anis";
+            base.username = "ansarulanis";
+            base.email = "ansarul.contact@gmail.com";
+            base.institution = "DGHS Medical Technology Directorate & LabTutor Central Administration";
+            base.studentIdNumber = "LT-SA-001";
+            base.program = "BSC";
+            base.academicYear = "4";
             localStorage.setItem("labtutor_academic_profile_v2", JSON.stringify(base));
             localStorage.setItem("labtutor_academic_profile_v3", JSON.stringify(base));
           } catch {}
           closeAuthModal();
-          router.push("/student");
+          window.location.href = "/student";
           return;
         }
 
-        setLoginError(error.message);
+        // Check local pending verification storage
+        const pendingRaw = localStorage.getItem(`labtutor_pending_${cleanInput}`);
+        if (pendingRaw) {
+          try {
+            const pendingProfile = JSON.parse(pendingRaw);
+            if (pendingProfile.isVerified === false) {
+              setLoginError(
+                "Your email address has not been verified yet. Please click the confirmation link sent to your email before signing in."
+              );
+              setUnverifiedEmail(cleanInput);
+              return;
+            }
+            if (pendingProfile.password && pendingProfile.password !== loginPassword) {
+              setLoginError("Invalid password. Please try again.");
+              return;
+            }
+            setSessionCookie();
+            localStorage.setItem("labtutor_academic_profile_v2", JSON.stringify(pendingProfile));
+            localStorage.setItem("labtutor_academic_profile_v3", JSON.stringify(pendingProfile));
+            closeAuthModal();
+            window.location.href = "/student";
+            return;
+          } catch {}
+        }
+
+        // Display user-friendly error message
+        if (errMsg.includes("invalid login credentials")) {
+          setLoginError("Invalid email or password. Please double-check your credentials.");
+        } else {
+          setLoginError(error.message);
+        }
         return;
       }
-
-      if (data.user) {
-        // Double check email confirmation if available on user object
-        if (data.user.email_confirmed_at === null) {
-          setLoginError(
-            "Your email address has not been verified yet. Please click the confirmation link sent to your registered email before signing in."
-          );
-          setUnverifiedEmail(cleanInput);
-          return;
-        }
-
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", data.user.id)
-          .single();
-
-        const role = profile?.role || "STUDENT";
-        try {
-          const saved = localStorage.getItem("labtutor_academic_profile_v2");
-          const base = saved ? JSON.parse(saved) : {};
-          base.role = role;
-          base.email = data.user.email;
-          localStorage.setItem("labtutor_academic_profile_v2", JSON.stringify(base));
-          localStorage.setItem("labtutor_academic_profile_v3", JSON.stringify(base));
-        } catch {}
-        closeAuthModal();
-        router.push("/student");
-      }
     } catch (err: any) {
+      // Offline / Emergency Super Admin check
+      if (
+        (cleanInput === "ansarulanis" || cleanInput === "ansarul.contact@gmail.com") &&
+        loginPassword === "Ansarul@233"
+      ) {
+        setSessionCookie();
+        closeAuthModal();
+        window.location.href = "/student";
+        return;
+      }
+      setLoginError(err?.message || "An unexpected error occurred. Please try again.");
       setLoginError(err?.message || "An unexpected error occurred. Please try again.");
     } finally {
       setLoginLoading(false);
@@ -417,7 +453,7 @@ export function AuthModal() {
     setRegStep(2);
   };
 
-  // Handle Register submission (Sends Verification Email Link)
+  // Handle Register submission
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setRegLoading(true);
@@ -434,9 +470,13 @@ export function AuthModal() {
 
     const normalizedEmail = regEmail.trim().toLowerCase();
 
-    try {
-      const siteUrl = typeof window !== "undefined" ? window.location.origin : "";
+    const setSessionCookie = () => {
+      if (typeof document !== "undefined") {
+        document.cookie = "labtutor-session=true; path=/; max-age=604800; SameSite=Lax";
+      }
+    };
 
+    try {
       const profilePayload = {
         fullName: regFullName.trim(),
         username: normalizedEmail.split("@")[0],
@@ -450,55 +490,58 @@ export function AuthModal() {
         enrollmentYear: new Date().getFullYear(),
         studentIdNumber: finalStudentId,
         password: regPassword,
-        isVerified: false,
+        isVerified: true,
         registeredAt: new Date().toISOString(),
       };
 
       // Always save pending profile to local storage backup
       localStorage.setItem(`labtutor_pending_${normalizedEmail}`, JSON.stringify(profilePayload));
 
-      // Attempt Supabase registration only if valid remote URL is configured
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-      const isPlaceholder = !supabaseUrl || supabaseUrl.includes("placeholder") || supabaseUrl.includes("your-project");
+      // Register and auto-confirm through server admin client
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: normalizedEmail,
+          password: regPassword,
+          fullName: regFullName.trim(),
+          phone: regPhone.trim(),
+          institution: finalInstitution,
+          program: regProgram,
+          academicYear: regYear,
+          studentIdNumber: finalStudentId,
+        }),
+      });
 
-      if (!isPlaceholder) {
-        try {
-          const supabase = createClient();
-          const { error } = await supabase.auth.signUp({
-            email: normalizedEmail,
-            password: regPassword,
-            options: {
-              emailRedirectTo: `${siteUrl}/auth/callback?next=/student`,
-              data: {
-                full_name: regFullName.trim(),
-                phone: regPhone.trim(),
-                role: "STUDENT",
-                program: regProgram,
-                academic_year: regYear,
-                institution: finalInstitution,
-                student_id_number: finalStudentId,
-              },
-            },
-          });
+      const resData = await response.json();
 
-          if (error) {
-            if (
-              error.message.toLowerCase().includes("already registered") ||
-              error.message.toLowerCase().includes("user already")
-            ) {
-              setRegError("An account with this email address already exists. Please sign in instead.");
-              return;
-            }
-          }
-        } catch {
-          // If remote Supabase connection fails, local flow still provides verification
+      if (!response.ok || resData.error) {
+        if (
+          resData.error?.toLowerCase().includes("already registered") ||
+          resData.error?.toLowerCase().includes("user already")
+        ) {
+          setRegError("An account with this email address already exists. Please sign in instead.");
+          return;
         }
+        throw new Error(resData.error || "Registration failed. Please try again.");
       }
 
-      // Show Verification Sent Screen
-      setRegisteredEmail(normalizedEmail);
-      setRegVerificationSent(true);
-      setResendCooldown(60);
+      // Log in with Supabase directly
+      try {
+        const supabase = createClient();
+        await supabase.auth.signInWithPassword({
+          email: normalizedEmail,
+          password: regPassword,
+        });
+      } catch {}
+
+      setSessionCookie();
+      localStorage.setItem("labtutor_academic_profile_v2", JSON.stringify(profilePayload));
+      localStorage.setItem("labtutor_academic_profile_v3", JSON.stringify(profilePayload));
+
+      closeAuthModal();
+      window.location.href = "/student";
+      return;
     } catch (err: any) {
       setRegError(err?.message || "Registration failed. Please try again.");
     } finally {
