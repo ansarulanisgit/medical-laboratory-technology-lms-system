@@ -20,8 +20,50 @@ export async function GET(request: Request) {
   if (code) {
     try {
       const supabase = await createClient();
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
-      if (!error) {
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+      if (!error && data?.user) {
+        try {
+          const { createAdminClient } = await import("@/lib/supabase/admin");
+          const admin = createAdminClient();
+          const user = data.user;
+          const meta = user.user_metadata || {};
+
+          await admin.from("profiles").upsert(
+            {
+              id: user.id,
+              email: user.email,
+              full_name: meta.full_name || user.email?.split("@")[0] || "Medical Technologist Student",
+              phone: meta.phone || null,
+              role: meta.role || "STUDENT",
+              is_active: true,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "id" }
+          );
+
+          const prog = meta.program === "DIPLOMA" ? "DIPLOMA" : "BSC";
+          const yr = parseInt(meta.academic_year, 10) || 1;
+
+          const { data: existingStudent } = await admin
+            .from("student_profiles")
+            .select("id")
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+          if (!existingStudent) {
+            await admin.from("student_profiles").insert({
+              user_id: user.id,
+              program_level: prog,
+              academic_year: yr,
+              enrollment_year: new Date().getFullYear(),
+              student_id_number: meta.student_id_number || null,
+              institution_name: meta.institution || null,
+            });
+          }
+        } catch (syncErr) {
+          console.error("Profile sync error in auth callback:", syncErr);
+        }
+
         return NextResponse.redirect(`${origin}${next}`);
       }
     } catch {
