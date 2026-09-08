@@ -63,25 +63,33 @@ export default function StudentDashboardPage() {
   const { jobs } = useJobs();
   const { updates } = useUpdates();
 
-  const currentRole: UserRole = profile.role || "STUDENT";
-  const userFullName = profile.fullName || "Md. Ansarul Islam";
+  const [mounted, setMounted] = React.useState(false);
 
-  const formattedYear = String(profile.academicYear).padStart(2, "0");
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentRole: UserRole = mounted ? (profile?.role || "STUDENT") : "STUDENT";
+  const userFullName = mounted ? (profile?.fullName || "Md. Ansarul Islam") : "Md. Ansarul Islam";
+
+  const safeYear = String(mounted ? (profile?.academicYear || "1") : "2");
+  const program = mounted ? (profile?.program || "DIPLOMA") : "DIPLOMA";
+  const formattedYear = safeYear.padStart(2, "0");
   const courseTitle =
-    profile.program === "BSC"
+    program === "BSC"
       ? "B.Sc. in Health Technology (Laboratory)"
       : "Diploma in Medical Laboratory Technology";
-  const programShortLabel = profile.program === "BSC" ? "B.Sc" : "Diploma";
+  const programShortLabel = program === "BSC" ? "B.Sc" : "Diploma";
   const ordinalYear =
-    profile.academicYear === "1"
+    safeYear === "1"
       ? "1st"
-      : profile.academicYear === "2"
+      : safeYear === "2"
       ? "2nd"
-      : profile.academicYear === "3"
+      : safeYear === "3"
       ? "3rd"
-      : profile.academicYear === "4"
+      : safeYear === "4"
       ? "4th"
-      : `${profile.academicYear}th`;
+      : `${safeYear}th`;
 
   // Student metrics
   const safeSubjects = activeSubjects || [];
@@ -100,11 +108,18 @@ export default function StudentDashboardPage() {
   // System statistics for Super Admin & Admin
   const safeUsers = users || [];
   const safeCertificates = certificates || [];
-  const superAdminCount = safeUsers.filter((u) => u.role === "SUPER_ADMIN").length;
-  const adminCount = safeUsers.filter((u) => u.role === "ADMIN").length;
-  const mentorCount = safeUsers.filter((u) => u.role === "MENTOR").length;
-  const studentCount = safeUsers.filter((u) => u.role === "STUDENT").length;
-  const pendingCertificates = safeCertificates.filter((c) => c.status === "PENDING").length;
+  const safeQuestions = questions || [];
+  const safePracticals = practicals || [];
+  const safeJobs = jobs || [];
+  const safeLogs = logs || [];
+  const safeUpdates = updates || [];
+  const safeCoursesCatalog = coursesCatalog || [];
+
+  const superAdminCount = safeUsers.filter((u) => u?.role === "SUPER_ADMIN").length;
+  const adminCount = safeUsers.filter((u) => u?.role === "ADMIN").length;
+  const mentorCount = safeUsers.filter((u) => u?.role === "MENTOR").length;
+  const studentCount = safeUsers.filter((u) => u?.role === "STUDENT").length;
+  const pendingCertificates = safeCertificates.filter((c) => c?.status === "PENDING").length;
 
   return (
     <div className="space-y-6">
@@ -222,7 +237,7 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-foreground">{users.length}</div>
+                <div className="text-2xl font-bold text-foreground">{safeUsers.length}</div>
                 <div className="text-[11px] text-muted-foreground flex items-center gap-1.5 flex-wrap">
                   <span className="text-emerald-600 dark:text-emerald-400 font-medium">{studentCount} Students</span> •
                   <span>{mentorCount} Mentors</span> •
@@ -241,7 +256,7 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-foreground">{coursesCatalog.length}</div>
+                <div className="text-2xl font-bold text-foreground">{safeCoursesCatalog.length}</div>
                 <div className="text-[11px] text-muted-foreground">
                   Diploma 4-Year & B.Sc. 4-Year Structured
                 </div>
@@ -258,9 +273,9 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-foreground">{questions.length}</div>
+                <div className="text-2xl font-bold text-foreground">{safeQuestions.length}</div>
                 <div className="text-[11px] text-muted-foreground">
-                  {questions.reduce((acc, q) => acc + q.downloadCount, 0)} Total Student Downloads
+                  {safeQuestions.reduce((acc, q) => acc + (q?.downloadCount || 0), 0)} Total Student Downloads
                 </div>
               </div>
             </Card>
@@ -427,7 +442,7 @@ export default function StudentDashboardPage() {
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                 Practical SOP Protocols
               </span>
-              <div className="text-2xl font-bold text-foreground">{practicals.length}</div>
+              <div className="text-2xl font-bold text-foreground">{safePracticals.length}</div>
               <p className="text-[11px] text-muted-foreground mt-1">All Clinical Laboratory Disciplines</p>
             </Card>
 
@@ -435,7 +450,7 @@ export default function StudentDashboardPage() {
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                 Active Job Postings
               </span>
-              <div className="text-2xl font-bold text-foreground">{jobs.filter((j) => j.isActive).length}</div>
+              <div className="text-2xl font-bold text-foreground">{safeJobs.filter((j) => j?.isActive).length}</div>
               <p className="text-[11px] text-muted-foreground mt-1">Hospital & Diagnostic Opportunities</p>
             </Card>
           </div>
@@ -475,7 +490,7 @@ export default function StudentDashboardPage() {
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                 Question Bank Papers
               </span>
-              <div className="text-2xl font-bold text-foreground">{questions.length}</div>
+              <div className="text-2xl font-bold text-foreground">{safeQuestions.length}</div>
               <p className="text-[11px] text-muted-foreground mt-1">Official faculty papers with solutions</p>
             </Card>
 
@@ -483,7 +498,7 @@ export default function StudentDashboardPage() {
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                 Practical SOP Guides
               </span>
-              <div className="text-2xl font-bold text-foreground">{practicals.length}</div>
+              <div className="text-2xl font-bold text-foreground">{safePracticals.length}</div>
               <p className="text-[11px] text-muted-foreground mt-1">Step-by-step diagnostic procedures</p>
             </Card>
 
@@ -499,7 +514,7 @@ export default function StudentDashboardPage() {
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                 Active Job Offers
               </span>
-              <div className="text-2xl font-bold text-foreground">{jobs.length}</div>
+              <div className="text-2xl font-bold text-foreground">{safeJobs.length}</div>
               <p className="text-[11px] text-muted-foreground mt-1">Shared with graduating trainees</p>
             </Card>
           </div>
@@ -582,7 +597,7 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-foreground">{questions.length}</div>
+                <div className="text-2xl font-bold text-foreground">{safeQuestions.length}</div>
                 <p className="text-[11px] text-muted-foreground">Solved board papers available</p>
               </div>
             </Card>
@@ -597,7 +612,7 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-foreground">{practicals.length}</div>
+                <div className="text-2xl font-bold text-foreground">{safePracticals.length}</div>
                 <p className="text-[11px] text-muted-foreground">Bench training modules</p>
               </div>
             </Card>
@@ -612,7 +627,7 @@ export default function StudentDashboardPage() {
                 </div>
                 <h2 className="text-sm sm:text-base font-bold tracking-tight text-foreground flex items-center gap-1.5 flex-wrap">
                   <span className="font-extrabold text-foreground">
-                    {activeSubjects.length} {activeSubjects.length === 1 ? "subject" : "subjects"}
+                    {safeSubjects.length} {safeSubjects.length === 1 ? "subject" : "subjects"}
                   </span>
                   <span className="text-muted-foreground font-normal">in your</span>
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 font-semibold text-xs sm:text-sm">
@@ -626,7 +641,7 @@ export default function StudentDashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {activeSubjects.map((subject) => (
+              {safeSubjects.map((subject) => (
                 <Card
                   key={subject.code}
                   className="rounded-2xl border-border/80 p-4 hover:border-primary/50 transition-all hover:shadow-xs flex flex-col justify-between space-y-3"
@@ -686,7 +701,7 @@ export default function StudentDashboardPage() {
           </Link>
         </CardHeader>
         <CardContent className="p-4 space-y-3">
-          {updates.slice(0, 3).map((notice) => (
+          {safeUpdates.slice(0, 3).map((notice) => (
             <div
               key={notice.id}
               className="p-3.5 rounded-xl border border-border/70 bg-card hover:border-primary/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"

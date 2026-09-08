@@ -33,18 +33,14 @@ const superAdminNavItems = [
   { href: "/super-admin/settings", label: "Platform Settings", icon: Sliders, exact: false },
 ];
 
+import { handleSignOut } from "@/lib/auth/logout";
+
 export function SuperAdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
 
   const handleLogout = async () => {
-    try {
-      const supabase = createClient();
-      await supabase.auth.signOut();
-    } catch {
-      // ignore
-    }
-    router.push("/login");
+    await handleSignOut();
   };
 
   return (

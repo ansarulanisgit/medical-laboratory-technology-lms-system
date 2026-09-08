@@ -56,9 +56,9 @@ export function NotificationBell() {
   } = useLMSAnnouncements();
   const { profile } = useAcademicProfile();
 
-  const currentRole = profile.role || "STUDENT";
+  const currentRole = profile?.role || "STUDENT";
   const isManagementRole = currentRole === "SUPER_ADMIN" || currentRole === "ADMIN";
-  const currentUsername = profile.username || "student.user";
+  const currentUsername = profile?.username || "student.user";
 
   const [isOpen, setIsOpen] = React.useState(false);
   const [selectedNotice, setSelectedNotice] = React.useState<LMSAnnouncement | null>(null);
@@ -102,7 +102,7 @@ export function NotificationBell() {
       priority: formPriority,
       targetAudience: formAudience,
       authorRole: currentRole as "SUPER_ADMIN" | "ADMIN",
-      authorName: profile.fullName || (currentRole === "SUPER_ADMIN" ? "Super Admin" : "Institute Admin"),
+      authorName: profile?.fullName || (currentRole === "SUPER_ADMIN" ? "Super Admin" : "Institute Admin"),
     });
 
     setFormTitle("");

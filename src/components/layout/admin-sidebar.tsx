@@ -34,18 +34,14 @@ const adminNavItems = [
   { href: "/admin/analytics", label: "Cohort Analytics", icon: BarChart3, exact: false },
 ];
 
+import { handleSignOut } from "@/lib/auth/logout";
+
 export function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
 
   const handleLogout = async () => {
-    try {
-      const supabase = createClient();
-      await supabase.auth.signOut();
-    } catch {
-      // ignore
-    }
-    router.push("/login");
+    await handleSignOut();
   };
 
   return (

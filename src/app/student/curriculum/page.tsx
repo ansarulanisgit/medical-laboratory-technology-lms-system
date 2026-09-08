@@ -95,25 +95,25 @@ export default function StudentCurriculumPage() {
     [studyMap]
   );
 
-  const currentRole = profile.role || "STUDENT";
+  const currentRole = profile?.role || "STUDENT";
   const isManagementRole = currentRole === "SUPER_ADMIN" || currentRole === "ADMIN" || currentRole === "MENTOR";
 
   // Selected Program: for management roles, allow switching between Diploma and B.Sc.
-  const [managementProgram, setManagementProgram] = React.useState<ProgramLevel>(profile.program || "DIPLOMA");
-  const activeProgram: ProgramLevel = isManagementRole ? managementProgram : profile.program;
+  const [managementProgram, setManagementProgram] = React.useState<ProgramLevel>(profile?.program || "DIPLOMA");
+  const activeProgram: ProgramLevel = isManagementRole ? managementProgram : (profile?.program || "DIPLOMA");
 
-  const [selectedYear, setSelectedYear] = React.useState(profile.academicYear || "1");
+  const [selectedYear, setSelectedYear] = React.useState(profile?.academicYear || "1");
 
   // Keep year in sync if student profile changes
   React.useEffect(() => {
     if (!isManagementRole) {
-      setSelectedYear(profile.academicYear || "1");
+      setSelectedYear(profile?.academicYear || "1");
     }
-  }, [profile.academicYear, isManagementRole]);
+  }, [profile?.academicYear, isManagementRole]);
 
   const activeProgramName = PROGRAM_FULL_NAMES[activeProgram];
 
-  const currentYearLabel = `Year ${profile.academicYear}`;
+  const currentYearLabel = `Year ${profile?.academicYear || "1"}`;
   const currentSessionLabel = "Syllabus Standard";
 
   // Subjects for the currently selected year tab from reactive coursesCatalog
@@ -257,7 +257,7 @@ export default function StudentCurriculumPage() {
             Select Syllabus Year:
           </span>
           {["1", "2", "3", "4"].map((yr) => {
-            const isStudentCurrent = !isManagementRole && yr === profile.academicYear;
+            const isStudentCurrent = !isManagementRole && yr === (profile?.academicYear || "1");
             const isSelected = yr === selectedYear;
 
             return (
@@ -295,7 +295,7 @@ export default function StudentCurriculumPage() {
               Showing {displayedSubjects.length} accredited courses mapped for this academic stage
             </p>
           </div>
-          {!isManagementRole && selectedYear === profile.academicYear && (
+          {!isManagementRole && selectedYear === (profile?.academicYear || "1") && (
             <Badge variant="filled" className="text-xs font-medium">
               <CheckCircle2 className="h-3 w-3 mr-1" />
               Active Syllabus

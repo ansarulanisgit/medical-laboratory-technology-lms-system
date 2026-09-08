@@ -8,10 +8,18 @@ import { useAcademicProfile } from "@/lib/curriculum/academic-context";
 
 export function StudentMobileHeader() {
   const { profile } = useAcademicProfile();
-  const currentRole = profile.role || "STUDENT";
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentRole = mounted ? (profile?.role || "STUDENT") : "STUDENT";
 
   const roleBadgeLabel =
-    currentRole === "SUPER_ADMIN"
+    !mounted
+      ? "Student Portal"
+      : currentRole === "SUPER_ADMIN"
       ? "Super Admin Portal"
       : currentRole === "ADMIN"
       ? "Admin Portal"

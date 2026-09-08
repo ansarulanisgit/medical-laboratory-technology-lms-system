@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="ltaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="ltaGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.05" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background Base with subtle depth -->
+  <rect width="512" height="512" rx="115" fill="url(#ltaGrad)" />
+
+  <!-- Inner Glass Accent Border -->
+  <rect x="12" y="12" width="488" height="488" rx="105" fill="none" stroke="url(#ltaGlow)" stroke-width="14" />
+
+  <!-- Stylized LTA Typography -->
+  <text
+    x="256"
+    y="278"
+    dominant-baseline="central"
+    text-anchor="middle"
+    font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Plus Jakarta Sans', Arial, sans-serif"
+    font-size="205"
+    font-weight="900"
+    letter-spacing="-8"
+    fill="#ffffff"
+  >LTA</text>
+
+  <!-- Medical Emerald Accent Pip -->
+  <circle cx="410" cy="115" r="28" fill="#34d399" stroke="#ffffff" stroke-width="8" />
+</svg>

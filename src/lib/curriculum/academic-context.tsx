@@ -383,7 +383,7 @@ export const CURRICULUM_SUBJECTS_CATALOG: SubjectModule[] = [
   },
 ];
 
-const DEFAULT_PROFILE: AcademicProfileState = {
+export const DEFAULT_PROFILE: AcademicProfileState = {
   fullName: "Md. Ansarul Islam",
   username: "ansarul.islam",
   password: "Student@Pass2024",
@@ -464,6 +464,7 @@ export function StudentAcademicProvider({ children }: { children: React.ReactNod
             : parsed.role || "STUDENT");
 
         setProfile({
+          ...DEFAULT_PROFILE,
           ...parsed,
           role: parsed.role || "STUDENT",
           baseRole: effectiveBaseRole,
@@ -720,17 +721,26 @@ export function StudentAcademicProvider({ children }: { children: React.ReactNod
 
   // Compute active subjects for the student's selected program & academic stage from reactive coursesCatalog
   const activeSubjects = React.useMemo(() => {
-    return coursesCatalog.filter((sub) => {
-      return sub.program === profile.program && sub.year === profile.academicYear;
+    const prog = profile?.program || "DIPLOMA";
+    const yr = profile?.academicYear || "1";
+    return (coursesCatalog || []).filter((sub) => {
+      return sub.program === prog && sub.year === yr;
     });
-  }, [coursesCatalog, profile.program, profile.academicYear]);
+  }, [coursesCatalog, profile?.program, profile?.academicYear]);
+
+  const safeProfile: AcademicProfileState = React.useMemo(() => {
+    return {
+      ...DEFAULT_PROFILE,
+      ...(profile || {}),
+    };
+  }, [profile]);
 
   return (
     <AcademicContext.Provider
       value={{
-        profile,
-        coursesCatalog,
-        activeSubjects,
+        profile: safeProfile,
+        coursesCatalog: coursesCatalog || CURRICULUM_SUBJECTS_CATALOG,
+        activeSubjects: activeSubjects || [],
         updateUserRole,
         updateAcademicStatus,
         updatePersonalInfo,
@@ -750,21 +760,31 @@ export function useAcademicProfile() {
   if (!context) {
     throw new Error("useAcademicProfile must be used within a StudentAcademicProvider");
   }
-  return context;
+  const safeProfile: AcademicProfileState = {
+    ...DEFAULT_PROFILE,
+    ...(context.profile || {}),
+  };
+  return {
+    ...context,
+    profile: safeProfile,
+    activeSubjects: context.activeSubjects || [],
+    coursesCatalog: context.coursesCatalog || CURRICULUM_SUBJECTS_CATALOG,
+  };
 }
 
 export function useAcademic() {
   const context = useAcademicProfile();
+  const profile = context.profile || DEFAULT_PROFILE;
   return {
     ...context,
-    role: context.profile.role || "STUDENT",
+    role: profile.role || "STUDENT",
     userProfile: {
-      name: context.profile.fullName || "User",
-      email: context.profile.email || "",
-      institution: context.profile.institution || "",
-      program: context.profile.program,
-      academicYear: context.profile.academicYear,
-      idNumber: context.profile.studentIdNumber || "",
+      name: profile.fullName || "User",
+      email: profile.email || "",
+      institution: profile.institution || "",
+      program: profile.program || "DIPLOMA",
+      academicYear: profile.academicYear || "1",
+      idNumber: profile.studentIdNumber || "",
     },
   };
 }

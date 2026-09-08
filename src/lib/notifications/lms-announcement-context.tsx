@@ -32,7 +32,7 @@ const SEED_ANNOUNCEMENTS: LMSAnnouncement[] = [
     targetAudience: "ALL",
     authorRole: "SUPER_ADMIN",
     authorName: "DGHS Academic Controller",
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+    createdAt: "2026-09-08T18:00:00.000Z",
     readBy: [],
   },
   {
@@ -44,7 +44,7 @@ const SEED_ANNOUNCEMENTS: LMSAnnouncement[] = [
     targetAudience: "ALL",
     authorRole: "ADMIN",
     authorName: "Clinical Laboratory Faculty",
-    createdAt: new Date(Date.now() - 14 * 60 * 60 * 1000).toISOString(), // 14 hours ago
+    createdAt: "2026-09-08T10:00:00.000Z",
     readBy: [],
   },
   {
@@ -56,7 +56,7 @@ const SEED_ANNOUNCEMENTS: LMSAnnouncement[] = [
     targetAudience: "ALL",
     authorRole: "SUPER_ADMIN",
     authorName: "Ansarul Anis (Lead Developer)",
-    createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(), // 2 days ago
+    createdAt: "2026-09-06T12:00:00.000Z",
     readBy: [],
   },
 ];
@@ -78,7 +78,7 @@ export function LMSAnnouncementProvider({ children }: { children: React.ReactNod
   const [announcements, setAnnouncements] = React.useState<LMSAnnouncement[]>([]);
   const [isLoaded, setIsLoaded] = React.useState(false);
 
-  const currentUsername = profile.username || "student.user";
+  const currentUsername = profile?.username || "student.user";
 
   // Load from localStorage or initialize with seed data
   React.useEffect(() => {
@@ -128,13 +128,14 @@ export function LMSAnnouncementProvider({ children }: { children: React.ReactNod
 
   // Filter announcements for current student program
   const visibleAnnouncements = React.useMemo(() => {
+    const program = profile?.program || "DIPLOMA";
     return announcements.filter((a) => {
       if (a.targetAudience === "ALL") return true;
-      if (a.targetAudience === "DIPLOMA" && profile.program === "DIPLOMA") return true;
-      if (a.targetAudience === "BSC" && profile.program === "BSC") return true;
+      if (a.targetAudience === "DIPLOMA" && program === "DIPLOMA") return true;
+      if (a.targetAudience === "BSC" && program === "BSC") return true;
       return false;
     });
-  }, [announcements, profile.program]);
+  }, [announcements, profile?.program]);
 
   // Compute unread count for current user
   const unreadCount = React.useMemo(() => {

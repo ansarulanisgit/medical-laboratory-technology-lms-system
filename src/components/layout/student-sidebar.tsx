@@ -29,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { useAcademicProfile } from "@/lib/curriculum/academic-context";
+import { handleSignOut } from "@/lib/auth/logout";
 import { useSidebar } from "@/lib/context/sidebar-context";
 import { UserRole } from "@/types/roles";
 
@@ -49,16 +50,16 @@ export function StudentSidebar() {
     setTooltip(null);
   }, [isCollapsed, pathname]);
 
-  const currentRole: UserRole = profile.role || "STUDENT";
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentRole: UserRole = mounted ? (profile?.role || "STUDENT") : "STUDENT";
 
   const handleLogout = async () => {
-    try {
-      const supabase = createClient();
-      await supabase.auth.signOut();
-    } catch {
-      // ignore
-    }
-    router.push("/login");
+    await handleSignOut();
   };
 
   // Role-adaptive navigation items across all 4 user roles
@@ -208,13 +209,13 @@ export function StudentSidebar() {
       </div>
 
       {/* Footer Controls with Collapsible Toggle Button */}
-      <div className={cn("p-3 border-t border-border", isCollapsed ? "px-0" : "")}>
+      <div className={cn("p-3 border-t border-border", isCollapsed ? "px-2 py-3 space-y-2 flex flex-col items-center" : "")}>
         {!isCollapsed ? (
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               onClick={handleLogout}
-              className="flex-1 justify-start text-xs min-h-[40px] text-muted-foreground hover:text-destructive rounded-xl font-normal overflow-hidden"
+              className="flex-1 justify-start text-xs min-h-[40px] text-muted-foreground hover:text-destructive hover:border-destructive/30 rounded-xl font-normal overflow-hidden cursor-pointer"
             >
               <LogOut className="h-4 w-4 mr-2 shrink-0" />
               <span className="truncate">Sign Out</span>
@@ -225,34 +226,50 @@ export function StudentSidebar() {
               onClick={toggleSidebar}
               title="Collapse sidebar"
               aria-label="Collapse sidebar"
-              className="h-[40px] w-[40px] rounded-xl text-muted-foreground hover:text-foreground shrink-0 border-border/80 hover:bg-muted/60"
+              className="h-[40px] w-[40px] rounded-xl text-muted-foreground hover:text-foreground shrink-0 border-border/80 hover:bg-muted/60 cursor-pointer"
             >
               <ChevronsLeft className="h-4 w-4" />
             </Button>
           </div>
         ) : (
-          <div className="flex items-center justify-center w-full">
+          <>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleLogout}
+              title="Sign Out"
+              aria-label="Sign Out"
+              onMouseEnter={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                setTooltip({
+                  label: "Sign Out",
+                  top: rect.top + rect.height / 2,
+                });
+              }}
+              onMouseLeave={() => setTooltip(null)}
+              className="h-10 w-10 rounded-xl text-muted-foreground hover:text-destructive hover:border-destructive/30 border-border/80 hover:bg-muted/60 shrink-0 cursor-pointer"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
             <Button
               variant="outline"
               size="icon"
               onClick={toggleSidebar}
               onMouseEnter={(e) => {
-                if (isCollapsed) {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  setTooltip({
-                    label: "Expand Sidebar",
-                    top: rect.top + rect.height / 2,
-                  });
-                }
+                const rect = e.currentTarget.getBoundingClientRect();
+                setTooltip({
+                  label: "Expand Sidebar",
+                  top: rect.top + rect.height / 2,
+                });
               }}
               onMouseLeave={() => setTooltip(null)}
-              title={!isCollapsed ? "Expand sidebar" : undefined}
+              title="Expand sidebar"
               aria-label="Expand sidebar"
-              className="h-10 w-10 mx-auto rounded-xl text-muted-foreground hover:text-foreground border-border/80 hover:bg-muted/60 shrink-0"
+              className="h-10 w-10 mx-auto rounded-xl text-muted-foreground hover:text-foreground border-border/80 hover:bg-muted/60 shrink-0 cursor-pointer"
             >
               <ChevronsRight className="h-4 w-4" />
             </Button>
-          </div>
+          </>
         )}
       </div>
 

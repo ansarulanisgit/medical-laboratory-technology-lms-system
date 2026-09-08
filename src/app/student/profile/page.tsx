@@ -23,9 +23,11 @@ import {
   Layers,
   Phone,
   Mail,
+  LogOut,
 } from "lucide-react";
 import { useAcademicProfile, ProgramLevel } from "@/lib/curriculum/academic-context";
 import { useNotification } from "@/components/ui/notification-context";
+import { handleSignOut } from "@/lib/auth/logout";
 
 const PREDEFINED_INSTITUTIONS = [
   "Dhaka Institute of Health Technology (DIHT)",
@@ -43,26 +45,26 @@ export default function StudentProfilePage() {
 
   // Form Fields per User Request:
   // Full name, Username, Email (it's can't change), phone, Institution (add an option> others, if chose give a input box. Course (Diploma/Bsc), Year, roll. remove session.
-  const [fullName, setFullName] = React.useState(profile.fullName || "Md. Ansarul Islam");
-  const [username, setUsername] = React.useState(profile.username || "ansarul.islam");
-  const [password, setPassword] = React.useState(profile.password || "Student@Pass2024");
+  const [fullName, setFullName] = React.useState(profile?.fullName || "Md. Ansarul Islam");
+  const [username, setUsername] = React.useState(profile?.username || "ansarul.islam");
+  const [password, setPassword] = React.useState(profile?.password || "Student@Pass2024");
   const [showPassword, setShowPassword] = React.useState(false);
-  const email = profile.email || "ansarul.support@gmail.com"; // Cannot change
-  const [phone, setPhone] = React.useState(profile.phone || "+8801709260934");
+  const email = profile?.email || "ansarul.support@gmail.com"; // Cannot change
+  const [phone, setPhone] = React.useState(profile?.phone || "+8801709260934");
 
   // Institution State
-  const initialIsPredefined = PREDEFINED_INSTITUTIONS.includes(profile.institution || "");
+  const initialIsPredefined = PREDEFINED_INSTITUTIONS.includes(profile?.institution || "");
   const [institutionSelect, setInstitutionSelect] = React.useState(
-    initialIsPredefined ? (profile.institution || PREDEFINED_INSTITUTIONS[0]) : "Others"
+    initialIsPredefined ? (profile?.institution || PREDEFINED_INSTITUTIONS[0]) : "Others"
   );
   const [customInstitution, setCustomInstitution] = React.useState(
-    initialIsPredefined ? "" : (profile.institution || "")
+    initialIsPredefined ? "" : (profile?.institution || "")
   );
 
   // Course, Year, Roll
-  const [program, setProgram] = React.useState<ProgramLevel>(profile.program || "DIPLOMA");
-  const [academicYear, setAcademicYear] = React.useState(profile.academicYear || "1");
-  const [studentIdNumber, setStudentIdNumber] = React.useState(profile.studentIdNumber || "LT-2024-0482");
+  const [program, setProgram] = React.useState<ProgramLevel>(profile?.program || "DIPLOMA");
+  const [academicYear, setAcademicYear] = React.useState(profile?.academicYear || "1");
+  const [studentIdNumber, setStudentIdNumber] = React.useState(profile?.studentIdNumber || "LT-2024-0482");
 
   const [isSaving, setIsSaving] = React.useState(false);
   const [successMsg, setSuccessMsg] = React.useState<string | null>(null);
@@ -70,33 +72,32 @@ export default function StudentProfilePage() {
 
   // Sync state if context profile updates
   React.useEffect(() => {
-    if (profile.fullName) setFullName(profile.fullName);
-    if (profile.username) setUsername(profile.username);
-    if (profile.password) setPassword(profile.password);
-    if (profile.phone) setPhone(profile.phone);
+    if (profile?.fullName) setFullName(profile.fullName);
+    if (profile?.username) setUsername(profile.username);
+    if (profile?.password) setPassword(profile.password);
+    if (profile?.phone) setPhone(profile.phone);
 
-    const isPredefined = PREDEFINED_INSTITUTIONS.includes(profile.institution || "");
+    const isPredefined = PREDEFINED_INSTITUTIONS.includes(profile?.institution || "");
     if (isPredefined) {
-      setInstitutionSelect(profile.institution || PREDEFINED_INSTITUTIONS[0]);
+      setInstitutionSelect(profile?.institution || PREDEFINED_INSTITUTIONS[0]);
       setCustomInstitution("");
-    } else if (profile.institution) {
+    } else if (profile?.institution) {
       setInstitutionSelect("Others");
       setCustomInstitution(profile.institution);
     }
 
-    setProgram(profile.program);
-    setAcademicYear(profile.academicYear);
-    if (profile.studentIdNumber) setStudentIdNumber(profile.studentIdNumber);
+    if (profile?.program) setProgram(profile.program);
+    if (profile?.academicYear) setAcademicYear(profile.academicYear);
+    if (profile?.studentIdNumber) setStudentIdNumber(profile.studentIdNumber);
   }, [
-    profile.fullName,
-    profile.username,
-    profile.password,
-    profile.phone,
-    profile.institution,
-    profile.program,
-    profile.academicYear,
-
-    profile.studentIdNumber,
+    profile?.fullName,
+    profile?.username,
+    profile?.password,
+    profile?.phone,
+    profile?.institution,
+    profile?.program,
+    profile?.academicYear,
+    profile?.studentIdNumber,
   ]);
 
   const handleProgramChange = (newProg: ProgramLevel) => {
@@ -145,8 +146,8 @@ export default function StudentProfilePage() {
 
       // 2. If program/year changed, record academic transition
       if (
-        program !== profile.program ||
-        academicYear !== profile.academicYear
+        program !== profile?.program ||
+        academicYear !== profile?.academicYear
       ) {
         updateAcademicStatus(
           program,
@@ -183,13 +184,24 @@ export default function StudentProfilePage() {
 
   return (
     <div className="space-y-6 w-full">
-      <div>
-        <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
-          My Profile & Academic Status
-        </h1>
-        <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 font-normal">
-          Manage your account credentials, institutional affiliation, theme appearance, and academic stage.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
+            My Profile & Academic Status
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 font-normal">
+            Manage your account credentials, institutional affiliation, theme appearance, and academic stage.
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => handleSignOut()}
+          className="text-xs text-destructive hover:bg-destructive/10 hover:border-destructive/40 border-border/80 rounded-xl h-9 px-3.5 self-start sm:self-auto cursor-pointer"
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          Sign Out
+        </Button>
       </div>
 
       {successMsg && (

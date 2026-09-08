@@ -51,7 +51,7 @@ function CurriculumManageContent() {
   } = useAcademicProfile();
   const { showNotification } = useNotification();
 
-  const currentRole = profile.role || "STUDENT";
+  const currentRole = profile?.role || "STUDENT";
   const isManagementRole = currentRole === "SUPER_ADMIN" || currentRole === "ADMIN" || currentRole === "MENTOR";
 
   const isEditing = Boolean(editCode);

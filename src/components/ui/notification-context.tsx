@@ -54,41 +54,29 @@ const NotificationContext = React.createContext<NotificationContextType | undefi
 
 const TYPE_CONFIG = {
   success: {
-    badge: "Saved",
     Icon: CheckCircle2,
-    iconBg: "bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400",
-    barBg: "bg-emerald-500",
-    borderColor: "border-emerald-500/30 dark:border-emerald-500/20",
-    glow: "shadow-[0_10px_35px_-4px_rgba(16,185,129,0.18)] dark:shadow-[0_10px_35px_-4px_rgba(16,185,129,0.10)]",
+    iconColor: "text-emerald-600 dark:text-emerald-400",
+    borderColor: "border-emerald-500/20",
   },
   error: {
-    badge: "Error",
     Icon: AlertCircle,
-    iconBg: "bg-rose-500/15 border-rose-500/30 text-rose-600 dark:text-rose-400",
-    barBg: "bg-rose-500",
-    borderColor: "border-rose-500/30 dark:border-rose-500/20",
-    glow: "shadow-[0_10px_35px_-4px_rgba(244,63,94,0.18)] dark:shadow-[0_10px_35px_-4px_rgba(244,63,94,0.10)]",
+    iconColor: "text-rose-600 dark:text-rose-400",
+    borderColor: "border-rose-500/20",
   },
   warning: {
-    badge: "Notice",
     Icon: AlertTriangle,
-    iconBg: "bg-amber-500/15 border-amber-500/30 text-amber-600 dark:text-amber-400",
-    barBg: "bg-amber-500",
-    borderColor: "border-amber-500/30 dark:border-amber-500/20",
-    glow: "shadow-[0_10px_35px_-4px_rgba(245,158,11,0.18)] dark:shadow-[0_10px_35px_-4px_rgba(245,158,11,0.10)]",
+    iconColor: "text-amber-600 dark:text-amber-400",
+    borderColor: "border-amber-500/20",
   },
   info: {
-    badge: "Update",
     Icon: Sparkles,
-    iconBg: "bg-primary/15 border-primary/30 text-primary",
-    barBg: "bg-primary",
-    borderColor: "border-primary/30 dark:border-primary/20",
-    glow: "shadow-[0_10px_35px_-4px_rgba(16,185,129,0.18)]",
+    iconColor: "text-primary",
+    borderColor: "border-primary/20",
   },
 };
 
 /**
- * Interactive Single Toast Card
+ * Clean & Compact Single Toast
  */
 function ToastCard({
   item,
@@ -97,176 +85,74 @@ function ToastCard({
   item: NotificationItem;
   onDismiss: (id: string) => void;
 }) {
-  const duration = item.duration ?? 4500;
-  const [progress, setProgress] = React.useState(100);
-  const [isHovered, setIsHovered] = React.useState(false);
-  const [copied, setCopied] = React.useState(false);
-
-  const remainingTimeRef = React.useRef(duration);
-  const lastTickRef = React.useRef(Date.now());
+  const duration = item.duration ?? 2800;
 
   React.useEffect(() => {
     if (duration <= 0) return;
-
-    lastTickRef.current = Date.now();
-    const interval = setInterval(() => {
-      if (isHovered) {
-        lastTickRef.current = Date.now();
-        return;
-      }
-
-      const now = Date.now();
-      const delta = now - lastTickRef.current;
-      lastTickRef.current = now;
-
-      remainingTimeRef.current = Math.max(0, remainingTimeRef.current - delta);
-      const pct = (remainingTimeRef.current / duration) * 100;
-      setProgress(pct);
-
-      if (remainingTimeRef.current <= 0) {
-        clearInterval(interval);
-        onDismiss(item.id);
-      }
-    }, 50);
-
-    return () => clearInterval(interval);
-  }, [duration, isHovered, item.id, onDismiss]);
-
-  const handleCopy = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const text = item.message ? `${item.title}: ${item.message}` : item.title;
-    try {
-      navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // ignore
-    }
-  };
+    const timer = setTimeout(() => {
+      onDismiss(item.id);
+    }, duration);
+    return () => clearTimeout(timer);
+  }, [duration, item.id, onDismiss]);
 
   const cfg = TYPE_CONFIG[item.type] || TYPE_CONFIG.info;
   const Icon = cfg.Icon;
 
   return (
     <div
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       className={cn(
-        "pointer-events-auto relative overflow-hidden rounded-2xl border p-3.5 sm:p-4 transition-all duration-300",
-        "bg-card/95 dark:bg-card/90 backdrop-blur-xl",
-        "shadow-lg ring-1 ring-black/5 dark:ring-white/5",
+        "pointer-events-auto flex items-center gap-2.5 rounded-xl border px-3.5 py-2 shadow-md transition-all",
+        "bg-card/95 dark:bg-card/90 backdrop-blur-md",
+        "border-border/80 ring-1 ring-black/5 dark:ring-white/5",
         cfg.borderColor,
-        cfg.glow,
-        "animate-in fade-in slide-in-from-top-3 ease-out"
+        "animate-in fade-in slide-in-from-top-2 duration-150 ease-out"
       )}
     >
-      <div className="flex items-start gap-3">
-        {/* Glowing Badge Icon */}
-        <div
-          className={cn(
-            "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-2xs transition-transform",
-            cfg.iconBg,
-            isHovered && "scale-105"
-          )}
-        >
-          <Icon className="h-4.5 w-4.5" />
-        </div>
+      <Icon className={cn("h-4 w-4 shrink-0", cfg.iconColor)} />
 
-        {/* Text Details & Interactive Action */}
-        <div className="flex-1 min-w-0 space-y-1">
-          <div className="flex items-center gap-2">
-            <span
-              className={cn(
-                "text-[9.5px] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded-md border leading-none shrink-0",
-                cfg.iconBg
-              )}
-            >
-              {cfg.badge}
-            </span>
-            <h5 className="text-xs font-semibold text-foreground tracking-tight truncate">
-              {item.title}
-            </h5>
-          </div>
-
-          {item.message && (
-            <p className="text-[11.5px] text-muted-foreground font-normal leading-relaxed">
-              {item.message}
-            </p>
-          )}
-
-          {/* Interactive Action CTA Button */}
-          {item.action && (
-            <div className="pt-2 flex items-center gap-2">
-              {item.action.href ? (
-                <Link
-                  href={item.action.href}
-                  onClick={() => onDismiss(item.id)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-2xs active:scale-95"
-                >
-                  <span>{item.action.label}</span>
-                  <ChevronRight className="h-3 w-3" />
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => {
-                    item.action?.onClick?.();
-                    onDismiss(item.id);
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-2xs cursor-pointer active:scale-95"
-                >
-                  <span>{item.action.label}</span>
-                  <ChevronRight className="h-3 w-3" />
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Right Tools: Copy & Close */}
-        <div className="flex items-center space-x-1 shrink-0 -mt-0.5 -mr-1">
-          {item.message && (
-            <button
-              type="button"
-              onClick={handleCopy}
-              title={copied ? "Copied!" : "Copy details"}
-              className="rounded-lg p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer"
-            >
-              {copied ? (
-                <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-              ) : (
-                <Copy className="h-3.5 w-3.5" />
-              )}
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={() => onDismiss(item.id)}
-            className="rounded-lg p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer"
-            aria-label="Dismiss notification"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        </div>
+      <div className="flex-1 min-w-0 flex items-center gap-1.5 text-xs">
+        <span className="font-semibold text-foreground truncate">{item.title}</span>
+        {item.message && item.message !== item.title && (
+          <>
+            <span className="text-muted-foreground/40 shrink-0">•</span>
+            <span className="text-muted-foreground truncate font-normal">{item.message}</span>
+          </>
+        )}
       </div>
 
-      {/* Hover Pause Badge */}
-      {isHovered && duration > 0 && (
-        <div className="absolute top-2 right-14 text-[9px] font-medium text-muted-foreground bg-muted/90 px-1.5 py-0.5 rounded-md pointer-events-none animate-in fade-in">
-          Paused
+      {item.action && (
+        <div className="shrink-0 ml-1">
+          {item.action.href ? (
+            <Link
+              href={item.action.href}
+              onClick={() => onDismiss(item.id)}
+              className="text-xs font-semibold text-primary hover:underline"
+            >
+              {item.action.label}
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                item.action?.onClick?.();
+                onDismiss(item.id);
+              }}
+              className="text-xs font-semibold text-primary hover:underline cursor-pointer"
+            >
+              {item.action.label}
+            </button>
+          )}
         </div>
       )}
 
-      {/* Progress Bar */}
-      {duration > 0 && (
-        <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-muted/40 overflow-hidden">
-          <div
-            className={cn("h-full transition-all duration-75 ease-linear", cfg.barBg)}
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      )}
+      <button
+        type="button"
+        onClick={() => onDismiss(item.id)}
+        className="rounded-md p-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer shrink-0 -mr-1"
+        aria-label="Dismiss notification"
+      >
+        <X className="h-3.5 w-3.5" />
+      </button>
     </div>
   );
 }

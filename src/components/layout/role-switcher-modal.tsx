@@ -56,6 +56,11 @@ const ROLE_OPTIONS: RoleOption[] = [
 export function RoleSwitcherModal() {
   const { profile, updateUserRole } = useAcademicProfile();
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Derive the account's permanent base role
   const baseRole: UserRole =
@@ -102,8 +107,8 @@ export function RoleSwitcherModal() {
     };
   }, [isOpen]);
 
-  // Students or users without elevated permissions won't see the switcher
-  if (baseRole === "STUDENT" || availableOptions.length <= 1) {
+  // Students or users without elevated permissions won't see the switcher, and avoid SSR mismatch before mount
+  if (!isMounted || baseRole === "STUDENT" || availableOptions.length <= 1) {
     return null;
   }
 

@@ -30,7 +30,13 @@ interface NavTab {
 export function StudentBottomNav() {
   const pathname = usePathname();
   const { profile } = useAcademicProfile();
-  const currentRole = profile.role || "STUDENT";
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentRole = mounted ? (profile?.role || "STUDENT") : "STUDENT";
   const isManagement = currentRole === "SUPER_ADMIN" || currentRole === "ADMIN";
 
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);

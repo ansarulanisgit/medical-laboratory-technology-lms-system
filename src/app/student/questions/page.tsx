@@ -53,7 +53,7 @@ export default function QuestionBankPage() {
   const { showNotification } = useNotification();
   const { logActivity } = useActivityLog();
 
-  const currentRole = profile.role || "STUDENT";
+  const currentRole = profile?.role || "STUDENT";
   const canManageQuestions = currentRole === "SUPER_ADMIN" || currentRole === "ADMIN" || currentRole === "MENTOR";
 
   // Filter States: Program, Syllabus Year, Exam Year, Subject
@@ -71,7 +71,7 @@ export default function QuestionBankPage() {
 
   // Form States
   const [formTitle, setFormTitle] = React.useState("");
-  const [formProgram, setFormProgram] = React.useState<ProgramLevel>(profile.program || "DIPLOMA");
+  const [formProgram, setFormProgram] = React.useState<ProgramLevel>(profile?.program || "DIPLOMA");
   const [formYear, setFormYear] = React.useState("1");
   const [formSubjectCode, setFormSubjectCode] = React.useState("ENG-101");
   const [formSubjectName, setFormSubjectName] = React.useState("Basic English Language Course");
@@ -208,8 +208,8 @@ export default function QuestionBankPage() {
   const openAddModal = () => {
     setEditingItem(null);
     setFormTitle("");
-    const defaultProg = selectedProgram === "ALL" ? (profile.program || "DIPLOMA") : selectedProgram;
-    const defaultYr = selectedYear === "ALL" ? (profile.academicYear || "1") : selectedYear;
+    const defaultProg = selectedProgram === "ALL" ? (profile?.program || "DIPLOMA") : selectedProgram;
+    const defaultYr = selectedYear === "ALL" ? (profile?.academicYear || "1") : selectedYear;
     setFormProgram(defaultProg);
     setFormYear(defaultYr);
     const defaultSub = availableSubjects[0] || { code: "ENG-101", name: "Basic English Language Course" };
@@ -281,8 +281,8 @@ export default function QuestionBankPage() {
       });
 
       logActivity({
-        userId: profile.studentIdNumber || "usr-current",
-        userName: profile.fullName || "Faculty Staff",
+        userId: profile?.studentIdNumber || "usr-current",
+        userName: profile?.fullName || "Faculty Staff",
         userRole: currentRole,
         action: "Question Paper Updated",
         category: "QUESTIONS",
@@ -311,13 +311,13 @@ export default function QuestionBankPage() {
         totalMarks: Number(formTotalMarks) || 75,
         hasSolution: formHasSolution,
         solutionSummary: formSolutionSummary,
-        uploadedBy: profile.fullName || "Faculty Staff",
+        uploadedBy: profile?.fullName || "Faculty Staff",
         uploadedRole: currentRole,
       });
 
       logActivity({
-        userId: profile.studentIdNumber || "usr-current",
-        userName: profile.fullName || "Faculty Staff",
+        userId: profile?.studentIdNumber || "usr-current",
+        userName: profile?.fullName || "Faculty Staff",
         userRole: currentRole,
         action: "Question Paper Uploaded",
         category: "QUESTIONS",
@@ -951,7 +951,7 @@ export default function QuestionBankPage() {
                             totalMarks: formTotalMarks,
                             hasSolution: formHasSolution,
                             solutionSummary: formSolutionSummary,
-                            uploadedBy: profile.fullName || "Faculty Staff",
+                            uploadedBy: profile?.fullName || "Faculty Staff",
                             uploadedRole: currentRole,
                             createdAt: "Today",
                             downloadCount: 0,

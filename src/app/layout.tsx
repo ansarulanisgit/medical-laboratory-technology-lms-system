@@ -19,8 +19,14 @@ export const metadata: Metadata = {
     "Specialized digital education and competency platform for Diploma in Medical Laboratory Technology & B.Sc. in Health Technology (Laboratory) students in Bangladesh.",
   manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.ico",
-    apple: "/icon-192.png",
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.png", sizes: "48x48", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
   },
 };
 
@@ -42,7 +48,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${plusJakartaSans.variable} ${plusJakartaSans.className}`} suppressHydrationWarning>
-      <body className={`${plusJakartaSans.className} ${plusJakartaSans.variable} font-sans min-h-screen bg-background antialiased`}>
+      <body className={`${plusJakartaSans.className} ${plusJakartaSans.variable} font-sans min-h-screen bg-background antialiased`} suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

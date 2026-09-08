@@ -209,7 +209,7 @@ function StudyCenterContent() {
   } = useAcademicProfile();
   const { showNotification } = useNotification();
 
-  const currentRole = profile.role || "STUDENT";
+  const currentRole = profile?.role || "STUDENT";
   const isManagementRole =
     currentRole === "SUPER_ADMIN" || currentRole === "ADMIN" || currentRole === "MENTOR";
 
@@ -231,7 +231,7 @@ function StudyCenterContent() {
   );
 
   // Archive Filters
-  const [archiveProgram, setArchiveProgram] = React.useState<ProgramLevel>(profile.program || "DIPLOMA");
+  const [archiveProgram, setArchiveProgram] = React.useState<ProgramLevel>(profile?.program || "DIPLOMA");
   const [archiveYear, setArchiveYear] = React.useState<string>("ALL");
   const [archiveSearch, setArchiveSearch] = React.useState<string>("");
 
@@ -252,15 +252,16 @@ function StudyCenterContent() {
       const match = coursesCatalog.find((c) => c.code === initialSubjectParam);
       if (match) return match.year;
     }
-    return profile.academicYear || "1";
+    return profile?.academicYear || "1";
   });
 
   // Subjects for the currently selected year from reactive coursesCatalog
   const displayedYearSubjects = React.useMemo(() => {
-    return coursesCatalog.filter(
-      (s) => s.program === profile.program && s.year === selectedYear
+    const prog = profile?.program || "DIPLOMA";
+    return (coursesCatalog || []).filter(
+      (s) => s.program === prog && s.year === selectedYear
     );
-  }, [coursesCatalog, profile.program, selectedYear]);
+  }, [coursesCatalog, profile?.program, selectedYear]);
 
   // Active subject code for student reader view
   const [selectedSubjectCode, setSelectedSubjectCode] = React.useState(() => {
@@ -299,9 +300,9 @@ function StudyCenterContent() {
       }
     }
     if (!isManagementRole && !initialSubjectParam) {
-      setSelectedYear(profile.academicYear || "1");
+      setSelectedYear(profile?.academicYear || "1");
     }
-  }, [initialSubjectParam, coursesCatalog, profile.academicYear, isManagementRole]);
+  }, [initialSubjectParam, coursesCatalog, profile?.academicYear, isManagementRole]);
 
   // Course Selector Dropdown open/close state
   const [isCourseDropdownOpen, setIsCourseDropdownOpen] = React.useState(false);
@@ -437,7 +438,7 @@ function StudyCenterContent() {
   const [isAddSubjectOpen, setIsAddSubjectOpen] = React.useState(false);
   const [subSubjectCode, setSubSubjectCode] = React.useState("");
   const [subSubjectName, setSubSubjectName] = React.useState("");
-  const [subSubjectProgram, setSubSubjectProgram] = React.useState<ProgramLevel>(profile.program);
+  const [subSubjectProgram, setSubSubjectProgram] = React.useState<ProgramLevel>(profile?.program || "DIPLOMA");
   const [subSubjectYear, setSubSubjectYear] = React.useState(selectedYear);
   const [subSubjectDesc, setSubSubjectDesc] = React.useState("");
 
@@ -512,10 +513,7 @@ function StudyCenterContent() {
     const isNowDone = !completedLessons[lessonId];
     showNotification({
       type: "success",
-      title: isNowDone ? "Lesson Completed" : "Marked Incomplete",
-      message: isNowDone
-        ? "Great progress! Your syllabus completion has been updated."
-        : "Lesson marked as in-progress.",
+      title: isNowDone ? "Lesson completed" : "Marked incomplete",
     });
   };
 
@@ -530,7 +528,7 @@ function StudyCenterContent() {
       coursesCatalog.find((s) => s.code === selectedSubjectCode) || {
         code: selectedSubjectCode,
         name: "Medical Laboratory Course",
-        program: profile.program,
+        program: profile?.program || "DIPLOMA",
         year: selectedYear,
         units: currentModules.length || 4,
         lessons:
@@ -542,7 +540,7 @@ function StudyCenterContent() {
         description: "Official diagnostic pathology and laboratory clinical syllabus module.",
       }
     );
-  }, [selectedSubjectCode, coursesCatalog, profile.program, selectedYear, currentModules]);
+  }, [selectedSubjectCode, coursesCatalog, profile?.program, selectedYear, currentModules]);
 
   // Active lesson object
   const activeLesson: LessonContent | null = React.useMemo(() => {
@@ -2279,7 +2277,7 @@ function StudyCenterContent() {
                     Study Center
                   </h1>
                   <Badge variant="blue" className="text-[10px] hidden sm:inline-flex py-0 font-medium">
-                    {profile.program === "BSC" ? "B.Sc. Laboratory" : "Diploma DMLT"}
+                    {profile?.program === "BSC" ? "B.Sc. Laboratory" : "Diploma DMLT"}
                   </Badge>
                 </div>
               </div>
@@ -2290,7 +2288,7 @@ function StudyCenterContent() {
             {!isManagementRole ? (
               <Badge variant="filled" className="text-xs py-1 px-3 bg-primary/10 text-primary border border-primary/20">
                 <Clock className="h-3 w-3 mr-1" />
-                Year {profile.academicYear || "1"} (Enrolled)
+                Year {profile?.academicYear || "1"} (Enrolled)
               </Badge>
             ) : (
               <div className="flex items-center space-x-1 bg-muted/40 p-1 rounded-xl border border-border/80">
@@ -2312,37 +2310,41 @@ function StudyCenterContent() {
               </div>
             )}
 
-            <div className="relative" ref={dropdownRef}>
-              <button
-                type="button"
-                onClick={() => setIsCourseDropdownOpen(!isCourseDropdownOpen)}
-                className="px-3.5 py-1.5 rounded-xl border border-border/80 bg-background hover:bg-muted/40 text-foreground text-xs shadow-2xs transition-all flex items-center justify-between gap-2.5 min-h-[38px] max-w-[280px] sm:max-w-xs cursor-pointer"
-              >
-                <Microscope className="h-3.5 w-3.5 text-primary shrink-0" />
-                <span className="font-mono font-semibold text-primary text-xs shrink-0">{activeSubject.code}:</span>
-                <span className="truncate text-xs font-medium text-foreground">{activeSubject.name}</span>
-                <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground shrink-0 transition-transform duration-200", isCourseDropdownOpen && "rotate-180")} />
-              </button>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-muted-foreground shrink-0">
+                Subject:
+              </span>
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsCourseDropdownOpen(!isCourseDropdownOpen)}
+                  className="px-3.5 py-1.5 rounded-xl border border-border/80 bg-background hover:bg-muted/40 text-foreground text-xs shadow-2xs transition-all flex items-center justify-between gap-2.5 min-h-[38px] max-w-[280px] sm:max-w-xs cursor-pointer"
+                >
+                  <Microscope className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <span className="font-mono font-semibold text-primary text-xs shrink-0">{activeSubject.code}:</span>
+                  <span className="truncate text-xs font-medium text-foreground">{activeSubject.name}</span>
+                  <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground shrink-0 transition-transform duration-200", isCourseDropdownOpen && "rotate-180")} />
+                </button>
 
-              {isCourseDropdownOpen && (
-                <div className="absolute left-0 mt-1.5 w-80 sm:w-96 rounded-2xl border border-border/80 bg-card p-2 shadow-xl z-50 animate-in fade-in zoom-in-95">
-                  <div className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider border-b border-border/70 flex items-center justify-between">
-                    <span>Select Course ({displayedYearSubjects.length})</span>
-                    <span className="font-mono text-primary text-[10px]">Year {selectedYear}</span>
-                  </div>
-                  <div className="max-h-64 overflow-y-auto space-y-1 py-1 scrollbar-thin">
-                    {displayedYearSubjects.map((sub) => {
-                      const isSel = sub.code === selectedSubjectCode;
-                      return (
-                        <button
-                          key={sub.code}
-                          type="button"
-                          onClick={() => handleSelectSubject(sub.code)}
-                          className={cn(
-                            "w-full text-left p-2.5 rounded-xl text-xs transition-all flex items-center justify-between gap-2 cursor-pointer",
-                            isSel ? "bg-primary text-primary-foreground font-medium shadow-xs" : "hover:bg-muted/60 text-foreground"
-                          )}
-                        >
+                {isCourseDropdownOpen && (
+                  <div className="absolute left-0 mt-1.5 w-80 sm:w-96 rounded-2xl border border-border/80 bg-card p-2 shadow-xl z-50 animate-in fade-in zoom-in-95">
+                    <div className="px-3 py-1.5 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider border-b border-border/70 flex items-center justify-between">
+                      <span>Select Course ({displayedYearSubjects.length})</span>
+                      <span className="font-mono text-primary text-[10px]">Year {selectedYear}</span>
+                    </div>
+                    <div className="max-h-64 overflow-y-auto space-y-1 py-1 scrollbar-thin">
+                      {displayedYearSubjects.map((sub) => {
+                        const isSel = sub.code === selectedSubjectCode;
+                        return (
+                          <button
+                            key={sub.code}
+                            type="button"
+                            onClick={() => handleSelectSubject(sub.code)}
+                            className={cn(
+                              "w-full text-left p-2.5 rounded-xl text-xs transition-all flex items-center justify-between gap-2 cursor-pointer",
+                              isSel ? "bg-primary text-primary-foreground font-medium shadow-xs" : "hover:bg-muted/60 text-foreground"
+                            )}
+                          >
                           <div className="flex items-center space-x-2 min-w-0">
                             <span className={cn("font-mono text-[11px] px-1.5 py-0.5 rounded", isSel ? "bg-white/20 text-white" : "bg-muted border border-border/70")}>
                               {sub.code}
@@ -2350,12 +2352,13 @@ function StudyCenterContent() {
                             <span className="truncate font-medium">{sub.name}</span>
                           </div>
                           {isSel && <CheckCircle2 className="h-3.5 w-3.5 text-white shrink-0" />}
-                        </button>
-                      );
-                    })}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
 

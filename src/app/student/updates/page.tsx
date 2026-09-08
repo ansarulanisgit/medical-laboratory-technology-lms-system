@@ -84,7 +84,7 @@ export default function StudentUpdatesPage() {
   const { profile } = useAcademicProfile();
   const { logActivity } = useActivityLog();
 
-  const role = profile.role || "STUDENT";
+  const role = profile?.role || "STUDENT";
   const canManage = role === "SUPER_ADMIN" || role === "ADMIN" || role === "MENTOR";
 
   const [selectedCategory, setSelectedCategory] = React.useState<string>("ALL");
@@ -264,7 +264,7 @@ export default function StudentUpdatesPage() {
       category: formData.category,
       urgency: formData.urgency,
       targetAudience: formData.targetAudience,
-      postedBy: profile.fullName || "Academic Authority",
+      postedBy: profile?.fullName || "Academic Authority",
       postedRole: role,
       attachmentName: formData.attachmentName.trim() || undefined,
       attachmentUrl: formData.attachmentUrl.trim() || undefined,

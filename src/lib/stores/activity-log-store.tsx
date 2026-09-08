@@ -30,7 +30,7 @@ export interface LogEntryInput {
 const INITIAL_LOGS: ActivityLogItem[] = [
   {
     id: "log-001",
-    timestamp: new Date(Date.now() - 1000 * 60 * 5).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+    timestamp: "10:45:12 AM",
     action: "UPDATE",
     module: "Curriculum",
     details: "Synchronized ENG-101 syllabus units with official SMFB curriculum.",
@@ -40,7 +40,7 @@ const INITIAL_LOGS: ActivityLogItem[] = [
   },
   {
     id: "log-002",
-    timestamp: new Date(Date.now() - 1000 * 60 * 25).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+    timestamp: "10:25:30 AM",
     action: "UPDATE",
     module: "Study Center",
     details: "Verified model defense answer for Unit 1: Sentence Anatomy in ENG-101.",
@@ -50,7 +50,7 @@ const INITIAL_LOGS: ActivityLogItem[] = [
   },
   {
     id: "log-003",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+    timestamp: "09:50:18 AM",
     action: "UPDATE",
     module: "Certificates",
     details: "Conferred official competency credential for 1st Year Pre-Analytical SOPs.",
@@ -60,7 +60,7 @@ const INITIAL_LOGS: ActivityLogItem[] = [
   },
   {
     id: "log-004",
-    timestamp: new Date(Date.now() - 1000 * 60 * 120).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+    timestamp: "08:30:45 AM",
     action: "AUTH",
     module: "User Management",
     details: "Student Md. Ansarul Islam logged in and completed interactive hematology quiz.",
