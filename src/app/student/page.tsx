@@ -84,24 +84,27 @@ export default function StudentDashboardPage() {
       : `${profile.academicYear}th`;
 
   // Student metrics
-  const totalSubjects = activeSubjects.length;
+  const safeSubjects = activeSubjects || [];
+  const totalSubjects = safeSubjects.length;
   const avgProgress =
     totalSubjects > 0
       ? Math.round(
-          activeSubjects.reduce((acc, curr) => acc + curr.progress, 0) /
+          safeSubjects.reduce((acc, curr) => acc + (curr?.progress || 0), 0) /
             totalSubjects
         )
       : 0;
 
-  const totalLessons = activeSubjects.reduce((acc, curr) => acc + curr.lessons, 0);
+  const totalLessons = safeSubjects.reduce((acc, curr) => acc + (curr?.lessons || 0), 0);
   const completedLessons = Math.round((avgProgress / 100) * totalLessons);
 
   // System statistics for Super Admin & Admin
-  const superAdminCount = users.filter((u) => u.role === "SUPER_ADMIN").length;
-  const adminCount = users.filter((u) => u.role === "ADMIN").length;
-  const mentorCount = users.filter((u) => u.role === "MENTOR").length;
-  const studentCount = users.filter((u) => u.role === "STUDENT").length;
-  const pendingCertificates = certificates.filter((c) => c.status === "PENDING").length;
+  const safeUsers = users || [];
+  const safeCertificates = certificates || [];
+  const superAdminCount = safeUsers.filter((u) => u.role === "SUPER_ADMIN").length;
+  const adminCount = safeUsers.filter((u) => u.role === "ADMIN").length;
+  const mentorCount = safeUsers.filter((u) => u.role === "MENTOR").length;
+  const studentCount = safeUsers.filter((u) => u.role === "STUDENT").length;
+  const pendingCertificates = safeCertificates.filter((c) => c.status === "PENDING").length;
 
   return (
     <div className="space-y-6">
