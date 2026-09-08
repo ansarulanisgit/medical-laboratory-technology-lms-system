@@ -3,7 +3,6 @@
 import * as React from "react";
 import {
   Shield,
-  ShieldAlert,
   ShieldCheck,
   GraduationCap,
   Award,
@@ -29,24 +28,14 @@ interface RoleOption {
 
 const ROLE_OPTIONS: RoleOption[] = [
   {
-    role: "STUDENT",
-    label: "Student",
-    badge: "Learner Portal",
+    role: "SUPER_ADMIN",
+    label: "Super Admin",
+    badge: "Directorate Level",
     description:
-      "Study Center notes, 10-year question banks, practical SOP procedures, CV builder, and job updates.",
-    icon: GraduationCap,
-    accentColor: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
-    badgeColor: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
-  },
-  {
-    role: "MENTOR",
-    label: "Mentor / Instructor",
-    badge: "Clinical Faculty",
-    description:
-      "Student procedure verification, viva score evaluations, clinical rotation log approvals, and student mentoring.",
-    icon: Award,
-    accentColor: "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/30",
-    badgeColor: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30",
+      "Central system management, multi-institution administration, activity audit logs, and global configuration.",
+    icon: Crown,
+    accentColor: "text-rose-600 dark:text-rose-400 bg-rose-500/10 border-rose-500/30",
+    badgeColor: "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30",
   },
   {
     role: "ADMIN",
@@ -59,24 +48,75 @@ const ROLE_OPTIONS: RoleOption[] = [
     badgeColor: "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30",
   },
   {
-    role: "SUPER_ADMIN",
-    label: "Super Admin",
-    badge: "Directorate Level",
+    role: "MENTOR",
+    label: "Mentor / Instructor",
+    badge: "Clinical Faculty",
     description:
-      "Central system management, multi-institution administration, activity audit logs, and global configuration.",
-    icon: Crown,
-    accentColor: "text-rose-600 dark:text-rose-400 bg-rose-500/10 border-rose-500/30",
-    badgeColor: "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30",
+      "Student procedure verification, viva score evaluations, clinical rotation log approvals, and student mentoring.",
+    icon: Award,
+    accentColor: "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/30",
+    badgeColor: "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30",
+  },
+  {
+    role: "STUDENT",
+    label: "Student",
+    badge: "Learner Portal",
+    description:
+      "Study Center notes, 10-year question banks, practical SOP procedures, CV builder, and job updates.",
+    icon: GraduationCap,
+    accentColor: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
+    badgeColor: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
   },
 ];
 
 export function RoleSwitcherModal() {
   const { profile, updateUserRole } = useAcademicProfile();
   const [isOpen, setIsOpen] = React.useState(false);
+
+  // Derive the account's permanent base role
+  const baseRole: UserRole =
+    profile.baseRole ||
+    (profile.username === "ansarulanis" ||
+    profile.email?.includes("ansarul.contact") ||
+    profile.role === "SUPER_ADMIN"
+      ? "SUPER_ADMIN"
+      : profile.role || "STUDENT");
+
+  // Current active view role
   const currentRole: UserRole = profile.role || "STUDENT";
 
+  // Rule 1: Users with "student" role won't see the role switcher
+  if (baseRole === "STUDENT") {
+    return null;
+  }
+
+  // Rule 2, 3, 4: Hierarchy of allowed roles
+  // - Super Admin can see and switch all: SUPER_ADMIN, ADMIN, MENTOR, STUDENT
+  // - Admin can do: ADMIN, MENTOR, STUDENT
+  // - Mentor can do: MENTOR, STUDENT
+  const allowedRoles: UserRole[] = React.useMemo(() => {
+    if (baseRole === "SUPER_ADMIN") {
+      return ["SUPER_ADMIN", "ADMIN", "MENTOR", "STUDENT"];
+    }
+    if (baseRole === "ADMIN") {
+      return ["ADMIN", "MENTOR", "STUDENT"];
+    }
+    if (baseRole === "MENTOR") {
+      return ["MENTOR", "STUDENT"];
+    }
+    return [];
+  }, [baseRole]);
+
+  const availableOptions = React.useMemo(() => {
+    return ROLE_OPTIONS.filter((opt) => allowedRoles.includes(opt.role));
+  }, [allowedRoles]);
+
+  if (availableOptions.length <= 1) {
+    return null;
+  }
+
   const activeOption =
-    ROLE_OPTIONS.find((opt) => opt.role === currentRole) || ROLE_OPTIONS[0];
+    ROLE_OPTIONS.find((opt) => opt.role === currentRole) || availableOptions[0];
 
   // Close modal on ESC key
   React.useEffect(() => {
@@ -105,7 +145,7 @@ export function RoleSwitcherModal() {
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label="Open Role Switcher"
-        title={`Current Role: ${activeOption.label}. Click to switch role.`}
+        title={`Active View: ${activeOption.label}. Click to switch role.`}
         className="h-10 px-2.5 sm:px-3 rounded-xl border border-border/80 bg-card text-foreground hover:bg-muted/60 transition-all flex items-center gap-1.5 shadow-2xs group cursor-pointer shrink-0 select-none"
       >
         <div className="h-6 w-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
@@ -113,7 +153,7 @@ export function RoleSwitcherModal() {
         </div>
         <div className="flex flex-col items-start leading-none text-left">
           <span className="text-[10px] uppercase font-semibold text-muted-foreground tracking-wider hidden lg:block">
-            Role
+            View As
           </span>
           <span className="text-xs font-bold text-foreground truncate max-w-[90px] sm:max-w-[120px]">
             {activeOption.label.split(" / ")[0]}
@@ -142,13 +182,10 @@ export function RoleSwitcherModal() {
                 </div>
                 <div>
                   <h3 className="text-lg sm:text-xl font-extrabold text-foreground tracking-tight flex items-center gap-2">
-                    Switch User Role
-                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/20">
-                      LMS Demo
-                    </span>
+                    Switch Role View
                   </h3>
                   <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                    Preview the platform experience and modules from different perspectives
+                    Switch perspective to access different platform modules and administrative capabilities
                   </p>
                 </div>
               </div>
@@ -165,7 +202,7 @@ export function RoleSwitcherModal() {
 
             {/* Role Cards Grid */}
             <div className="p-5 sm:p-6 space-y-2.5 overflow-y-auto max-h-[60vh]">
-              {ROLE_OPTIONS.map((opt) => {
+              {availableOptions.map((opt) => {
                 const IconComponent = opt.icon;
                 const isCurrent = currentRole === opt.role;
 
@@ -205,7 +242,7 @@ export function RoleSwitcherModal() {
                         </span>
                         {isCurrent && (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground shadow-2xs">
-                            Active Role
+                            Active View
                           </span>
                         )}
                       </div>
@@ -228,7 +265,7 @@ export function RoleSwitcherModal() {
             <div className="p-4 border-t border-border/80 bg-muted/20 flex items-center justify-between text-xs text-muted-foreground shrink-0">
               <span className="flex items-center gap-1.5 text-muted-foreground">
                 <Sparkles className="h-3.5 w-3.5 text-primary" />
-                Updates instantly across all sidebar navigation items
+                Your account permissions allow switching between these designated roles
               </span>
               <button
                 type="button"

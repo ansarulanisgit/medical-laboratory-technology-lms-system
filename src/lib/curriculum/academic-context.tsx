@@ -23,6 +23,7 @@ export interface AcademicProfileState {
   email?: string;
   phone?: string;
   role?: UserRole;
+  baseRole?: UserRole;
   institution?: string;
   program: ProgramLevel;
   academicYear: string; // "1", "2", "3", "4"
@@ -389,6 +390,7 @@ const DEFAULT_PROFILE: AcademicProfileState = {
   email: "ansarul.support@gmail.com",
   phone: "+8801709260934",
   role: "STUDENT",
+  baseRole: "STUDENT",
   institution: "Dhaka Institute of Health Technology (DIHT)",
   program: "DIPLOMA",
   academicYear: "2",
@@ -453,13 +455,20 @@ export function StudentAcademicProvider({ children }: { children: React.ReactNod
       const savedProfile = localStorage.getItem(STORAGE_KEY);
       if (savedProfile) {
         const parsed = JSON.parse(savedProfile);
-        if (parsed.program && parsed.academicYear) {
-          setProfile({
-            ...parsed,
-            role: parsed.role || "STUDENT",
-            institution: parsed.institution || "Dhaka Institute of Health Technology (DIHT)",
-          });
-        }
+        const effectiveBaseRole =
+          parsed.baseRole ||
+          (parsed.username === "ansarulanis" ||
+          parsed.email?.includes("ansarul.contact") ||
+          parsed.role === "SUPER_ADMIN"
+            ? "SUPER_ADMIN"
+            : parsed.role || "STUDENT");
+
+        setProfile({
+          ...parsed,
+          role: parsed.role || "STUDENT",
+          baseRole: effectiveBaseRole,
+          institution: parsed.institution || "Dhaka Institute of Health Technology (DIHT)",
+        });
       }
 
       const savedCourses = localStorage.getItem(COURSES_STORAGE_KEY);
@@ -496,9 +505,18 @@ export function StudentAcademicProvider({ children }: { children: React.ReactNod
   };
 
   const updateUserRole = (newRole: UserRole) => {
+    const effectiveBaseRole =
+      profile.baseRole ||
+      (profile.username === "ansarulanis" ||
+      profile.email?.includes("ansarul.contact") ||
+      profile.role === "SUPER_ADMIN"
+        ? "SUPER_ADMIN"
+        : profile.role || "STUDENT");
+
     const updatedProfile: AcademicProfileState = {
       ...profile,
       role: newRole,
+      baseRole: effectiveBaseRole,
     };
     persistProfile(updatedProfile);
   };

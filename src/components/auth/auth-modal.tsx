@@ -316,6 +316,7 @@ export function AuthModal() {
           const saved = localStorage.getItem("labtutor_academic_profile_v2");
           const base = saved ? JSON.parse(saved) : {};
           base.role = role;
+          base.baseRole = role;
           base.email = data.user.email;
           if (profile?.full_name) base.fullName = profile.full_name;
           localStorage.setItem("labtutor_academic_profile_v2", JSON.stringify(base));
@@ -353,6 +354,7 @@ export function AuthModal() {
             const saved = localStorage.getItem("labtutor_academic_profile_v2");
             const base = saved ? JSON.parse(saved) : {};
             base.role = "SUPER_ADMIN";
+            base.baseRole = "SUPER_ADMIN";
             base.fullName = "Ansarul Anis";
             base.username = "ansarulanis";
             base.email = "ansarul.contact@gmail.com";
