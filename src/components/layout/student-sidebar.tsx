@@ -207,38 +207,6 @@ export function StudentSidebar() {
         })}
       </div>
 
-      {/* Role Switcher in Sidebar Footer for Rapid Testing & Review */}
-      {!isCollapsed && (
-        <div className="px-3 py-2 border-t border-border/70 bg-muted/20">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] uppercase font-semibold text-muted-foreground tracking-wider flex items-center gap-1">
-              <Shield className="h-3 w-3 text-primary" />
-              Role Switcher
-            </span>
-            <span className="text-[10px] font-mono text-primary font-bold">
-              {currentRole}
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-1 text-[10.5px]">
-            {(["SUPER_ADMIN", "ADMIN", "MENTOR", "STUDENT"] as UserRole[]).map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => updateUserRole(r)}
-                className={cn(
-                  "py-1 px-1.5 rounded-lg font-medium text-center truncate transition-all",
-                  currentRole === r
-                    ? "bg-primary text-primary-foreground font-semibold shadow-2xs"
-                    : "bg-card border border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted"
-                )}
-              >
-                {r === "SUPER_ADMIN" ? "Super Admin" : r === "ADMIN" ? "Admin" : r === "MENTOR" ? "Mentor" : "Student"}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Footer Controls with Collapsible Toggle Button */}
       <div className={cn("p-3 border-t border-border", isCollapsed ? "px-0" : "")}>
         {!isCollapsed ? (

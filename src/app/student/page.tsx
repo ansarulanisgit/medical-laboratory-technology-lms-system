@@ -44,6 +44,7 @@ import { useUserManagement } from "@/lib/curriculum/user-management-context";
 import { useNotification } from "@/components/ui/notification-context";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { NotificationBell } from "@/components/notifications/notification-bell";
+import { RoleSwitcherModal } from "@/components/layout/role-switcher-modal";
 import { useActivityLog } from "@/lib/stores/activity-log-store";
 import { useQuestionBank } from "@/lib/stores/question-bank-store";
 import { usePracticals } from "@/lib/stores/practical-lab-store";
@@ -185,6 +186,7 @@ export default function StudentDashboardPage() {
 
         {/* Header Right Actions */}
         <div className="flex items-center gap-2 shrink-0 self-start sm:self-center">
+          <RoleSwitcherModal />
           <ThemeToggle />
           <NotificationBell />
           <Link href="/student/profile">
