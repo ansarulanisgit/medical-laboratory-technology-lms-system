@@ -330,6 +330,36 @@ export default function StudentCertificatesPage() {
     reader.readAsDataURL(file);
   };
 
+  // Watermark logo image upload handler (converts to Data URL)
+  const handleWatermarkLogoUpload = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setCustomizerState((prev) => ({
+        ...prev,
+        watermarkLogoUrl: dataUrl,
+      }));
+      showNotification({
+        type: "success",
+        title: "Watermark Photo Updated",
+        message: "New watermark photo applied to preview. Remember to click 'Save Template' to persist.",
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleResetWatermarkLogo = () => {
+    setCustomizerState((prev) => ({
+      ...prev,
+      watermarkLogoUrl: "/images/certificate-watermark-logo.png",
+    }));
+    showNotification({
+      type: "info",
+      title: "Watermark Photo Reset",
+      message: "Reset watermark image to official LabTutor Academy logo.",
+    });
+  };
+
   // Preset Color Template change handler
   const handlePresetSelect = (preset: ColorPreset) => {
     const p = COLOR_PRESETS[preset];
@@ -1784,7 +1814,7 @@ export default function StudentCertificatesPage() {
                         <div className="flex items-center justify-between">
                           <label className="font-bold text-foreground text-xs flex items-center gap-1.5">
                             <Sparkles className="h-4 w-4 text-primary" />
-                            <span>Institutional Watermark Logo (Center)</span>
+                            <span>Institutional Watermark Logo & Opacity</span>
                           </label>
                           <div className="flex items-center gap-2">
                             <span className="text-[11px] font-semibold text-muted-foreground">
@@ -1796,59 +1826,100 @@ export default function StudentCertificatesPage() {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-3">
-                          {/* Mini logo preview thumbnail */}
-                          <div className="h-12 w-12 rounded-xl border bg-white flex items-center justify-center p-1 shrink-0 shadow-2xs">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={customizerState.watermarkLogoUrl || "/images/certificate-watermark-logo.png"}
-                              alt="Logo"
-                              className="h-full w-full object-contain"
-                            />
-                          </div>
-
-                          <div className="flex-1 space-y-1.5">
-                            <div className="flex items-center justify-between text-[11px]">
-                              <span className="text-muted-foreground">Watermark Opacity:</span>
-                              <div className="flex items-center gap-1.5">
-                                {[0.05, 0.08, 0.12, 0.15].map((op) => (
-                                  <button
-                                    key={op}
-                                    type="button"
-                                    onClick={() =>
-                                      setCustomizerState({
-                                        ...customizerState,
-                                        watermarkLogoOpacity: op,
-                                      })
-                                    }
-                                    className={cn(
-                                      "px-2 py-0.5 rounded text-[10px] font-bold border transition-all cursor-pointer",
-                                      Math.abs((customizerState.watermarkLogoOpacity ?? 0.08) - op) < 0.005
-                                        ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                                        : "bg-background border-border text-muted-foreground hover:text-foreground"
-                                    )}
-                                  >
-                                    {Math.round(op * 100)}%
-                                  </button>
-                                ))}
-                              </div>
+                        {/* Watermark Photo Upload & Preview Bar */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2.5 rounded-xl bg-background border border-border">
+                          <div className="flex items-center gap-3">
+                            <div className="h-14 w-14 rounded-xl border bg-white flex items-center justify-center p-1 shrink-0 shadow-2xs">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={customizerState.watermarkLogoUrl || "/images/certificate-watermark-logo.png"}
+                                alt="Watermark Logo"
+                                className="h-full w-full object-contain"
+                              />
                             </div>
-
-                            <input
-                              type="range"
-                              min="0.02"
-                              max="0.25"
-                              step="0.01"
-                              value={customizerState.watermarkLogoOpacity ?? 0.08}
-                              onChange={(e) =>
-                                setCustomizerState({
-                                  ...customizerState,
-                                  watermarkLogoOpacity: parseFloat(e.target.value),
-                                })
-                              }
-                              className="w-full accent-primary h-1.5 bg-muted rounded-lg cursor-pointer"
-                            />
+                            <div className="space-y-0.5">
+                              <span className="text-xs font-bold text-foreground block">
+                                Central Watermark Emblem
+                              </span>
+                              <span className="text-[11px] text-muted-foreground block">
+                                PNG / SVG / WebP transparent emblem
+                              </span>
+                            </div>
                           </div>
+
+                          <div className="flex items-center gap-2">
+                            <label className="h-8 px-3 rounded-lg border border-primary/30 bg-primary/5 text-primary text-xs font-semibold flex items-center gap-1.5 cursor-pointer hover:bg-primary/10 transition-colors">
+                              <Upload className="h-3.5 w-3.5" />
+                              <span>Upload Photo</span>
+                              <input
+                                type="file"
+                                accept="image/png,image/svg+xml,image/jpeg,image/webp"
+                                className="hidden"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleWatermarkLogoUpload(file);
+                                }}
+                              />
+                            </label>
+
+                            {customizerState.watermarkLogoUrl &&
+                              customizerState.watermarkLogoUrl !== "/images/certificate-watermark-logo.png" && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={handleResetWatermarkLogo}
+                                  className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+                                  title="Reset to default official emblem"
+                                >
+                                  Reset Default
+                                </Button>
+                              )}
+                          </div>
+                        </div>
+
+                        {/* Opacity Setting Slider & Preset Buttons */}
+                        <div className="space-y-2 pt-1">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="font-semibold text-muted-foreground">Watermark Opacity Setting:</span>
+                            <div className="flex items-center gap-1.5">
+                              {[0.05, 0.08, 0.12, 0.15].map((op) => (
+                                <button
+                                  key={op}
+                                  type="button"
+                                  onClick={() =>
+                                    setCustomizerState({
+                                      ...customizerState,
+                                      watermarkLogoOpacity: op,
+                                    })
+                                  }
+                                  className={cn(
+                                    "px-2 py-0.5 rounded text-[10px] font-bold border transition-all cursor-pointer",
+                                    Math.abs((customizerState.watermarkLogoOpacity ?? 0.08) - op) < 0.005
+                                      ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                                      : "bg-background border-border text-muted-foreground hover:text-foreground"
+                                  )}
+                                >
+                                  {Math.round(op * 100)}%
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          <input
+                            type="range"
+                            min="0.02"
+                            max="0.25"
+                            step="0.01"
+                            value={customizerState.watermarkLogoOpacity ?? 0.08}
+                            onChange={(e) =>
+                              setCustomizerState({
+                                ...customizerState,
+                                watermarkLogoOpacity: parseFloat(e.target.value),
+                              })
+                            }
+                            className="w-full accent-primary h-1.5 bg-muted rounded-lg cursor-pointer"
+                          />
                         </div>
                       </div>
 
