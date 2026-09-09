@@ -48,6 +48,9 @@ import {
   ChevronUp,
   Sliders,
   FileText,
+  Building2,
+  Lock,
+  Unlock,
 } from "lucide-react";
 import {
   useCertificates,
@@ -56,6 +59,7 @@ import {
   ColorPreset,
   CertFontFamily,
   CertBorderStyle,
+  AdminCertificateTemplate,
   COLOR_PRESETS,
   US_LETTER_DIMENSION_LABEL,
 } from "@/lib/stores/certificate-store";
@@ -83,10 +87,16 @@ export default function StudentCertificatesPage() {
   const {
     certificates,
     templateConfig,
+    adminTemplates,
     applyForCertificate,
     reviewCertificate,
+    updateCertificateRecord,
     updateTemplateConfig,
     resetTemplateConfig,
+    updateAdminTemplate,
+    addAdminTemplate,
+    resetAdminTemplates,
+    getTemplateForProgramAndYear,
   } = useCertificates();
   const { role, userProfile } = useAcademic();
   const { logActivity } = useActivityLog();
@@ -120,16 +130,20 @@ export default function StudentCertificatesPage() {
 
   // Student Enrollment State for Application
   const currentStudentId = (userProfile as any)?.id || userProfile?.idNumber || "usr-005";
-  const currentProgram = (userProfile?.program as ProgramLevel) || "DIPLOMA";
-  const currentYear = userProfile?.academicYear || "1";
+  const currentProgram = (userProfile?.program as ProgramLevel) || "BSC";
+  const currentYear = userProfile?.academicYear || "4";
 
-  // Application Form State
+  // Initial template for selected program & year
+  const initialTemplate = getTemplateForProgramAndYear(currentProgram, currentYear);
+
+  // Application Form State (matching screenshot media_1788929999357.png)
   const [applyForm, setApplyForm] = React.useState({
+    candidateName: userProfile?.name || "Ansarul Islam",
     program: currentProgram,
     year: currentYear,
-    title: `${currentProgram === "BSC" ? "B.Sc." : "Diploma"} Competency: Diagnostic Clinical Benchmark & SOP Verification`,
-    institution: userProfile?.institution || "Dhaka Institute of Health Technology (DIHT)",
-    grade: "Expected: Distinction (90%+)",
+    title: initialTemplate?.title || "B.Sc. Year 4 Competency: Diagnostic Clinical Benchmark & SOP Verification",
+    institution: initialTemplate?.institution || "DGHS Medical Technology Directorate & LabTutor Central Administration",
+    grade: "Distinction (92.5%)",
   });
 
   // Dynamic user study center activities & tasks audit for current user
@@ -139,6 +153,38 @@ export default function StudentCertificatesPage() {
     resetProgress,
     completeAllTasks,
   } = useStudentStudyProgress(currentStudentId, applyForm.program, applyForm.year);
+
+  // Auto-sync application form fields:
+  // 1. Title & Institution get populated from Super Admin generated certificate templates for selected program & year
+  // 2. Grade auto-fills from student course performance (eligibility.recommendedGrade / cumulativeScore)
+  React.useEffect(() => {
+    const tpl = getTemplateForProgramAndYear(applyForm.program, applyForm.year);
+    const calculatedGrade =
+      eligibility.recommendedGrade ||
+      (eligibility.cumulativeScore ? `Distinction (${eligibility.cumulativeScore}%)` : "Distinction (92.5%)");
+
+    setApplyForm((prev) => ({
+      ...prev,
+      title: tpl?.title || `${prev.program === "BSC" ? "B.Sc." : "Diploma"} Year ${prev.year} Competency: Diagnostic Clinical Benchmark & SOP Verification`,
+      institution: tpl?.institution || (prev.program === "BSC" ? "DGHS Medical Technology Directorate & LabTutor Central Administration" : "State Medical Faculty of Bangladesh (SMFB) & DIHT Central Laboratory"),
+      // Only auto-update grade if not manually overridden by Super Admin
+      grade: !isSuperOrAdmin || !prev.grade ? calculatedGrade : prev.grade,
+    }));
+  }, [
+    applyForm.program,
+    applyForm.year,
+    eligibility.recommendedGrade,
+    eligibility.cumulativeScore,
+    getTemplateForProgramAndYear,
+    isSuperOrAdmin,
+  ]);
+
+  // Keep candidateName updated if user profile loads
+  React.useEffect(() => {
+    if (userProfile?.name && (!applyForm.candidateName || applyForm.candidateName === "Ansarul Islam")) {
+      setApplyForm((prev) => ({ ...prev, candidateName: userProfile.name }));
+    }
+  }, [userProfile?.name]);
 
   // Watermark preview before application submission state
   const [candidateWatermarkPreview, setCandidateWatermarkPreview] = React.useState<null | {
@@ -163,6 +209,22 @@ export default function StudentCertificatesPage() {
   React.useEffect(() => {
     setCustomizerState({ ...templateConfig });
   }, [templateConfig]);
+
+  // Super Admin Curriculum Template Management State
+  const [selectedAdminTplProg, setSelectedAdminTplProg] = React.useState<ProgramLevel>("BSC");
+  const [selectedAdminTplYear, setSelectedAdminTplYear] = React.useState<string>("4");
+  const activeAdminTemplate =
+    adminTemplates.find((t) => t.program === selectedAdminTplProg && t.year === selectedAdminTplYear) ||
+    getTemplateForProgramAndYear(selectedAdminTplProg, selectedAdminTplYear);
+  const [adminTplEditTitle, setAdminTplEditTitle] = React.useState(activeAdminTemplate?.title || "");
+  const [adminTplEditInst, setAdminTplEditInst] = React.useState(activeAdminTemplate?.institution || "");
+
+  React.useEffect(() => {
+    if (activeAdminTemplate) {
+      setAdminTplEditTitle(activeAdminTemplate.title);
+      setAdminTplEditInst(activeAdminTemplate.institution);
+    }
+  }, [selectedAdminTplProg, selectedAdminTplYear, adminTemplates]);
 
   // Close modals on Escape key
   React.useEffect(() => {
@@ -298,7 +360,7 @@ export default function StudentCertificatesPage() {
     const sampleCertNum = `LTA-${progCode}-${currentYear}-${Math.floor(10000 + Math.random() * 90000)}`;
 
     setCandidateWatermarkPreview({
-      studentName: userProfile?.name || "Md. Ansarul Islam",
+      studentName: applyForm.candidateName || userProfile?.name || "Ansarul Islam",
       studentId: currentStudentId,
       institution: applyForm.institution,
       program: applyForm.program,
@@ -539,27 +601,25 @@ export default function StudentCertificatesPage() {
           </Badge>
         </button>
 
-        {role === "STUDENT" && (
-          <button
-            onClick={() => setActiveTab("APPLY")}
-            className={cn(
-              "px-4 py-2.5 font-semibold rounded-t-xl transition-colors border-b-2 flex items-center gap-2 cursor-pointer shrink-0",
-              activeTab === "APPLY"
-                ? "border-primary text-primary bg-primary/5"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <Plus className="h-4 w-4" />
-            <span>Apply for Certificate</span>
-            {eligibility.isEligible ? (
-              <Badge className="bg-emerald-600 text-white text-[10px] px-1.5 py-0.2">Eligible</Badge>
-            ) : (
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0.2 text-amber-600 border-amber-500/40">
-                {eligibility.completionPct}% Complete
-              </Badge>
-            )}
-          </button>
-        )}
+        <button
+          onClick={() => setActiveTab("APPLY")}
+          className={cn(
+            "px-4 py-2.5 font-semibold rounded-t-xl transition-colors border-b-2 flex items-center gap-2 cursor-pointer shrink-0",
+            activeTab === "APPLY"
+              ? "border-primary text-primary bg-primary/5"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Plus className="h-4 w-4" />
+          <span>{role === "STUDENT" ? "Apply for Certificate" : "Candidate Application Form"}</span>
+          {eligibility.isEligible ? (
+            <Badge className="bg-emerald-600 text-white text-[10px] px-1.5 py-0.2">Eligible</Badge>
+          ) : (
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0.2 text-amber-600 border-amber-500/40">
+              {eligibility.completionPct}% Complete
+            </Badge>
+          )}
+        </button>
 
         {isSuperOrAdmin && (
           <button
@@ -835,9 +895,9 @@ export default function StudentCertificatesPage() {
       )}
 
       {/* =========================================================================
-          TAB 2: APPLY FOR CERTIFICATE (STUDENT WORKFLOW)
+          TAB 2: APPLY FOR CERTIFICATE (STUDENT WORKFLOW & ADMIN TESTING)
          ========================================================================= */}
-      {activeTab === "APPLY" && role === "STUDENT" && (
+      {activeTab === "APPLY" && (
         <div className="space-y-6 max-w-4xl mx-auto">
           {/* Real-time curriculum audit */}
           <Card className="border-border rounded-2xl shadow-2xs overflow-hidden">
@@ -1008,99 +1068,249 @@ export default function StudentCertificatesPage() {
             <CardHeader className="p-5 pb-3">
               <CardTitle className="text-base sm:text-lg font-bold flex items-center gap-2">
                 <Award className="h-5 w-5 text-primary" />
-                <span>Certificate Application Details</span>
+                <span>Student Credential Application Details</span>
               </CardTitle>
               <CardDescription className="text-xs sm:text-sm">
-                Confirm your institutional credential details. A unique official certificate number will be automatically generated upon review.
+                Step 1: Confirm your student registration and curriculum records. Step 2: Preview your certificate with security watermarks before submitting.
               </CardDescription>
             </CardHeader>
 
             <CardContent className="p-5 pt-0">
               <form onSubmit={handleOpenWatermarkPreview} className="space-y-4 text-xs sm:text-sm">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* 1. STUDENT REGISTRATION & ENROLLMENT (STUDENT CAN CHOOSE & ADD THESE) */}
+                <div className="p-4 sm:p-5 rounded-2xl border border-border bg-card space-y-4 shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                      <Sparkles className="h-3.5 w-3.5 text-primary" />
+                      <span>Academic Program & Candidate Identity</span>
+                    </span>
+                    <Badge variant="outline" className="text-[10px] text-primary border-primary/30 bg-primary/5 font-semibold">
+                      Student Selectable
+                    </Badge>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="font-bold text-foreground flex items-center justify-between">
+                        <span>Program Level <span className="text-destructive">*</span></span>
+                      </label>
+                      <select
+                        value={applyForm.program}
+                        onChange={(e) => {
+                          const newProg = e.target.value as ProgramLevel;
+                          const tpl = getTemplateForProgramAndYear(newProg, applyForm.year);
+                          setApplyForm((prev) => ({
+                            ...prev,
+                            program: newProg,
+                            title: tpl?.title || prev.title,
+                            institution: tpl?.institution || prev.institution,
+                          }));
+                        }}
+                        className="w-full h-10 rounded-xl border border-input bg-background px-3 text-xs sm:text-sm font-semibold focus:ring-1 focus:ring-primary focus:outline-none cursor-pointer"
+                      >
+                        <option value="BSC">B.Sc. in Medical Laboratory Technology</option>
+                        <option value="DIPLOMA">Diploma in Medical Laboratory Technology</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="font-bold text-foreground flex items-center justify-between">
+                        <span>Enrolled Academic Year <span className="text-destructive">*</span></span>
+                      </label>
+                      <select
+                        value={applyForm.year}
+                        onChange={(e) => {
+                          const newYear = e.target.value;
+                          const tpl = getTemplateForProgramAndYear(applyForm.program, newYear);
+                          setApplyForm((prev) => ({
+                            ...prev,
+                            year: newYear,
+                            title: tpl?.title || prev.title,
+                            institution: tpl?.institution || prev.institution,
+                          }));
+                        }}
+                        className="w-full h-10 rounded-xl border border-input bg-background px-3 text-xs sm:text-sm font-semibold focus:ring-1 focus:ring-primary focus:outline-none cursor-pointer"
+                      >
+                        <option value="4">4th Year (Internship & Degree)</option>
+                        <option value="1">1st Year (Foundation & Pre-Analytical)</option>
+                        <option value="2">2nd Year (Core Pathology & Clinical Bench)</option>
+                        <option value="3">3rd Year (Advanced Diagnostics & Blood Banking)</option>
+                      </select>
+                    </div>
+                  </div>
+
                   <div className="space-y-1.5">
-                    <label className="font-bold text-foreground">Candidate Full Name</label>
+                    <div className="flex items-center justify-between">
+                      <label className="font-bold text-foreground">
+                        Candidate Full Name <span className="text-destructive">*</span>
+                      </label>
+                      <span className="text-[11px] text-muted-foreground font-mono">
+                        Student ID: {currentStudentId}
+                      </span>
+                    </div>
                     <Input
-                      value={userProfile?.name || "Md. Ansarul Islam"}
-                      disabled
-                      className="h-10 rounded-xl bg-muted font-semibold"
+                      value={applyForm.candidateName}
+                      onChange={(e) => setApplyForm({ ...applyForm, candidateName: e.target.value })}
+                      placeholder="Candidate Full Name (as it will appear on certificate)"
+                      required
+                      className="h-10 rounded-xl bg-background font-semibold"
                     />
+                    <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                      <span>Student can edit and specify their full legal name as it should appear on the official certificate.</span>
+                    </p>
                   </div>
+                </div>
+
+                {/* 2. SUPER ADMIN GENERATED CERTIFICATE TEMPLATE DETAILS */}
+                <div className="p-4 sm:p-5 rounded-2xl border border-border bg-card space-y-4 shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                      <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                      <span>Super Admin Certificate Template Specification</span>
+                    </span>
+                    <Badge variant="outline" className="text-[10px] text-emerald-600 dark:text-emerald-400 border-emerald-500/40 bg-emerald-500/10 font-bold flex items-center gap-1">
+                      <Check className="h-3 w-3" />
+                      <span>Super Admin Approved Template</span>
+                    </Badge>
+                  </div>
+
                   <div className="space-y-1.5">
-                    <label className="font-bold text-foreground">Student ID Number</label>
+                    <div className="flex items-center justify-between">
+                      <label className="font-bold text-foreground">
+                        Certificate Title / Competency Focus <span className="text-destructive">*</span>
+                      </label>
+                      <Badge variant="secondary" className="text-[10px] font-mono">
+                        {applyForm.program} Year {applyForm.year} Template
+                      </Badge>
+                    </div>
                     <Input
-                      value={currentStudentId}
-                      disabled
-                      className="h-10 rounded-xl bg-muted font-mono"
+                      value={applyForm.title}
+                      readOnly={!isSuperOrAdmin}
+                      onChange={(e) => setApplyForm({ ...applyForm, title: e.target.value })}
+                      required
+                      className={cn(
+                        "h-10 rounded-xl font-medium",
+                        !isSuperOrAdmin ? "bg-muted/40 cursor-default text-foreground" : "bg-background"
+                      )}
                     />
+                    <p className="text-[11px] text-muted-foreground">
+                      Automatically populated from official certificate templates configured by Super Admin for {applyForm.program === "BSC" ? "B.Sc." : "Diploma"} (Year {applyForm.year}).
+                    </p>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="font-bold text-foreground">Enrolled Academic Program</label>
-                    <select
-                      value={applyForm.program}
-                      onChange={(e) => setApplyForm({ ...applyForm, program: e.target.value as ProgramLevel })}
-                      className="w-full h-10 rounded-xl border border-input bg-background px-3 text-xs sm:text-sm font-semibold focus:ring-1 focus:ring-primary focus:outline-none cursor-pointer"
-                    >
-                      <option value="DIPLOMA">Diploma in Medical Laboratory Technology (SMFB)</option>
-                      <option value="BSC">B.Sc. in Health Technology (Laboratory)</option>
-                    </select>
+                    <div className="flex items-center justify-between">
+                      <label className="font-bold text-foreground">
+                        Affiliated Institute / Medical College <span className="text-destructive">*</span>
+                      </label>
+                      <Badge variant="secondary" className="text-[10px] flex items-center gap-1">
+                        <Building2 className="h-3 w-3" />
+                        <span>Registered Institution</span>
+                      </Badge>
+                    </div>
+                    <Input
+                      value={applyForm.institution}
+                      readOnly={!isSuperOrAdmin}
+                      onChange={(e) => setApplyForm({ ...applyForm, institution: e.target.value })}
+                      required
+                      className={cn(
+                        "h-10 rounded-xl font-medium",
+                        !isSuperOrAdmin ? "bg-muted/40 cursor-default text-foreground" : "bg-background"
+                      )}
+                    />
+                    <p className="text-[11px] text-muted-foreground">
+                      Conferring authority and affiliated institution set by Super Admin.
+                    </p>
                   </div>
+                </div>
+
+                {/* 3. PERFORMANCE / GRADE (AUTO-FILLED, LOCKED FOR STUDENT, EDITABLE BY ADMIN & SUPER ADMIN) */}
+                <div className="p-4 sm:p-5 rounded-2xl border border-border bg-card space-y-3 shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                      <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                      <span>Verified Academic & Practical Performance</span>
+                    </span>
+                    {isSuperOrAdmin ? (
+                      <Badge className="bg-purple-600 text-white text-[10px] font-bold px-2 py-0.5 flex items-center gap-1 shadow-2xs">
+                        <Sparkles className="h-3 w-3" />
+                        <span>Admin Override Enabled</span>
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-muted-foreground border-border text-[10px] font-semibold flex items-center gap-1 bg-muted/30">
+                        <Lock className="h-3 w-3" />
+                        <span>Student Locked</span>
+                      </Badge>
+                    )}
+                  </div>
+
                   <div className="space-y-1.5">
-                    <label className="font-bold text-foreground">Enrolled Academic Year</label>
-                    <select
-                      value={applyForm.year}
-                      onChange={(e) => setApplyForm({ ...applyForm, year: e.target.value })}
-                      className="w-full h-10 rounded-xl border border-input bg-background px-3 text-xs sm:text-sm font-semibold focus:ring-1 focus:ring-primary focus:outline-none cursor-pointer"
-                    >
-                      <option value="1">1st Year (Foundation & Pre-Analytical)</option>
-                      <option value="2">2nd Year (Core Pathology & Clinical Bench)</option>
-                      <option value="3">3rd Year (Advanced Diagnostics & Blood Banking)</option>
-                      <option value="4">4th Year (Specialized Histopathology & Molecular)</option>
-                    </select>
+                    <div className="flex items-center justify-between">
+                      <label className="font-bold text-foreground flex items-center gap-1.5">
+                        <span>Performance / Grade</span>
+                        <span className="text-destructive">*</span>
+                      </label>
+                      <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+                        Calculated Avg: {eligibility.cumulativeScore}%
+                      </span>
+                    </div>
+                    <Input
+                      value={applyForm.grade}
+                      readOnly={!isSuperOrAdmin}
+                      disabled={!isSuperOrAdmin}
+                      onChange={(e) => setApplyForm({ ...applyForm, grade: e.target.value })}
+                      required
+                      className={cn(
+                        "h-10 rounded-xl font-bold text-sm",
+                        isSuperOrAdmin
+                          ? "bg-background text-primary border-primary/50"
+                          : "bg-muted/60 text-foreground cursor-not-allowed border-muted-foreground/30 opacity-90"
+                      )}
+                    />
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-muted-foreground pt-0.5">
+                      <span>
+                        {isSuperOrAdmin
+                          ? "Super Administrator / Admin Authority: You can edit or calibrate the candidate grade prior to conferral."
+                          : `Auto-filled from student course performance (${eligibility.cumulativeScore}% avg across study tasks & laboratory SOPs). Cannot be changed by student.`}
+                      </span>
+                      {isSuperOrAdmin && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const calculatedGrade =
+                              eligibility.recommendedGrade ||
+                              (eligibility.cumulativeScore ? `Distinction (${eligibility.cumulativeScore}%)` : "Distinction (92.5%)");
+                            setApplyForm((prev) => ({ ...prev, grade: calculatedGrade }));
+                          }}
+                          className="text-primary hover:underline font-bold cursor-pointer shrink-0"
+                        >
+                          Reset to Auto-Grade
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="font-bold text-foreground">Affiliated Medical Institute</label>
-                  <Input
-                    value={applyForm.institution}
-                    onChange={(e) => setApplyForm({ ...applyForm, institution: e.target.value })}
-                    required
-                    className="h-10 rounded-xl font-medium"
-                  />
+                {/* 4. VERIFICATION GOVERNANCE & PREVIEW SUBMIT */}
+                <div className="p-3.5 rounded-xl bg-muted/30 border border-border text-xs text-muted-foreground space-y-1">
+                  <p className="font-semibold text-foreground flex items-center gap-1.5">
+                    <ShieldCheck className="h-4 w-4 text-primary" />
+                    <span>Verification Governance</span>
+                  </p>
+                  <p>
+                    Upon submitting, this application enters the Super Admin verification queue with your verified Study Center logs, quiz metrics, and bench SOP assessments.
+                  </p>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="font-bold text-foreground">Conferring Competency Title</label>
-                  <Input
-                    value={applyForm.title}
-                    onChange={(e) => setApplyForm({ ...applyForm, title: e.target.value })}
-                    required
-                    className="h-10 rounded-xl font-medium"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="font-bold text-foreground">Calculated Assessment Grade</label>
-                  <Input
-                    value={applyForm.grade}
-                    onChange={(e) => setApplyForm({ ...applyForm, grade: e.target.value })}
-                    required
-                    className="h-10 rounded-xl font-semibold text-primary"
-                  />
-                </div>
-
-                <div className="pt-2 flex items-center justify-between">
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
                   <span className="text-xs text-muted-foreground">
-                    Next step: Preview watermarked credential with &quot;Not Approved by LabTutor Academy&quot;.
+                    Next step: Preview certificate with security watermarks before submitting.
                   </span>
                   <Button
                     type="submit"
                     disabled={!eligibility.isEligible}
-                    className="gap-2 rounded-xl h-10 px-5 font-semibold bg-primary text-primary-foreground shadow-2xs hover:bg-primary/90 cursor-pointer"
+                    className="gap-2 rounded-xl h-10 px-5 font-semibold bg-primary text-primary-foreground shadow-2xs hover:bg-primary/90 cursor-pointer w-full sm:w-auto"
                   >
                     <span>Preview Certificate with Protection Watermark</span>
                     <ArrowRight className="h-4 w-4" />
@@ -1872,6 +2082,141 @@ export default function StudentCertificatesPage() {
                         </Button>
                       </div>
                     </form>
+                  </CardContent>
+                </Card>
+
+                {/* SUPER ADMIN GENERATED CERTIFICATE TEMPLATES (CURRICULUM MAPPING) */}
+                <Card className="border-border rounded-3xl shadow-2xs">
+                  <CardHeader className="p-5 pb-3">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center">
+                          <ShieldCheck className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-base font-bold">
+                            Curriculum Certificate Templates
+                          </CardTitle>
+                          <CardDescription className="text-xs">
+                            Define the Certificate Title and Institute that auto-fill when candidates apply by program and year.
+                          </CardDescription>
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          resetAdminTemplates();
+                          showNotification({
+                            type: "info",
+                            title: "Templates Reset",
+                            message: "Reset all certificate templates to default DGHS & SMFB benchmarks.",
+                          });
+                        }}
+                        className="text-xs text-muted-foreground hover:text-foreground h-8 px-2 cursor-pointer"
+                      >
+                        Reset Defaults
+                      </Button>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="p-5 pt-0 space-y-4 text-xs sm:text-sm">
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedAdminTplProg("BSC")}
+                        className={cn(
+                          "py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center",
+                          selectedAdminTplProg === "BSC"
+                            ? "bg-primary text-primary-foreground border-primary shadow-2xs"
+                            : "bg-muted/40 border-border text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        B.Sc. in Health Technology (4 Years)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedAdminTplProg("DIPLOMA")}
+                        className={cn(
+                          "py-2 px-3 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center",
+                          selectedAdminTplProg === "DIPLOMA"
+                            ? "bg-primary text-primary-foreground border-primary shadow-2xs"
+                            : "bg-muted/40 border-border text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        Diploma in MLT (SMFB - 4 Years)
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                      {["1", "2", "3", "4"].map((yr) => (
+                        <button
+                          key={yr}
+                          type="button"
+                          onClick={() => setSelectedAdminTplYear(yr)}
+                          className={cn(
+                            "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer shrink-0",
+                            selectedAdminTplYear === yr
+                              ? "bg-primary/10 text-primary border border-primary/30 font-bold"
+                              : "bg-muted/30 border border-transparent text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          Year {yr}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Template Editor Box */}
+                    {activeAdminTemplate && (
+                      <div className="p-3.5 rounded-2xl bg-muted/20 border border-border space-y-3">
+                        <div className="space-y-1">
+                          <label className="font-bold text-foreground text-xs">
+                            Certificate Title / Competency Focus
+                          </label>
+                          <Input
+                            value={adminTplEditTitle}
+                            onChange={(e) => setAdminTplEditTitle(e.target.value)}
+                            className="h-9 text-xs rounded-xl font-medium"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="font-bold text-foreground text-xs">
+                            Affiliated Institute / Medical College
+                          </label>
+                          <Input
+                            value={adminTplEditInst}
+                            onChange={(e) => setAdminTplEditInst(e.target.value)}
+                            className="h-9 text-xs rounded-xl font-medium"
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between pt-1">
+                          <span className="text-[11px] text-muted-foreground">
+                            Target: {selectedAdminTplProg === "BSC" ? "B.Sc." : "Diploma"} Year {selectedAdminTplYear}
+                          </span>
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => {
+                              updateAdminTemplate(activeAdminTemplate.id, {
+                                title: adminTplEditTitle,
+                                institution: adminTplEditInst,
+                              });
+                              showNotification({
+                                type: "success",
+                                title: "Template Updated",
+                                message: `Saved Super Admin template for ${selectedAdminTplProg} Year ${selectedAdminTplYear}.`,
+                              });
+                            }}
+                            className="h-8 text-xs font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
+                          >
+                            Save Template for Year {selectedAdminTplYear}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>

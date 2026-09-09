@@ -200,12 +200,99 @@ const INITIAL_CERTIFICATES: CertificateRecord[] = [
   },
 ];
 
+export interface AdminCertificateTemplate {
+  id: string;
+  program: ProgramLevel;
+  year: string;
+  title: string;
+  institution: string;
+  competencyFocus: string;
+  isDefault?: boolean;
+}
+
+export const DEFAULT_ADMIN_TEMPLATES: AdminCertificateTemplate[] = [
+  {
+    id: "tpl-bsc-4",
+    program: "BSC",
+    year: "4",
+    title: "B.Sc. Year 4 Competency: Diagnostic Clinical Benchmark & SOP Verification",
+    institution: "DGHS Medical Technology Directorate & LabTutor Central Administration",
+    competencyFocus: "Clinical Benchmark & SOP Verification (Year 4)",
+    isDefault: true,
+  },
+  {
+    id: "tpl-bsc-1",
+    program: "BSC",
+    year: "1",
+    title: "B.Sc. Year 1 Core Competency: Cell Biology, Biophysics & Histological Protocols",
+    institution: "DGHS Medical Technology Directorate & LabTutor Central Administration",
+    competencyFocus: "Pre-Analytical & Basic Laboratory Sciences (Year 1)",
+    isDefault: true,
+  },
+  {
+    id: "tpl-bsc-2",
+    program: "BSC",
+    year: "2",
+    title: "B.Sc. Year 2 Clinical Benchmark: Biochemistry, Clinical Pathology & Systematic Bacteriology",
+    institution: "DGHS Medical Technology Directorate & LabTutor Central Administration",
+    competencyFocus: "Diagnostic Biochemistry & Bacteriology (Year 2)",
+    isDefault: true,
+  },
+  {
+    id: "tpl-bsc-3",
+    program: "BSC",
+    year: "3",
+    title: "B.Sc. Year 3 Advanced Diagnostics: Blood Banking, Immunology & Diagnostic Parasitology",
+    institution: "DGHS Medical Technology Directorate & LabTutor Central Administration",
+    competencyFocus: "Immunohematology & Advanced Diagnostics (Year 3)",
+    isDefault: true,
+  },
+  {
+    id: "tpl-dip-1",
+    program: "DIPLOMA",
+    year: "1",
+    title: "1st Year Foundation Competency: Diagnostic Pre-Analytical SOPs & Basic Sciences",
+    institution: "State Medical Faculty of Bangladesh (SMFB) & DIHT Central Laboratory",
+    competencyFocus: "Pre-Analytical SOPs & Basic Sciences (Year 1)",
+    isDefault: true,
+  },
+  {
+    id: "tpl-dip-2",
+    program: "DIPLOMA",
+    year: "2",
+    title: "2nd Year Clinical Benchmark: Clinical Pathology, Routine Hematology & Microbiology",
+    institution: "State Medical Faculty of Bangladesh (SMFB) & DIHT Central Laboratory",
+    competencyFocus: "Clinical Pathology & Routine Benchwork (Year 2)",
+    isDefault: true,
+  },
+  {
+    id: "tpl-dip-3",
+    program: "DIPLOMA",
+    year: "3",
+    title: "3rd Year Senior Benchmark: Advanced Histotechnology, Immunohematology & QC Protocols",
+    institution: "State Medical Faculty of Bangladesh (SMFB) & DIHT Central Laboratory",
+    competencyFocus: "Histotechnology & Quality Control (Year 3)",
+    isDefault: true,
+  },
+  {
+    id: "tpl-dip-4",
+    program: "DIPLOMA",
+    year: "4",
+    title: "4th Year Internship Practicum: Hospital Laboratory Management & Comprehensive MLT Benchwork",
+    institution: "State Medical Faculty of Bangladesh (SMFB) & DIHT Central Laboratory",
+    competencyFocus: "Hospital Laboratory Internship Practicum (Year 4)",
+    isDefault: true,
+  },
+];
+
 const STORAGE_KEY = "labtutor_certificates_registry_v1";
 const TEMPLATE_STORAGE_KEY = "labtutor_cert_template_v1";
+const ADMIN_TEMPLATES_STORAGE_KEY = "labtutor_admin_cert_templates_v1";
 
 interface CertificateContextType {
   certificates: CertificateRecord[];
   templateConfig: CertificateTemplateConfig;
+  adminTemplates: AdminCertificateTemplate[];
   applyForCertificate: (
     data: Omit<CertificateRecord, "id" | "code" | "certificateNumber" | "status" | "applicationDate" | "verificationCode">
   ) => { success: boolean; error?: string; certificateNumber: string };
@@ -216,8 +303,13 @@ interface CertificateContextType {
     reviewerRole: string,
     feedback?: string
   ) => void;
+  updateCertificateRecord: (id: string, updates: Partial<CertificateRecord>) => void;
   updateTemplateConfig: (updates: Partial<CertificateTemplateConfig>) => void;
   resetTemplateConfig: () => void;
+  updateAdminTemplate: (id: string, updates: Partial<AdminCertificateTemplate>) => void;
+  addAdminTemplate: (tpl: Omit<AdminCertificateTemplate, "id">) => void;
+  resetAdminTemplates: () => void;
+  getTemplateForProgramAndYear: (program: ProgramLevel, year: string) => AdminCertificateTemplate;
 }
 
 const CertificateContext = React.createContext<CertificateContextType | undefined>(undefined);
@@ -225,6 +317,7 @@ const CertificateContext = React.createContext<CertificateContextType | undefine
 export function CertificateProvider({ children }: { children: React.ReactNode }) {
   const [certificates, setCertificates] = React.useState<CertificateRecord[]>(INITIAL_CERTIFICATES);
   const [templateConfig, setTemplateConfig] = React.useState<CertificateTemplateConfig>(DEFAULT_TEMPLATE);
+  const [adminTemplates, setAdminTemplates] = React.useState<AdminCertificateTemplate[]>(DEFAULT_ADMIN_TEMPLATES);
 
   React.useEffect(() => {
     try {
@@ -245,6 +338,13 @@ export function CertificateProvider({ children }: { children: React.ReactNode })
       const storedTemplate = localStorage.getItem(TEMPLATE_STORAGE_KEY);
       if (storedTemplate) {
         setTemplateConfig({ ...DEFAULT_TEMPLATE, ...JSON.parse(storedTemplate) });
+      }
+      const storedAdminTemplates = localStorage.getItem(ADMIN_TEMPLATES_STORAGE_KEY);
+      if (storedAdminTemplates) {
+        const parsedAdminTemplates = JSON.parse(storedAdminTemplates);
+        if (Array.isArray(parsedAdminTemplates) && parsedAdminTemplates.length > 0) {
+          setAdminTemplates(parsedAdminTemplates);
+        }
       }
     } catch {}
   }, []);
@@ -405,15 +505,78 @@ export function CertificateProvider({ children }: { children: React.ReactNode })
     } catch {}
   }, []);
 
+  const updateCertificateRecord = React.useCallback((id: string, updates: Partial<CertificateRecord>) => {
+    setCertificates((prev) => {
+      const next = prev.map((c) => (c.id === id ? { ...c, ...updates } : c));
+      persistCertificates(next);
+      return next;
+    });
+  }, []);
+
+  const persistAdminTemplates = (newTemplates: AdminCertificateTemplate[]) => {
+    setAdminTemplates(newTemplates);
+    try {
+      localStorage.setItem(ADMIN_TEMPLATES_STORAGE_KEY, JSON.stringify(newTemplates));
+    } catch {}
+  };
+
+  const updateAdminTemplate = React.useCallback((id: string, updates: Partial<AdminCertificateTemplate>) => {
+    setAdminTemplates((prev) => {
+      const next = prev.map((t) => (t.id === id ? { ...t, ...updates } : t));
+      persistAdminTemplates(next);
+      return next;
+    });
+  }, []);
+
+  const addAdminTemplate = React.useCallback((tpl: Omit<AdminCertificateTemplate, "id">) => {
+    const newTpl: AdminCertificateTemplate = {
+      ...tpl,
+      id: `tpl-${Date.now()}`,
+    };
+    setAdminTemplates((prev) => {
+      const next = [newTpl, ...prev];
+      persistAdminTemplates(next);
+      return next;
+    });
+  }, []);
+
+  const resetAdminTemplates = React.useCallback(() => {
+    persistAdminTemplates(DEFAULT_ADMIN_TEMPLATES);
+  }, []);
+
+  const getTemplateForProgramAndYear = React.useCallback(
+    (program: ProgramLevel, year: string): AdminCertificateTemplate => {
+      const found = adminTemplates.find((t) => t.program === program && t.year === year);
+      if (found) return found;
+      const defaultFound = DEFAULT_ADMIN_TEMPLATES.find((t) => t.program === program && t.year === year);
+      if (defaultFound) return defaultFound;
+      return {
+        id: `fallback-${program}-${year}`,
+        program,
+        year,
+        title: `${program === "BSC" ? "B.Sc." : "Diploma"} Competency: Diagnostic Clinical Benchmark & SOP Verification`,
+        institution: "DGHS Medical Technology Directorate & LabTutor Central Administration",
+        competencyFocus: "Clinical Laboratory Science & Diagnostic Competency",
+      };
+    },
+    [adminTemplates]
+  );
+
   return (
     <CertificateContext.Provider
       value={{
         certificates,
         templateConfig,
+        adminTemplates,
         applyForCertificate,
         reviewCertificate,
+        updateCertificateRecord,
         updateTemplateConfig,
         resetTemplateConfig,
+        updateAdminTemplate,
+        addAdminTemplate,
+        resetAdminTemplates,
+        getTemplateForProgramAndYear,
       }}
     >
       {children}
