@@ -7,8 +7,6 @@ import {
   ShieldCheck,
   Microscope,
   FileText,
-  GraduationCap,
-  Building2,
   Code2,
   CheckCircle2,
   ExternalLink,
@@ -46,10 +44,7 @@ export default function AboutPage() {
             </h2>
           </div>
 
-          <Card className="rounded-3xl border-border/80 shadow-sm overflow-hidden bg-gradient-to-br from-card via-card to-primary/[0.03]">
-            {/* Top Colored Accent Stripe */}
-            <div className="h-1.5 w-full bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600" />
-
+          <Card className="rounded-3xl border-border/80 shadow-sm overflow-hidden bg-card">
             <CardContent className="p-6 sm:p-8">
               <div className="flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8">
                 {/* Avatar with Glow Ring & Healthcare Badge */}
@@ -96,28 +91,6 @@ export default function AboutPage() {
                     </p>
                   </div>
 
-                  {/* 2 Quick Highlights */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-                    <div className="p-3.5 rounded-2xl bg-blue-500/[0.06] border border-blue-500/20 space-y-1">
-                      <div className="flex items-center gap-2 text-xs font-bold text-foreground">
-                        <GraduationCap className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0" />
-                        <span>Academic Background</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        Diploma in Medical Laboratory Technology (DMLT) from <strong>IHT, Rajshahi (2015)</strong>.
-                      </p>
-                    </div>
-
-                    <div className="p-3.5 rounded-2xl bg-emerald-500/[0.06] border border-emerald-500/20 space-y-1">
-                      <div className="flex items-center gap-2 text-xs font-bold text-foreground">
-                        <Building2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                        <span>Current Service</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        Serving as a <strong>Medical Technologist (Lab)</strong> under the <strong>Directorate General of Health Services (DGHS)</strong>.
-                      </p>
-                    </div>
-                  </div>
 
                   {/* Narrative Bio */}
                   <div className="p-4 rounded-2xl bg-muted/30 border border-border/70 text-xs sm:text-[13px] text-foreground/90 leading-relaxed space-y-2 text-left">

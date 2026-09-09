@@ -13,8 +13,6 @@ import {
   Award,
   Globe,
   MessageSquare,
-  GraduationCap,
-  Building2,
   CheckCircle2,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -62,10 +60,7 @@ export default function AboutDeveloperPage() {
       </div>
 
       {/* 2. Main Developer Profile Card */}
-      <Card className="rounded-3xl border-border/80 shadow-sm overflow-hidden bg-gradient-to-br from-card via-card to-primary/[0.03]">
-        {/* Subtle Top Accent Ribbon */}
-        <div className="h-1.5 w-full bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-600" />
-
+      <Card className="rounded-3xl border-border/80 shadow-sm overflow-hidden bg-card">
         <CardContent className="p-6 sm:p-8 lg:p-10">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8 lg:gap-10">
             {/* Left Column: Avatar & Designations */}
@@ -103,7 +98,7 @@ export default function AboutDeveloperPage() {
               </div>
             </div>
 
-            {/* Right Column: Name + Credentials + Narrative */}
+            {/* Right Column: Name + Narrative */}
             <div className="space-y-5 text-center md:text-left flex-1 min-w-0">
               <div>
                 <div className="flex items-center justify-center md:justify-start gap-3">
@@ -112,62 +107,8 @@ export default function AboutDeveloperPage() {
                   </h2>
                 </div>
 
-                {/* 3 Quick Credential Highlight Cards with Distinct Thematic Accents */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-4">
-                  {/* Card 1: Academic Background */}
-                  <div className="flex flex-col justify-between p-4 rounded-2xl bg-gradient-to-br from-blue-500/[0.08] via-blue-500/[0.02] to-transparent border border-blue-500/25 text-left shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs">
-                    <div>
-                      <div className="flex items-center gap-2.5 mb-2">
-                        <div className="p-2 rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400 shrink-0 shadow-2xs">
-                          <GraduationCap className="h-4.5 w-4.5" />
-                        </div>
-                        <span className="text-xs sm:text-[13px] font-bold text-foreground">
-                          Academic Background
-                        </span>
-                      </div>
-                      <p className="text-xs sm:text-[13.5px] text-muted-foreground leading-relaxed">
-                        Diploma in Medical Laboratory Technology from <strong>IHT, Rajshahi</strong> in 2015.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Card 2: Current Service */}
-                  <div className="flex flex-col justify-between p-4 rounded-2xl bg-gradient-to-br from-emerald-500/[0.08] via-emerald-500/[0.02] to-transparent border border-emerald-500/25 text-left shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs">
-                    <div>
-                      <div className="flex items-center gap-2.5 mb-2">
-                        <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
-                          <Building2 className="h-4.5 w-4.5" />
-                        </div>
-                        <span className="text-xs sm:text-[13px] font-bold text-foreground">
-                          Current Service
-                        </span>
-                      </div>
-                      <p className="text-xs sm:text-[13.5px] text-muted-foreground leading-relaxed">
-                        Working as a <strong>Medical Technologist (Lab)</strong> under the <strong>Directorate General of Health Services (DGHS)</strong>.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Card 3: Platform Leadership */}
-                  <div className="flex flex-col justify-between p-4 rounded-2xl bg-gradient-to-br from-purple-500/[0.08] via-purple-500/[0.02] to-transparent border border-purple-500/25 text-left shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs">
-                    <div>
-                      <div className="flex items-center gap-2.5 mb-2">
-                        <div className="p-2 rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-400 shrink-0 shadow-2xs">
-                          <Code2 className="h-4.5 w-4.5" />
-                        </div>
-                        <span className="text-xs sm:text-[13px] font-bold text-foreground">
-                          Platform Leadership
-                        </span>
-                      </div>
-                      <p className="text-xs sm:text-[13.5px] text-muted-foreground leading-relaxed">
-                        Creator, Architect & Full-Stack Developer of <strong>LabTutor Academy</strong>.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
                 {/* Detailed Professional Narrative Card */}
-                <div className="mt-5 p-5 sm:p-6 rounded-2xl bg-muted/25 border border-border/75 space-y-3 text-left shadow-2xs">
+                <div className="mt-4 p-5 sm:p-6 rounded-2xl bg-muted/25 border border-border/75 space-y-3 text-left shadow-2xs">
                   <p className="text-sm sm:text-base text-foreground/90 leading-relaxed font-normal">
                     Studied and completed the <strong>Diploma in Medical Laboratory Technology (DMLT)</strong> course from the <strong>Institute of Health Technology (IHT), Rajshahi</strong> in <strong>2015</strong>.
                   </p>
