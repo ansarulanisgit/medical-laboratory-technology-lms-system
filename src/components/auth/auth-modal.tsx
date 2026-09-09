@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { useAuthModal } from "./auth-modal-context";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -575,15 +574,8 @@ export function AuthModal() {
           {/* Top Brand Header */}
           <div className="relative space-y-3">
             <div className="flex items-center gap-3.5">
-              <div className="relative h-11 w-11 flex items-center justify-center shrink-0">
-                <Image
-                  src="/logo.png"
-                  alt="LabTutor Academy Logo"
-                  width={44}
-                  height={44}
-                  className="h-11 w-11 object-contain drop-shadow-md"
-                  priority
-                />
+              <div className="h-11 w-11 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-md shadow-primary/25 shrink-0">
+                <Microscope className="h-6 w-6" />
               </div>
               <div>
                 <div className="text-lg sm:text-xl font-black text-foreground tracking-tight leading-tight">

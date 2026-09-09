@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   ShieldAlert,
@@ -48,15 +47,9 @@ export function SuperAdminSidebar() {
     <aside className="h-screen w-64 flex-col border-r border-border bg-card text-card-foreground fixed left-0 top-0 z-30 hidden md:flex">
       {/* Brand & Super Admin Badge */}
       <div className="flex h-16 items-center justify-between border-b border-border px-4">
-        <Link href="/super-admin" className="flex items-center space-x-2.5">
-          <div className="relative flex h-9 w-9 items-center justify-center shrink-0">
-            <Image
-              src="/logo.png"
-              alt="LabTutor Academy"
-              width={36}
-              height={36}
-              className="h-9 w-9 object-contain drop-shadow-xs"
-            />
+        <Link href="/super-admin" className="flex items-center space-x-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-destructive text-destructive-foreground">
+            <ShieldAlert className="h-5 w-5" />
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-bold tracking-tight">LabTutor</span>

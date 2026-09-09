@@ -2,8 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { Bell, User, ShieldCheck } from "lucide-react";
+import { Microscope, Bell, User, ShieldCheck } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAcademicProfile } from "@/lib/curriculum/academic-context";
 
@@ -31,15 +30,8 @@ export function StudentMobileHeader() {
   return (
     <header className="flex h-14 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur md:hidden print:hidden">
       <Link href="/student" className="flex items-center space-x-2.5">
-        <div className="relative flex h-9 w-9 items-center justify-center shrink-0">
-          <Image
-            src="/logo.png"
-            alt="LabTutor Academy Logo"
-            width={36}
-            height={36}
-            className="h-9 w-9 object-contain drop-shadow-xs"
-            priority
-          />
+        <div className="flex h-9 w-9 items-center justify-center rounded-[11px] bg-primary text-primary-foreground shrink-0 shadow-xs">
+          <Microscope className="h-5 w-5" />
         </div>
         <div className="flex flex-col min-w-0">
           <span className="text-[16px] font-extrabold tracking-tight leading-tight whitespace-nowrap text-foreground">
