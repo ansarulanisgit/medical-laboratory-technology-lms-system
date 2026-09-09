@@ -26,6 +26,7 @@ import {
   useContributors,
   Contributor,
   ContributorStatus,
+  DEFAULT_CONTRIBUTOR_AVATAR,
 } from "@/lib/stores/contributor-store";
 
 interface ContributorsSectionProps {
@@ -483,13 +484,20 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
                     <ImageIcon className="h-4 w-4 text-primary" />
                     <span>Profile Photo (Max Size: 2MB)</span>
                   </label>
-                  {photoPreview && (
+                  {photoPreview ? (
                     <Badge
                       variant="outline"
                       className="text-[11px] border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 gap-1 font-semibold"
                     >
                       <CheckCircle2 className="h-3 w-3" />
-                      Photo Loaded
+                      Custom Photo
+                    </Badge>
+                  ) : (
+                    <Badge
+                      variant="outline"
+                      className="text-[11px] border-border bg-muted/60 text-muted-foreground gap-1 font-medium"
+                    >
+                      Default Avatar Active
                     </Badge>
                   )}
                 </div>
@@ -497,21 +505,17 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
                 <div className="flex flex-col sm:flex-row items-center gap-5 pt-1">
                   {/* Circular Preview with Light Border */}
                   <div className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-full overflow-hidden border-2 border-border p-0.5 bg-background shadow-xs ring-4 ring-primary/10 shrink-0 flex items-center justify-center">
-                    {photoPreview ? (
-                      <img
-                        src={photoPreview}
-                        alt="Preview"
-                        className="h-full w-full rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="h-full w-full rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xl sm:text-2xl">
-                        {formData.name ? (
-                          formData.name.charAt(0).toUpperCase()
-                        ) : (
-                          <ImageIcon className="h-8 w-8 text-muted-foreground/50" />
-                        )}
-                      </div>
-                    )}
+                    <img
+                      src={photoPreview?.trim() || DEFAULT_CONTRIBUTOR_AVATAR}
+                      alt="Preview"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        if (target.src !== DEFAULT_CONTRIBUTOR_AVATAR) {
+                          target.src = DEFAULT_CONTRIBUTOR_AVATAR;
+                        }
+                      }}
+                      className="h-full w-full rounded-full object-cover"
+                    />
                   </div>
 
                   {/* Upload Actions & Instructions */}
@@ -901,23 +905,17 @@ function ContributorCard({
         {/* 1. Profile Photo (Circular with light border) */}
         <div className="relative">
           <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full overflow-hidden border-2 border-border/80 p-0.5 bg-muted/20 shadow-xs ring-2 ring-primary/10 transition-transform duration-300 group-hover:scale-105">
-            {contributor.avatarUrl ? (
-              <img
-                src={contributor.avatarUrl}
-                alt={contributor.name}
-                className="h-full w-full rounded-full object-cover"
-              />
-            ) : (
-              <div className="h-full w-full rounded-full bg-gradient-to-br from-primary/20 via-primary/10 to-muted flex items-center justify-center font-bold text-xl text-primary">
-                {contributor.name
-                  .split(" ")
-                  .map((w) => w[0])
-                  .filter(Boolean)
-                  .slice(0, 2)
-                  .join("")
-                  .toUpperCase()}
-              </div>
-            )}
+            <img
+              src={contributor.avatarUrl?.trim() || DEFAULT_CONTRIBUTOR_AVATAR}
+              alt={contributor.name}
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (target.src !== DEFAULT_CONTRIBUTOR_AVATAR) {
+                  target.src = DEFAULT_CONTRIBUTOR_AVATAR;
+                }
+              }}
+              className="h-full w-full rounded-full object-cover"
+            />
           </div>
 
           {/* Status Indicator Icon Badge */}
