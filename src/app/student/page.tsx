@@ -453,24 +453,24 @@ export default function StudentDashboardPage() {
               <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide block mb-1">
                 Total Enrolled Students
               </span>
-              <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{studentCount}</div>
-              <p className="text-sm md:text-base font-medium text-muted-foreground mt-1">Across 4 Diploma & B.Sc. Years</p>
+              <div className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">{studentCount}</div>
+              <p className="text-[14px] font-medium text-muted-foreground mt-1">Across 4 Diploma & B.Sc. Years</p>
             </Card>
 
             <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
               <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide block mb-1">
                 Practical SOP Protocols
               </span>
-              <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{safePracticals.length}</div>
-              <p className="text-sm md:text-base font-medium text-muted-foreground mt-1">All Clinical Laboratory Disciplines</p>
+              <div className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">{safePracticals.length}</div>
+              <p className="text-[14px] font-medium text-muted-foreground mt-1">All Clinical Laboratory Disciplines</p>
             </Card>
 
             <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
               <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide block mb-1">
                 Active Job Postings
               </span>
-              <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{safeJobs.filter((j) => j?.isActive).length}</div>
-              <p className="text-sm md:text-base font-medium text-muted-foreground mt-1">Hospital & Diagnostic Opportunities</p>
+              <div className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">{safeJobs.filter((j) => j?.isActive).length}</div>
+              <p className="text-[14px] font-medium text-muted-foreground mt-1">Hospital & Diagnostic Opportunities</p>
             </Card>
           </div>
 
@@ -509,32 +509,32 @@ export default function StudentDashboardPage() {
               <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide block mb-1">
                 Question Bank Papers
               </span>
-              <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{safeQuestions.length}</div>
-              <p className="text-sm md:text-base font-medium text-muted-foreground mt-1">Official faculty papers with solutions</p>
+              <div className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">{safeQuestions.length}</div>
+              <p className="text-[14px] font-medium text-muted-foreground mt-1">Official faculty papers with solutions</p>
             </Card>
 
             <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
               <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide block mb-1">
                 Practical SOP Guides
               </span>
-              <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{safePracticals.length}</div>
-              <p className="text-sm md:text-base font-medium text-muted-foreground mt-1">Step-by-step diagnostic procedures</p>
+              <div className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">{safePracticals.length}</div>
+              <p className="text-[14px] font-medium text-muted-foreground mt-1">Step-by-step diagnostic procedures</p>
             </Card>
 
             <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
               <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide block mb-1">
                 Clinical Inquiries
               </span>
-              <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">14</div>
-              <p className="text-sm md:text-base font-medium text-muted-foreground mt-1">Study Center & Practical Q&A queries</p>
+              <div className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">14</div>
+              <p className="text-[14px] font-medium text-muted-foreground mt-1">Study Center & Practical Q&A queries</p>
             </Card>
 
             <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
               <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide block mb-1">
                 Active Job Offers
               </span>
-              <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{safeJobs.length}</div>
-              <p className="text-sm md:text-base font-medium text-muted-foreground mt-1">Shared with graduating trainees</p>
+              <div className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">{safeJobs.length}</div>
+              <p className="text-[14px] font-medium text-muted-foreground mt-1">Shared with graduating trainees</p>
             </Card>
           </div>
 
@@ -579,7 +579,7 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{avgProgress}%</div>
+                <div className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">{avgProgress}%</div>
                 <div className="w-full bg-muted rounded-full h-2 overflow-hidden mt-2">
                   <div
                     className="bg-primary h-full transition-all duration-500 rounded-full"
@@ -599,10 +599,10 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
+                <div className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">
                   {completedLessons} / {totalLessons}
                 </div>
-                <p className="text-sm md:text-base font-medium text-muted-foreground leading-snug pt-0.5">
+                <p className="text-[14px] font-medium text-muted-foreground leading-snug pt-0.5">
                   Topics completed this academic year
                 </p>
               </div>
@@ -618,8 +618,8 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{safeQuestions.length}</div>
-                <p className="text-sm md:text-base font-medium text-muted-foreground leading-snug pt-0.5">
+                <div className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">{safeQuestions.length}</div>
+                <p className="text-[14px] font-medium text-muted-foreground leading-snug pt-0.5">
                   Solved board papers available
                 </p>
               </div>
@@ -635,8 +635,8 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{safePracticals.length}</div>
-                <p className="text-sm md:text-base font-medium text-muted-foreground leading-snug pt-0.5">
+                <div className="text-3xl sm:text-4xl font-extrabold text-primary tracking-tight">{safePracticals.length}</div>
+                <p className="text-[14px] font-medium text-muted-foreground leading-snug pt-0.5">
                   Bench training modules
                 </p>
               </div>
