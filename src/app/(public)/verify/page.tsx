@@ -3,13 +3,13 @@
 import * as React from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import jsQR from "jsqr";
 import { PublicNavbar } from "@/components/layout/public-navbar";
 import { PublicFooter } from "@/components/layout/public-footer";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { QRCodeView } from "@/components/ui/qr-code-view";
 import {
   useCertificates,
   CertificateRecord,
@@ -27,7 +27,6 @@ import {
   Printer,
   Copy,
   Check,
-  ExternalLink,
   Award,
   GraduationCap,
   Building2,
@@ -36,10 +35,15 @@ import {
   KeyRound,
   FileCheck2,
   UserCheck,
-  ArrowRight,
   Eye,
   EyeOff,
   RefreshCw,
+  QrCode,
+  Camera,
+  Upload,
+  X,
+  FlipHorizontal,
+  Image as ImageIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +58,19 @@ function CertificateVerificationContent() {
   const [showDocPreview, setShowDocPreview] = React.useState(false);
   const [verifiedAt, setVerifiedAt] = React.useState<string>("");
 
+  // Scanner modal state
+  const [isScannerOpen, setIsScannerOpen] = React.useState(false);
+  const [scannerMode, setScannerMode] = React.useState<"camera" | "upload">("camera");
+  const [cameraError, setCameraError] = React.useState<string | null>(null);
+  const [isCameraActive, setIsCameraActive] = React.useState(false);
+  const [facingMode, setFacingMode] = React.useState<"environment" | "user">("environment");
+  const [isProcessingImage, setIsProcessingImage] = React.useState(false);
+
+  const videoRef = React.useRef<HTMLVideoElement | null>(null);
+  const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
+  const animationFrameIdRef = React.useRef<number | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+
   const verifyCode = React.useCallback(
     (codeToVerify: string) => {
       const trimmed = codeToVerify.trim();
@@ -62,9 +79,7 @@ function CertificateVerificationContent() {
       setStatus("loading");
       setVerifiedCert(null);
 
-      // Brief query simulation for professional UX responsiveness
       setTimeout(() => {
-        // Query via store context or fallback to INITIAL_CERTIFICATES
         let found = findCertificate ? findCertificate(trimmed) : undefined;
         if (!found) {
           found = findCertificateByQuery(trimmed, certificates || INITIAL_CERTIFICATES);
@@ -91,7 +106,7 @@ function CertificateVerificationContent() {
     [findCertificate, certificates]
   );
 
-  // Auto-verify if "code" or "id" query parameter is in the URL on mount
+  // Auto-verify if query parameter is in the URL on mount
   React.useEffect(() => {
     const urlCode =
       searchParams.get("code") ||
@@ -108,7 +123,6 @@ function CertificateVerificationContent() {
     e.preventDefault();
     if (!certCode.trim()) return;
 
-    // Update browser URL query parameter without full reload for instant sharing
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       url.searchParams.set("code", certCode.trim());
@@ -142,11 +156,185 @@ function CertificateVerificationContent() {
     window.print();
   };
 
-  const verifyUrl = verifiedCert
-    ? typeof window !== "undefined"
-      ? `${window.location.origin}/verify?code=${encodeURIComponent(verifiedCert.certificateNumber || verifiedCert.code)}`
-      : `https://labtutor.academy/verify?code=${encodeURIComponent(verifiedCert.certificateNumber || verifiedCert.code)}`
-    : "";
+  // Helper to extract clean code from scanned QR URL or raw text
+  const extractCodeFromScannedData = (rawText: string): string => {
+    try {
+      if (rawText.includes("http://") || rawText.includes("https://")) {
+        const parsed = new URL(rawText);
+        const codeParam =
+          parsed.searchParams.get("code") ||
+          parsed.searchParams.get("id") ||
+          parsed.searchParams.get("cert") ||
+          parsed.searchParams.get("verificationCode");
+        if (codeParam) return codeParam.trim();
+      }
+    } catch {}
+
+    // Check query string style: ?code=...
+    const match = rawText.match(/[?&](?:code|id|cert)=([^&]+)/i);
+    if (match && match[1]) {
+      return decodeURIComponent(match[1]).trim();
+    }
+
+    return rawText.trim();
+  };
+
+  // Stop active camera stream
+  const stopCamera = React.useCallback(() => {
+    if (animationFrameIdRef.current) {
+      cancelAnimationFrame(animationFrameIdRef.current);
+      animationFrameIdRef.current = null;
+    }
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach((track) => track.stop());
+      videoRef.current.srcObject = null;
+    }
+    setIsCameraActive(false);
+  }, []);
+
+  // Continuous frame scanner via requestAnimationFrame
+  const scanFrame = React.useCallback(() => {
+    if (!videoRef.current || !canvasRef.current) return;
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+          inversionAttempts: "dontInvert",
+        });
+
+        if (code && code.data) {
+          const detected = extractCodeFromScannedData(code.data);
+          if (detected) {
+            stopCamera();
+            setIsScannerOpen(false);
+            setCertCode(detected);
+            if (typeof window !== "undefined") {
+              const url = new URL(window.location.href);
+              url.searchParams.set("code", detected);
+              window.history.replaceState({}, "", url.toString());
+            }
+            verifyCode(detected);
+            return;
+          }
+        }
+      }
+    }
+
+    animationFrameIdRef.current = requestAnimationFrame(scanFrame);
+  }, [stopCamera, verifyCode]);
+
+  // Start live camera stream
+  const startCamera = React.useCallback(async () => {
+    setCameraError(null);
+    stopCamera();
+
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setCameraError("Camera access is not supported by your browser or environment. Please upload a certificate photo instead.");
+        return;
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: facingMode,
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
+      });
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.setAttribute("playsinline", "true");
+        await videoRef.current.play();
+        setIsCameraActive(true);
+        animationFrameIdRef.current = requestAnimationFrame(scanFrame);
+      }
+    } catch (err: any) {
+      console.error("Camera access error:", err);
+      setCameraError(
+        err.name === "NotAllowedError" || err.name === "PermissionDeniedError"
+          ? "Camera permission was denied. Please allow camera access in browser permissions or use the photo upload option."
+          : "Unable to start camera. Please verify device permissions or upload an image."
+      );
+      setIsCameraActive(false);
+    }
+  }, [facingMode, stopCamera, scanFrame]);
+
+  // Handle scanner modal open/close
+  React.useEffect(() => {
+    if (isScannerOpen && scannerMode === "camera") {
+      startCamera();
+    } else {
+      stopCamera();
+    }
+
+    return () => {
+      stopCamera();
+    };
+  }, [isScannerOpen, scannerMode, startCamera, stopCamera]);
+
+  // Process uploaded image file for QR code
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsProcessingImage(true);
+    setCameraError(null);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        if (!ctx) {
+          setIsProcessingImage(false);
+          setCameraError("Unable to initialize image parser canvas.");
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+        setIsProcessingImage(false);
+
+        if (code && code.data) {
+          const detected = extractCodeFromScannedData(code.data);
+          setIsScannerOpen(false);
+          setCertCode(detected);
+          if (typeof window !== "undefined") {
+            const url = new URL(window.location.href);
+            url.searchParams.set("code", detected);
+            window.history.replaceState({}, "", url.toString());
+          }
+          verifyCode(detected);
+        } else {
+          setCameraError("No QR code detected in the uploaded image. Please ensure the code is clear, well-lit, and not cropped.");
+        }
+      };
+      img.onerror = () => {
+        setIsProcessingImage(false);
+        setCameraError("Failed to load image file. Please try another image.");
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.onerror = () => {
+      setIsProcessingImage(false);
+      setCameraError("Error reading image file.");
+    };
+    reader.readAsDataURL(file);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
@@ -159,15 +347,12 @@ function CertificateVerificationContent() {
             <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5 px-3 py-1 font-semibold">
               Institutional Credential Registry
             </Badge>
-            <Badge variant="outline" className="text-muted-foreground border-border text-[11px] font-mono">
-              US Letter Standard (8.5 × 11 in)
-            </Badge>
           </div>
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
             Verify Issued Certificate
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            Enter the official <strong>Certificate Number</strong>, <strong>Authentication Code</strong>, or scan the credential’s QR code to confirm candidate competency, institutional conferral, and academic benchmark records.
+            Enter the official <strong>Certificate Number</strong>, <strong>Authentication Code</strong>, or click <strong>Scan Code</strong> to verify candidate competency, institutional conferral, and academic benchmark records.
           </p>
         </div>
 
@@ -186,7 +371,7 @@ function CertificateVerificationContent() {
               </span>
             </CardTitle>
             <CardDescription className="text-xs">
-              Supports official Certificate Numbers (e.g. <span className="font-mono font-bold text-primary">LTA-DIP-2025-48201</span>), verification hashes, or registry reference codes.
+              Supports official Certificate Numbers (e.g. <span className="font-mono font-bold text-primary">LTA-DIP-2025-48201</span>), verification hashes, or QR code camera scanning.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -216,6 +401,23 @@ function CertificateVerificationContent() {
                     </button>
                   )}
                 </div>
+
+                {/* Scan Code Button */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsScannerOpen(true);
+                    setScannerMode("camera");
+                  }}
+                  className="min-h-[44px] px-4 rounded-xl font-semibold gap-2 border-primary/40 text-primary hover:bg-primary/10 cursor-pointer"
+                  title="Scan certificate QR code with device camera or upload image"
+                >
+                  <QrCode className="h-4 w-4" />
+                  <span>Scan Code</span>
+                </Button>
+
+                {/* Verify Submit Button */}
                 <Button
                   type="submit"
                   disabled={status === "loading" || !certCode.trim()}
@@ -298,7 +500,7 @@ function CertificateVerificationContent() {
                     </p>
                     <ul className="text-xs text-muted-foreground list-disc list-inside pt-1 space-y-0.5">
                       <li>Check that the Certificate Number is typed exactly as printed (e.g. <span className="font-mono">LTA-DIP-2025-48201</span>).</li>
-                      <li>Scan the printed QR code with your phone camera to open the direct verification link.</li>
+                      <li>Click <strong>Scan Code</strong> to scan the printed certificate QR code using your device camera.</li>
                       <li>Try testing one of the official sample credentials above.</li>
                     </ul>
                   </div>
@@ -423,16 +625,18 @@ function CertificateVerificationContent() {
                       </p>
                     </div>
 
-                    {/* QR Code Scannable View */}
-                    <div className="flex items-center gap-3 shrink-0 bg-muted/40 p-2.5 rounded-xl border border-border/60">
-                      <QRCodeView value={verifyUrl} size={84} />
+                    {/* Official Registry Authenticated Seal Badge */}
+                    <div className="flex items-center gap-3 shrink-0 bg-primary/5 p-3 rounded-xl border border-primary/20">
+                      <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold shrink-0">
+                        <ShieldCheck className="h-6 w-6" />
+                      </div>
                       <div className="text-[11px] space-y-0.5">
-                        <span className="font-bold text-foreground block">Scan to Verify</span>
-                        <span className="font-mono text-muted-foreground text-[10px] block">
+                        <span className="font-bold text-foreground block">Registry Authenticated</span>
+                        <span className="font-mono text-primary font-bold text-[11px] block">
                           {verifiedCert.certificateNumber}
                         </span>
                         <Badge variant="outline" className="text-[9px] font-mono border-emerald-500/30 text-emerald-600 bg-emerald-500/5">
-                          Cryptographically Signed
+                          Auth: {verifiedCert.verificationCode || "VERIFIED"}
                         </Badge>
                       </div>
                     </div>
@@ -585,10 +789,8 @@ function CertificateVerificationContent() {
                     </Button>
 
                     <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-                      <span>Standard: US Letter (8.5 × 11 in)</span>
-                      <span>•</span>
                       <Link href="/contact" className="hover:text-primary transition-colors underline">
-                        Report Issue
+                        Report Credential Inconsistency
                       </Link>
                     </div>
                   </div>
@@ -611,11 +813,6 @@ function CertificateVerificationContent() {
                             : "aspect-[11/8.5] max-w-[920px]"
                         )}
                       >
-                        {/* US Letter Dimension Label */}
-                        <div className="absolute top-2 right-4 z-10 pointer-events-none opacity-50 text-[9px] font-mono select-none">
-                          US Letter: 8.5 × 11 inches (21.6 × 27.9 cm)
-                        </div>
-
                         {/* Watermark Logo */}
                         <div className="absolute inset-0 pointer-events-none select-none z-0 flex items-center justify-center overflow-hidden p-6">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -731,6 +928,207 @@ function CertificateVerificationContent() {
           </CardContent>
         </Card>
       </main>
+
+      {/* SCAN CODE MODAL (Camera Scanner & Photo Upload) */}
+      {isScannerOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-150"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              stopCamera();
+              setIsScannerOpen(false);
+            }
+          }}
+        >
+          <div className="bg-card border border-border rounded-3xl max-w-md w-full p-5 space-y-4 shadow-2xl relative">
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div className="flex items-center space-x-2">
+                <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                  <QrCode className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-foreground">Scan Certificate Code</h3>
+                  <p className="text-[11px] text-muted-foreground">Scan physical certificate QR code</p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  stopCamera();
+                  setIsScannerOpen(false);
+                }}
+                className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Mode Switcher Tabs */}
+            <div className="grid grid-cols-2 gap-1 p-1 bg-muted rounded-xl text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => setScannerMode("camera")}
+                className={cn(
+                  "py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer",
+                  scannerMode === "camera"
+                    ? "bg-background text-foreground shadow-xs font-bold"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Camera className="h-3.5 w-3.5" />
+                <span>Live Camera</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  stopCamera();
+                  setScannerMode("upload");
+                }}
+                className={cn(
+                  "py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer",
+                  scannerMode === "upload"
+                    ? "bg-background text-foreground shadow-xs font-bold"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Upload className="h-3.5 w-3.5" />
+                <span>Upload Photo</span>
+              </button>
+            </div>
+
+            {/* Camera Scanner View */}
+            {scannerMode === "camera" && (
+              <div className="space-y-3">
+                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-black flex items-center justify-center border-2 border-primary/30 shadow-inner">
+                  {/* Video Stream Element */}
+                  <video
+                    ref={videoRef}
+                    className="w-full h-full object-cover"
+                    muted
+                    autoPlay
+                    playsInline
+                  />
+                  {/* Hidden Canvas for Frame Processing */}
+                  <canvas ref={canvasRef} className="hidden" />
+
+                  {/* Scanning Overlay Reticle */}
+                  {isCameraActive && (
+                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center p-8">
+                      <div className="w-56 h-56 border-2 border-dashed border-emerald-400/90 rounded-2xl relative flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+                        {/* Laser Scan Animation Line */}
+                        <div className="absolute inset-x-2 h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent animate-pulse" />
+                        <div className="absolute top-2 left-2 w-4 h-4 border-t-2 border-l-2 border-emerald-400" />
+                        <div className="absolute top-2 right-2 w-4 h-4 border-t-2 border-r-2 border-emerald-400" />
+                        <div className="absolute bottom-2 left-2 w-4 h-4 border-b-2 border-l-2 border-emerald-400" />
+                        <div className="absolute bottom-2 right-2 w-4 h-4 border-b-2 border-r-2 border-emerald-400" />
+                        <span className="text-[10px] font-mono text-emerald-300 font-bold bg-black/60 px-2 py-0.5 rounded backdrop-blur-xs">
+                          Align QR code here
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Starting / Loading Spinner */}
+                  {!isCameraActive && !cameraError && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-black/80 text-white space-y-2">
+                      <RefreshCw className="h-7 w-7 animate-spin text-primary" />
+                      <p className="text-xs font-semibold">Requesting camera access...</p>
+                    </div>
+                  )}
+
+                  {/* Camera Error Display */}
+                  {cameraError && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-black/90 text-white space-y-3">
+                      <AlertCircle className="h-8 w-8 text-destructive" />
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {cameraError}
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={startCamera}
+                        className="text-xs rounded-xl h-8"
+                      >
+                        Try Again
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Camera Action Controls */}
+                <div className="flex items-center justify-between gap-2 text-xs">
+                  <span className="text-muted-foreground">
+                    Point your camera at the certificate QR code.
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setFacingMode((prev) => (prev === "environment" ? "user" : "environment"));
+                    }}
+                    className="gap-1.5 h-8 text-[11px] rounded-lg cursor-pointer"
+                  >
+                    <FlipHorizontal className="h-3.5 w-3.5" />
+                    <span>Flip Camera</span>
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Photo Upload Scanner View */}
+            {scannerMode === "upload" && (
+              <div className="space-y-3">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept="image/*"
+                  className="hidden"
+                />
+
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-border hover:border-primary/50 transition-colors rounded-2xl p-8 text-center space-y-3 cursor-pointer bg-muted/20"
+                >
+                  <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto">
+                    {isProcessingImage ? (
+                      <RefreshCw className="h-6 w-6 animate-spin" />
+                    ) : (
+                      <ImageIcon className="h-6 w-6" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm text-foreground">
+                      {isProcessingImage ? "Scanning Photo..." : "Select or Drop Certificate Photo"}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Supports PNG, JPG, JPEG, and WebP photos containing a certificate QR code
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    disabled={isProcessingImage}
+                    className="text-xs rounded-xl pointer-events-none"
+                  >
+                    Browse Files
+                  </Button>
+                </div>
+
+                {cameraError && (
+                  <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs space-y-1">
+                    <p className="font-bold">Scan Error</p>
+                    <p className="text-[11px]">{cameraError}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <PublicFooter />
 
