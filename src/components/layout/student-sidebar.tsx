@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Home,
@@ -144,8 +145,15 @@ export function StudentSidebar() {
             isCollapsed ? "justify-center w-full" : "space-x-3"
           )}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-primary text-primary-foreground shadow-xs shrink-0 transition-transform group-hover:scale-105 mx-auto">
-            <Microscope className="h-5.5 w-5.5" />
+          <div className="relative flex h-10 w-10 items-center justify-center shrink-0 transition-transform group-hover:scale-105 mx-auto">
+            <Image
+              src="/logo.png"
+              alt="LabTutor Academy Logo"
+              width={40}
+              height={40}
+              className="h-10 w-10 object-contain drop-shadow-xs"
+              priority
+            />
           </div>
           {!isCollapsed && (
             <div className="flex flex-col min-w-0 transition-opacity duration-300 animate-in fade-in">

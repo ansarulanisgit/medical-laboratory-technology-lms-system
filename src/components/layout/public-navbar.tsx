@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -26,9 +27,16 @@ export function PublicNavbar() {
     <header className="w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
         {/* Brand Logo */}
-        <Link href="/" className="flex items-center space-x-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-            <Microscope className="h-6 w-6" />
+        <Link href="/" className="flex items-center space-x-2.5 group">
+          <div className="relative flex h-10 w-10 items-center justify-center shrink-0 transition-transform group-hover:scale-105">
+            <Image
+              src="/logo.png"
+              alt="LabTutor Academy Logo"
+              width={40}
+              height={40}
+              className="h-10 w-10 object-contain drop-shadow-sm"
+              priority
+            />
           </div>
           <div className="flex flex-col">
             <span className="text-base font-bold tracking-tight text-foreground sm:text-lg">

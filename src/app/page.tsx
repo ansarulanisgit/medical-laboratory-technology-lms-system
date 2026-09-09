@@ -273,12 +273,6 @@ export default function HomePage() {
           />
 
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl text-center relative">
-            {/* Top Super Badge */}
-            <div className="inline-flex items-center gap-2.5 rounded-full border border-primary/30 bg-primary/10 px-5 sm:px-6 py-2.5 text-sm sm:text-base font-bold text-primary mb-7 shadow-xs">
-              <GraduationCap className="h-5 w-5 shrink-0 text-primary" />
-              <span>Dedicated Platform for Future Medical Laboratory Technologists</span>
-            </div>
-
             {/* Main Headline (Short, Meaningful & Engaging) */}
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-foreground leading-[1.18] max-w-4xl mx-auto">
               Learn, Practice &amp; Excel in{" "}
@@ -288,8 +282,13 @@ export default function HomePage() {
             </h1>
 
             {/* Clear, Engaging Subhead */}
-            <p className="mt-6 text-[18px] text-black dark:text-neutral-100 max-w-4xl mx-auto leading-relaxed font-normal">
-              The all-in-one digital learning and competency development platform for Diploma and BSc Medical Laboratory Technology students in Bangladesh. Learn smarter, practice with confidence, prepare for exams, develop essential laboratory competencies, and build the knowledge and skills you need for a successful career as a Medical Laboratory Technologist—all in one place.
+            <p className="mt-4 sm:mt-6 text-base sm:text-[18px] text-foreground/90 max-w-4xl mx-auto leading-relaxed font-normal">
+              <span className="block sm:hidden">
+                The all-in-one digital learning and competency platform for Diploma and B.Sc. Medical Laboratory Technology students in Bangladesh.
+              </span>
+              <span className="hidden sm:inline">
+                The all-in-one digital learning and competency development platform for Diploma and BSc Medical Laboratory Technology students in Bangladesh. Learn smarter, practice with confidence, prepare for exams, develop essential laboratory competencies, and build the knowledge and skills you need for a successful career as a Medical Laboratory Technologist—all in one place.
+              </span>
             </p>
 
             {/* Primary Action Buttons */}
