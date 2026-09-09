@@ -146,7 +146,7 @@ const DEFAULT_TEMPLATE: CertificateTemplateConfig = {
   showCenterLogoWatermark: true,
 };
 
-const INITIAL_CERTIFICATES: CertificateRecord[] = [
+export const INITIAL_CERTIFICATES: CertificateRecord[] = [
   {
     id: "cert-001",
     code: "LT-CERT-2025-0482",
@@ -199,6 +199,74 @@ const INITIAL_CERTIFICATES: CertificateRecord[] = [
     verificationCode: "VER-PENDING-0482",
   },
 ];
+
+export const CERTIFICATES_STORAGE_KEY = "labtutor_certificates_registry_v1";
+const STORAGE_KEY = CERTIFICATES_STORAGE_KEY;
+const TEMPLATE_STORAGE_KEY = "labtutor_cert_template_v1";
+const ADMIN_TEMPLATES_STORAGE_KEY = "labtutor_admin_cert_templates_v1";
+
+export function getProgramLabel(program: ProgramLevel | string): string {
+  if (program === "BSC") {
+    return "Bachelor of Science in Health Technology (Laboratory) — B.Sc. MLT";
+  }
+  return "Diploma in Medical Laboratory Technology — DMLT (SMFB)";
+}
+
+export function getYearLabel(year: string | number): string {
+  const y = String(year);
+  switch (y) {
+    case "1":
+      return "1st Year (Foundation Benchwork & Basic Sciences)";
+    case "2":
+      return "2nd Year (Core Clinical Pathology, Hematology & Microbiology)";
+    case "3":
+      return "3rd Year (Advanced Diagnostics, Immunohematology & QC)";
+    case "4":
+      return "4th Year (Hospital Laboratory Practicum & Management)";
+    default:
+      return `Year ${year}`;
+  }
+}
+
+export function findCertificateByQuery(
+  query: string,
+  records?: CertificateRecord[]
+): CertificateRecord | undefined {
+  if (!query || !query.trim()) return undefined;
+  const clean = query.trim().toUpperCase();
+
+  const list = records && records.length > 0 ? records : INITIAL_CERTIFICATES;
+
+  // Demo code backward compatibility
+  if (clean === "LAB-DEMO-2026" || clean === "DEMO") {
+    return list[0];
+  }
+
+  // Exact matches
+  const exact = list.find((cert) => {
+    return (
+      (cert.certificateNumber && cert.certificateNumber.toUpperCase() === clean) ||
+      (cert.code && cert.code.toUpperCase() === clean) ||
+      (cert.verificationCode && cert.verificationCode.toUpperCase() === clean) ||
+      (cert.id && cert.id.toUpperCase() === clean)
+    );
+  });
+  if (exact) return exact;
+
+  // Normalized alphanumeric (ignoring hyphens, spaces, slashes)
+  const cleanAlphaNum = clean.replace(/[^A-Z0-9]/g, "");
+  if (cleanAlphaNum.length >= 4) {
+    const loose = list.find((cert) => {
+      const cNum = (cert.certificateNumber || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+      const cCode = (cert.code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+      const cVer = (cert.verificationCode || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+      return cNum === cleanAlphaNum || cCode === cleanAlphaNum || cVer === cleanAlphaNum;
+    });
+    if (loose) return loose;
+  }
+
+  return undefined;
+}
 
 export interface AdminCertificateTemplate {
   id: string;
@@ -285,10 +353,6 @@ export const DEFAULT_ADMIN_TEMPLATES: AdminCertificateTemplate[] = [
   },
 ];
 
-const STORAGE_KEY = "labtutor_certificates_registry_v1";
-const TEMPLATE_STORAGE_KEY = "labtutor_cert_template_v1";
-const ADMIN_TEMPLATES_STORAGE_KEY = "labtutor_admin_cert_templates_v1";
-
 interface CertificateContextType {
   certificates: CertificateRecord[];
   templateConfig: CertificateTemplateConfig;
@@ -310,6 +374,7 @@ interface CertificateContextType {
   addAdminTemplate: (tpl: Omit<AdminCertificateTemplate, "id">) => void;
   resetAdminTemplates: () => void;
   getTemplateForProgramAndYear: (program: ProgramLevel, year: string) => AdminCertificateTemplate;
+  findCertificate: (query: string) => CertificateRecord | undefined;
 }
 
 const CertificateContext = React.createContext<CertificateContextType | undefined>(undefined);
@@ -566,6 +631,13 @@ export function CertificateProvider({ children }: { children: React.ReactNode })
     [adminTemplates]
   );
 
+  const findCertificate = React.useCallback(
+    (query: string): CertificateRecord | undefined => {
+      return findCertificateByQuery(query, certificates);
+    },
+    [certificates]
+  );
+
   return (
     <CertificateContext.Provider
       value={{
@@ -581,6 +653,7 @@ export function CertificateProvider({ children }: { children: React.ReactNode })
         addAdminTemplate,
         resetAdminTemplates,
         getTemplateForProgramAndYear,
+        findCertificate,
       }}
     >
       {children}

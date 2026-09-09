@@ -12,7 +12,6 @@ import { StringProvider } from "@/lib/stores/string-store";
 import { ModuleProvider } from "@/lib/stores/module-management-store";
 import { QuestionBankProvider } from "@/lib/stores/question-bank-store";
 import { PracticalProvider } from "@/lib/stores/practical-lab-store";
-import { CertificateProvider } from "@/lib/stores/certificate-store";
 import { ResumeProvider } from "@/lib/stores/resume-store";
 import { JobsProvider } from "@/lib/stores/jobs-store";
 import { UpdatesProvider } from "@/lib/stores/updates-store";
@@ -31,29 +30,27 @@ export default function StudentLayout({
               <ModuleProvider>
                 <QuestionBankProvider>
                   <PracticalProvider>
-                    <CertificateProvider>
-                      <ResumeProvider>
-                        <JobsProvider>
-                          <UpdatesProvider>
-                            <SidebarProvider>
-                              <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row w-full overflow-x-hidden">
-                                {/* Mobile Top Header (Small screens) */}
-                                <StudentMobileHeader />
+                    <ResumeProvider>
+                      <JobsProvider>
+                        <UpdatesProvider>
+                          <SidebarProvider>
+                            <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row w-full overflow-x-hidden">
+                              {/* Mobile Top Header (Small screens) */}
+                              <StudentMobileHeader />
 
-                                {/* Desktop Left Sidebar */}
-                                <StudentSidebar />
+                              {/* Desktop Left Sidebar */}
+                              <StudentSidebar />
 
-                                {/* Main Content Area */}
-                                <StudentMainContent>{children}</StudentMainContent>
+                              {/* Main Content Area */}
+                              <StudentMainContent>{children}</StudentMainContent>
 
-                                {/* Mobile Bottom Navigation */}
-                                <StudentBottomNav />
-                              </div>
-                            </SidebarProvider>
-                          </UpdatesProvider>
-                        </JobsProvider>
-                      </ResumeProvider>
-                    </CertificateProvider>
+                              {/* Mobile Bottom Navigation */}
+                              <StudentBottomNav />
+                            </div>
+                          </SidebarProvider>
+                        </UpdatesProvider>
+                      </JobsProvider>
+                    </ResumeProvider>
                   </PracticalProvider>
                 </QuestionBankProvider>
               </ModuleProvider>

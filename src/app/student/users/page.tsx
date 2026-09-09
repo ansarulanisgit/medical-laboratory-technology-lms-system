@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import {
   Users,
   UserPlus,
@@ -1841,8 +1842,8 @@ export default function UserManagementPage() {
                     ? "Pending Super Admin Verification"
                     : "Declined Application"}
                 </Badge>
-                <span className="text-xs font-mono text-muted-foreground border border-border px-2 py-0.5 rounded bg-muted/40">
-                  {previewCert.code}
+                <span className="text-xs font-mono font-bold text-primary border border-primary/20 px-2 py-0.5 rounded bg-primary/10">
+                  {previewCert.certificateNumber || previewCert.code}
                 </span>
                 {previewCert.verificationCode && (
                   <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
@@ -1855,6 +1856,17 @@ export default function UserManagementPage() {
               </div>
 
               <div className="flex items-center gap-2">
+                <Link
+                  href={`/verify?code=${encodeURIComponent(previewCert.certificateNumber || previewCert.code)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg border border-primary/30 bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors"
+                  title="Verify credential on public registry"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  <span>Verify Online</span>
+                  <ExternalLink className="h-3 w-3" />
+                </Link>
                 {previewCert.status === "PENDING" && selectedStudentForDossier && (
                   <Button
                     size="sm"
@@ -1991,8 +2003,9 @@ export default function UserManagementPage() {
                   </div>
                 </div>
 
-                <div className="pt-2 text-[10px] text-muted-foreground/80 flex items-center justify-between border-t border-border/40 font-mono">
+                <div className="pt-2 text-[10px] text-muted-foreground/80 flex items-center justify-between border-t border-border/40 font-mono flex-wrap gap-1">
                   <span>Issued Date: {previewCert.issuedDate || previewCert.applicationDate}</span>
+                  <span>Verify: /verify?code={previewCert.certificateNumber || previewCert.code}</span>
                   <span>Auth Code: {previewCert.verificationCode || "PENDING"}</span>
                 </div>
               </div>

@@ -51,7 +51,9 @@ import {
   Building2,
   Lock,
   Unlock,
+  ExternalLink,
 } from "lucide-react";
+import { QRCodeView } from "@/components/ui/qr-code-view";
 import {
   useCertificates,
   CertificateRecord,
@@ -905,6 +907,16 @@ export default function StudentCertificatesPage() {
                       </div>
 
                       <div className="flex items-center gap-1.5">
+                        <Link
+                          href={`/verify?code=${encodeURIComponent(cert.certificateNumber || cert.code)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg border border-border bg-card text-xs font-semibold text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
+                          title="Verify credential on public registry"
+                        >
+                          <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                          <span>Verify</span>
+                        </Link>
                         <Button
                           size="sm"
                           variant="outline"
@@ -2421,18 +2433,28 @@ export default function StudentCertificatesPage() {
                       <p className="text-[9.5px] text-slate-500 leading-tight">{customizerState.signatoryTitle1}</p>
                     </div>
 
-                    {/* Official Seal */}
+                    {/* Official Seal and QR Code */}
                     <div className="flex flex-col items-center">
-                      <div
-                        className="h-16 w-16 rounded-full border-2 border-dashed flex flex-col items-center justify-center p-1 text-[8.5px] font-bold text-center leading-tight shadow-sm"
-                        style={{
-                          borderColor: customizerState.primaryColor,
-                          color: customizerState.primaryColor,
-                          backgroundColor: `${customizerState.primaryColor}10`,
-                        }}
-                      >
-                        <ShieldCheck className="h-4 w-4 mb-0.5" />
-                        <span className="line-clamp-2 uppercase text-[7.5px]">{customizerState.sealText}</span>
+                      <div className="flex items-center gap-1.5">
+                        <div
+                          className="h-14 w-14 rounded-full border-2 border-dashed flex flex-col items-center justify-center p-1 text-[7.5px] font-bold text-center leading-tight shadow-2xs"
+                          style={{
+                            borderColor: customizerState.primaryColor,
+                            color: customizerState.primaryColor,
+                            backgroundColor: `${customizerState.primaryColor}10`,
+                          }}
+                        >
+                          <ShieldCheck className="h-3.5 w-3.5 mb-0.5" />
+                          <span className="line-clamp-2 uppercase text-[7px]">{customizerState.sealText}</span>
+                        </div>
+                        <QRCodeView
+                          value={
+                            typeof window !== "undefined"
+                              ? `${window.location.origin}/verify?code=LTA-DIP-2026-88412`
+                              : "https://labtutor.academy/verify?code=LTA-DIP-2026-88412"
+                          }
+                          size={48}
+                        />
                       </div>
                       <span className="text-[9px] font-mono mt-1 text-slate-500 font-bold">
                         LTA-DIP-2026-88412
@@ -2459,8 +2481,9 @@ export default function StudentCertificatesPage() {
                   </div>
 
                   {/* Footer Metadata */}
-                  <div className="pt-2 text-[10px] text-slate-500 flex items-center justify-between border-t border-slate-200 font-mono">
+                  <div className="pt-2 text-[9.5px] text-slate-500 flex items-center justify-between border-t border-slate-200 font-mono flex-wrap gap-1">
                     <span>Issued Date: {new Date().toISOString().split("T")[0]}</span>
+                    <span>Verify: /verify?code=LTA-DIP-2026-88412</span>
                     <span>Certificate ID: LTA-DIP-2026-88412</span>
                   </div>
                 </div>
@@ -2629,15 +2652,25 @@ export default function StudentCertificatesPage() {
                   </div>
 
                   <div className="flex flex-col items-center">
-                    <div
-                      className="h-16 w-16 rounded-full border-2 border-dashed flex items-center justify-center p-1 text-[9px] font-bold text-center leading-tight shadow-xs"
-                      style={{
-                        borderColor: templateConfig.primaryColor,
-                        color: templateConfig.primaryColor,
-                        backgroundColor: `${templateConfig.primaryColor}10`,
-                      }}
-                    >
-                      {templateConfig.sealText}
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="h-15 w-15 rounded-full border-2 border-dashed flex items-center justify-center p-1 text-[8.5px] font-bold text-center leading-tight shadow-xs"
+                        style={{
+                          borderColor: templateConfig.primaryColor,
+                          color: templateConfig.primaryColor,
+                          backgroundColor: `${templateConfig.primaryColor}10`,
+                        }}
+                      >
+                        {templateConfig.sealText}
+                      </div>
+                      <QRCodeView
+                        value={
+                          typeof window !== "undefined"
+                            ? `${window.location.origin}/verify?code=${encodeURIComponent(candidateWatermarkPreview.certificateNumber)}`
+                            : `https://labtutor.academy/verify?code=${encodeURIComponent(candidateWatermarkPreview.certificateNumber)}`
+                        }
+                        size={56}
+                      />
                     </div>
                     <span className="text-[10px] font-mono font-bold mt-1 text-slate-600">
                       {candidateWatermarkPreview.certificateNumber}
@@ -2662,8 +2695,9 @@ export default function StudentCertificatesPage() {
                   </div>
                 </div>
 
-                <div className="pt-2 text-xs text-slate-500 flex items-center justify-between border-t border-slate-200 font-mono">
+                <div className="pt-2 text-[10.5px] text-slate-500 flex items-center justify-between border-t border-slate-200 font-mono flex-wrap gap-1">
                   <span>Application Status: PENDING SUBMISSION</span>
+                  <span>Verify: /verify?code={candidateWatermarkPreview.certificateNumber}</span>
                   <span>Auth Code: PENDING SUPER ADMIN APPROVAL</span>
                 </div>
               </div>
@@ -2741,6 +2775,17 @@ export default function StudentCertificatesPage() {
               </div>
 
               <div className="flex items-center gap-2">
+                <Link
+                  href={`/verify?code=${encodeURIComponent(selectedCertForPreview.certificateNumber || selectedCertForPreview.code)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl border border-primary/30 bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors"
+                  title="Verify on public portal"
+                >
+                  <ShieldCheck className="h-4 w-4" />
+                  <span>Verify Online</span>
+                  <ExternalLink className="h-3 w-3" />
+                </Link>
                 {selectedCertForPreview.status === "APPROVED" && (
                   <Button size="sm" onClick={handlePrint} className="gap-1.5 h-9 text-xs sm:text-sm font-semibold rounded-xl">
                     <Printer className="h-4 w-4" />
@@ -2886,15 +2931,25 @@ export default function StudentCertificatesPage() {
                   </div>
 
                   <div className="flex flex-col items-center">
-                    <div
-                      className="h-16 w-16 rounded-full border-2 border-dashed flex items-center justify-center p-1 text-[9px] font-bold text-center leading-tight shadow-xs"
-                      style={{
-                        borderColor: templateConfig.primaryColor,
-                        color: templateConfig.primaryColor,
-                        backgroundColor: `${templateConfig.primaryColor}10`,
-                      }}
-                    >
-                      {templateConfig.sealText}
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="h-15 w-15 rounded-full border-2 border-dashed flex items-center justify-center p-1 text-[8.5px] font-bold text-center leading-tight shadow-xs"
+                        style={{
+                          borderColor: templateConfig.primaryColor,
+                          color: templateConfig.primaryColor,
+                          backgroundColor: `${templateConfig.primaryColor}10`,
+                        }}
+                      >
+                        {templateConfig.sealText}
+                      </div>
+                      <QRCodeView
+                        value={
+                          typeof window !== "undefined"
+                            ? `${window.location.origin}/verify?code=${encodeURIComponent(selectedCertForPreview.certificateNumber || selectedCertForPreview.code)}`
+                            : `https://labtutor.academy/verify?code=${encodeURIComponent(selectedCertForPreview.certificateNumber || selectedCertForPreview.code)}`
+                        }
+                        size={56}
+                      />
                     </div>
                     <span className="text-[10px] font-mono font-bold mt-1 text-slate-600">
                       {selectedCertForPreview.certificateNumber}
@@ -2919,8 +2974,14 @@ export default function StudentCertificatesPage() {
                   </div>
                 </div>
 
-                <div className="pt-2 text-xs text-slate-500 flex items-center justify-between border-t border-slate-200 font-mono">
-                  <span>Issued Date: {selectedCertForPreview.issuedDate || selectedCertForPreview.applicationDate}</span>
+                <div className="pt-2 text-[10.5px] text-slate-500 flex items-center justify-between border-t border-slate-200 font-mono flex-wrap gap-1">
+                  <span>Issued: {selectedCertForPreview.issuedDate || selectedCertForPreview.applicationDate}</span>
+                  <span className="flex items-center gap-1 font-semibold text-slate-700">
+                    <span>Verify:</span>
+                    <span className="underline">
+                      /verify?code={selectedCertForPreview.certificateNumber}
+                    </span>
+                  </span>
                   <span>Certificate ID: {selectedCertForPreview.certificateNumber}</span>
                 </div>
               </div>

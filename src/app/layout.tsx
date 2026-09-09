@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/layout/theme-provider";
 import { NotificationProvider } from "@/components/ui/notification-context";
 import { AuthModalProvider } from "@/components/auth/auth-modal-context";
 import { SystemSettingsProvider } from "@/lib/stores/system-settings-store";
+import { CertificateProvider } from "@/lib/stores/certificate-store";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -62,7 +63,9 @@ export default function RootLayout({
           <SystemSettingsProvider>
             <NotificationProvider>
               <AuthModalProvider>
-                {children}
+                <CertificateProvider>
+                  {children}
+                </CertificateProvider>
               </AuthModalProvider>
             </NotificationProvider>
           </SystemSettingsProvider>
