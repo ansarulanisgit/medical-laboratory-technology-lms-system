@@ -54,44 +54,11 @@ function formatWhatsappUrl(numOrUrl?: string): string | null {
 
 export function DefaultUserAvatar({ className = "h-full w-full" }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 256 256"
-      className={`rounded-full ${className}`}
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      aria-label="Default user avatar"
-    >
-      <defs>
-        <clipPath id="defaultUserAvatarClip">
-          <circle cx="128" cy="128" r="128" />
-        </clipPath>
-        <linearGradient id="userAvatarBg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#F1F5F9" />
-          <stop offset="100%" stopColor="#E2E8F0" />
-        </linearGradient>
-        <linearGradient id="userAvatarFigure" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#94A3B8" />
-          <stop offset="100%" stopColor="#64748B" />
-        </linearGradient>
-        <radialGradient id="userAvatarChinShadow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#334155" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="#334155" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <g clipPath="url(#defaultUserAvatarClip)">
-        <rect width="256" height="256" fill="url(#userAvatarBg)" />
-        {/* Torso / Shoulders */}
-        <path
-          d="M42 246 C42 186 82 164 128 164 C174 164 214 186 214 246 C214 256 204 256 190 256 L66 256 C52 256 42 256 42 246 Z"
-          fill="url(#userAvatarFigure)"
-        />
-        {/* Neck / Chin Shadow */}
-        <ellipse cx="128" cy="150" rx="24" ry="8" fill="url(#userAvatarChinShadow)" />
-        {/* Head */}
-        <circle cx="128" cy="98" r="46" fill="url(#userAvatarFigure)" />
-      </g>
-      <circle cx="128" cy="128" r="126" stroke="#CBD5E1" strokeWidth="2.5" />
-    </svg>
+    <img
+      src="/images/default-user-avatar.png?v=4"
+      alt="Default user avatar"
+      className={`rounded-full object-cover ${className}`}
+    />
   );
 }
 
