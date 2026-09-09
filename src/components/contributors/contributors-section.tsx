@@ -418,7 +418,7 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
       {/* ADD / EDIT CONTRIBUTOR MODAL (Spacious, Wide & Modern) */}
       {(isAddModalOpen || editingContributor) && (
         <div
-          className="fixed inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 md:p-8 overflow-y-auto animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               setIsAddModalOpen(false);
@@ -428,12 +428,12 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
           }}
         >
           <div
-            className="relative w-full max-w-3xl lg:max-w-4xl my-auto bg-card border border-border/80 rounded-2xl sm:rounded-3xl shadow-2xl max-h-[88vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+            className="relative w-full max-w-3xl lg:max-w-4xl my-auto bg-card border border-border/80 rounded-2xl sm:rounded-3xl shadow-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
             role="dialog"
             aria-modal="true"
           >
             {/* Modal Header (Sticky Top) */}
-            <div className="shrink-0 flex items-center justify-between px-6 py-4 sm:py-5 border-b border-border/80 bg-card">
+            <div className="shrink-0 flex items-center justify-between px-6 py-4 border-b border-border/80 bg-card">
               <div className="flex items-center gap-3">
                 <span className="p-2.5 rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
                   {editingContributor ? <Edit2 className="h-5 w-5" /> : <UserPlus className="h-5 w-5" />}
@@ -745,9 +745,6 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
                     onChange={(e) => setFormData((prev) => ({ ...prev, whatsapp: e.target.value }))}
                     className="rounded-xl h-11 text-xs sm:text-sm"
                   />
-                  <p className="text-[11px] text-muted-foreground">
-                    Creates a 1-click WhatsApp chat button styled like the developer profile.
-                  </p>
                 </div>
 
                 <div className="space-y-1.5">
@@ -767,9 +764,6 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
                     onChange={(e) => setFormData((prev) => ({ ...prev, facebook: e.target.value }))}
                     className="rounded-xl h-11 text-xs sm:text-sm"
                   />
-                  <p className="text-[11px] text-muted-foreground">
-                    Creates a direct Facebook link button styled like the developer profile.
-                  </p>
                 </div>
               </div>
             </form>
