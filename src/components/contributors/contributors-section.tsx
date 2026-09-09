@@ -52,6 +52,80 @@ function formatWhatsappUrl(numOrUrl?: string): string | null {
   return `https://wa.me/${digits}`;
 }
 
+export function DefaultUserAvatar({ className = "h-full w-full" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 256 256"
+      className={`rounded-full ${className}`}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      aria-label="Default user avatar"
+    >
+      <defs>
+        <clipPath id="defaultUserAvatarClip">
+          <circle cx="128" cy="128" r="128" />
+        </clipPath>
+        <linearGradient id="userAvatarBg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#F1F5F9" />
+          <stop offset="100%" stopColor="#E2E8F0" />
+        </linearGradient>
+        <linearGradient id="userAvatarFigure" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#94A3B8" />
+          <stop offset="100%" stopColor="#64748B" />
+        </linearGradient>
+        <radialGradient id="userAvatarChinShadow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#334155" stopOpacity="0.25" />
+          <stop offset="100%" stopColor="#334155" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <g clipPath="url(#defaultUserAvatarClip)">
+        <rect width="256" height="256" fill="url(#userAvatarBg)" />
+        {/* Torso / Shoulders */}
+        <path
+          d="M42 246 C42 186 82 164 128 164 C174 164 214 186 214 246 C214 256 204 256 190 256 L66 256 C52 256 42 256 42 246 Z"
+          fill="url(#userAvatarFigure)"
+        />
+        {/* Neck / Chin Shadow */}
+        <ellipse cx="128" cy="150" rx="24" ry="8" fill="url(#userAvatarChinShadow)" />
+        {/* Head */}
+        <circle cx="128" cy="98" r="46" fill="url(#userAvatarFigure)" />
+      </g>
+      <circle cx="128" cy="128" r="126" stroke="#CBD5E1" strokeWidth="2.5" />
+    </svg>
+  );
+}
+
+function ContributorAvatar({
+  src,
+  alt,
+  className = "h-full w-full rounded-full object-cover",
+}: {
+  src?: string | null;
+  alt: string;
+  className?: string;
+}) {
+  const [hasError, setHasError] = React.useState(false);
+  const trimmedSrc = src?.trim();
+
+  React.useEffect(() => {
+    setHasError(false);
+  }, [src]);
+
+  // If no source is provided, or image has error, show the clean inline SVG immediately
+  if (!trimmedSrc || hasError) {
+    return <DefaultUserAvatar className={className} />;
+  }
+
+  return (
+    <img
+      src={trimmedSrc}
+      alt={alt}
+      onError={() => setHasError(true)}
+      className={className}
+    />
+  );
+}
+
 export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectionProps) {
   const {
     activeContributors,
@@ -505,16 +579,9 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
                 <div className="flex flex-col sm:flex-row items-center gap-5 pt-1">
                   {/* Circular Preview with Light Border */}
                   <div className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-full overflow-hidden border-2 border-border p-0.5 bg-background shadow-xs ring-4 ring-primary/10 shrink-0 flex items-center justify-center">
-                    <img
-                      src={photoPreview?.trim() || DEFAULT_CONTRIBUTOR_AVATAR}
+                    <ContributorAvatar
+                      src={photoPreview}
                       alt="Preview"
-                      onError={(e) => {
-                        const target = e.currentTarget;
-                        if (target.src !== DEFAULT_CONTRIBUTOR_AVATAR) {
-                          target.src = DEFAULT_CONTRIBUTOR_AVATAR;
-                        }
-                      }}
-                      className="h-full w-full rounded-full object-cover"
                     />
                   </div>
 
@@ -904,17 +971,10 @@ function ContributorCard({
 
         {/* 1. Profile Photo (Circular with light border) */}
         <div className="relative">
-          <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full overflow-hidden border-2 border-border/80 p-0.5 bg-muted/20 shadow-xs ring-2 ring-primary/10 transition-transform duration-300 group-hover:scale-105">
-            <img
-              src={contributor.avatarUrl?.trim() || DEFAULT_CONTRIBUTOR_AVATAR}
+          <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full overflow-hidden border-2 border-border/80 p-0.5 bg-muted/20 shadow-xs ring-2 ring-primary/10 transition-transform duration-300 group-hover:scale-105 flex items-center justify-center">
+            <ContributorAvatar
+              src={contributor.avatarUrl}
               alt={contributor.name}
-              onError={(e) => {
-                const target = e.currentTarget;
-                if (target.src !== DEFAULT_CONTRIBUTOR_AVATAR) {
-                  target.src = DEFAULT_CONTRIBUTOR_AVATAR;
-                }
-              }}
-              className="h-full w-full rounded-full object-cover"
             />
           </div>
 

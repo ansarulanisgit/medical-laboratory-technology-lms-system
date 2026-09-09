@@ -21,7 +21,7 @@ export interface Contributor {
   updatedAt: string;
 }
 
-export const DEFAULT_CONTRIBUTOR_AVATAR = "/images/default-avatar.png";
+export const DEFAULT_CONTRIBUTOR_AVATAR = "/images/default-user-avatar.svg";
 
 const STORAGE_KEY = "labtutor_contributors_v2";
 const SYNC_EVENT = "labtutor_contributors_updated";
