@@ -306,9 +306,9 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="w-full sm:w-auto h-13 sm:h-14 px-6 sm:px-7 border-border/90 bg-card hover:bg-emerald-600 hover:border-emerald-600 hover:text-white text-foreground font-bold text-base rounded-2xl cursor-pointer active:scale-95 transition-all duration-200 shadow-xs hover:shadow-lg hover:shadow-emerald-600/25 hover:-translate-y-0.5 flex items-center justify-center gap-2 group"
+                  className="w-full sm:w-auto h-13 sm:h-14 px-6 sm:px-7 border-border/90 bg-card hover:bg-blue-600 hover:border-blue-600 hover:text-white text-foreground font-bold text-base rounded-2xl cursor-pointer active:scale-95 transition-all duration-200 shadow-xs hover:shadow-lg hover:shadow-blue-600/25 hover:-translate-y-0.5 flex items-center justify-center gap-2 group"
                 >
-                  <Layers className="h-5 w-5 text-emerald-600 transition-all duration-200 group-hover:scale-110 group-hover:text-white" />
+                  <Layers className="h-5 w-5 text-blue-600 dark:text-blue-400 transition-all duration-200 group-hover:scale-110 group-hover:text-white" />
                   <span className="transition-colors duration-200 group-hover:text-white">Study Center</span>
                   <ArrowRight className="h-4 w-4 transition-all duration-200 group-hover:translate-x-1 group-hover:text-white" />
                 </Button>
@@ -318,9 +318,9 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="w-full sm:w-auto h-13 sm:h-14 px-6 sm:px-7 border-border/90 bg-card hover:bg-teal-600 hover:border-teal-600 hover:text-white text-foreground font-bold text-base rounded-2xl cursor-pointer active:scale-95 transition-all duration-200 shadow-xs hover:shadow-lg hover:shadow-teal-600/25 hover:-translate-y-0.5 flex items-center justify-center gap-2 group"
+                  className="w-full sm:w-auto h-13 sm:h-14 px-6 sm:px-7 border-border/90 bg-card hover:bg-purple-600 hover:border-purple-600 hover:text-white text-foreground font-bold text-base rounded-2xl cursor-pointer active:scale-95 transition-all duration-200 shadow-xs hover:shadow-lg hover:shadow-purple-600/25 hover:-translate-y-0.5 flex items-center justify-center gap-2 group"
                 >
-                  <FileText className="h-5 w-5 text-teal-600 transition-all duration-200 group-hover:scale-110 group-hover:text-white" />
+                  <FileText className="h-5 w-5 text-purple-600 dark:text-purple-400 transition-all duration-200 group-hover:scale-110 group-hover:text-white" />
                   <span className="transition-colors duration-200 group-hover:text-white">Build Resume</span>
                   <ArrowRight className="h-4 w-4 transition-all duration-200 group-hover:translate-x-1 group-hover:text-white" />
                 </Button>
@@ -330,9 +330,9 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="w-full sm:w-auto h-13 sm:h-14 px-6 sm:px-7 border-border/90 bg-card hover:bg-emerald-700 hover:border-emerald-700 hover:text-white text-foreground font-bold text-base rounded-2xl cursor-pointer active:scale-95 transition-all duration-200 shadow-xs hover:shadow-lg hover:shadow-emerald-700/25 hover:-translate-y-0.5 flex items-center justify-center gap-2 group"
+                  className="w-full sm:w-auto h-13 sm:h-14 px-6 sm:px-7 border-border/90 bg-card hover:bg-amber-600 hover:border-amber-600 hover:text-white text-foreground font-bold text-base rounded-2xl cursor-pointer active:scale-95 transition-all duration-200 shadow-xs hover:shadow-lg hover:shadow-amber-600/25 hover:-translate-y-0.5 flex items-center justify-center gap-2 group"
                 >
-                  <Briefcase className="h-5 w-5 text-emerald-700 dark:text-emerald-400 transition-all duration-200 group-hover:scale-110 group-hover:text-white" />
+                  <Briefcase className="h-5 w-5 text-amber-600 dark:text-amber-400 transition-all duration-200 group-hover:scale-110 group-hover:text-white" />
                   <span className="transition-colors duration-200 group-hover:text-white">Get a Job</span>
                   <ArrowRight className="h-4 w-4 transition-all duration-200 group-hover:translate-x-1 group-hover:text-white" />
                 </Button>
