@@ -820,7 +820,7 @@ function CertificateVerificationContent() {
                             src={templateConfig.watermarkLogoUrl || "/images/certificate-watermark-logo.png"}
                             alt="Watermark Logo"
                             className="w-56 h-56 sm:w-72 sm:h-72 object-contain"
-                            style={{ opacity: templateConfig.watermarkLogoOpacity || 0.08 }}
+                            style={{ opacity: templateConfig.watermarkLogoOpacity || 0.05 }}
                           />
                         </div>
 

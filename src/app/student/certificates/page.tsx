@@ -1830,10 +1830,10 @@ export default function StudentCertificatesPage() {
                           </label>
                           <div className="flex items-center gap-2">
                             <span className="text-[11px] font-semibold text-muted-foreground">
-                              Opacity: {Math.round((customizerState.watermarkLogoOpacity ?? 0.08) * 100)}%
+                              Opacity: {Math.round((customizerState.watermarkLogoOpacity ?? 0.05) * 100)}%
                             </span>
                             <Badge variant="outline" className="text-[10px] border-primary/30 text-primary bg-primary/5 font-bold">
-                              8% Optimal Subdued
+                              5% Default
                             </Badge>
                           </div>
                         </div>
@@ -1907,7 +1907,7 @@ export default function StudentCertificatesPage() {
                                   }
                                   className={cn(
                                     "px-2 py-0.5 rounded text-[10px] font-bold border transition-all cursor-pointer",
-                                    Math.abs((customizerState.watermarkLogoOpacity ?? 0.08) - op) < 0.005
+                                    Math.abs((customizerState.watermarkLogoOpacity ?? 0.05) - op) < 0.005
                                       ? "bg-primary text-primary-foreground border-primary shadow-xs"
                                       : "bg-background border-border text-muted-foreground hover:text-foreground"
                                   )}
@@ -1923,7 +1923,7 @@ export default function StudentCertificatesPage() {
                             min="0.02"
                             max="0.25"
                             step="0.01"
-                            value={customizerState.watermarkLogoOpacity ?? 0.08}
+                            value={customizerState.watermarkLogoOpacity ?? 0.05}
                             onChange={(e) =>
                               setCustomizerState({
                                 ...customizerState,
@@ -2352,7 +2352,7 @@ export default function StudentCertificatesPage() {
                       alt="LabTutor Academy Watermark"
                       className="w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 object-contain transition-opacity duration-200"
                       style={{
-                        opacity: customizerState.watermarkLogoOpacity ?? 0.08,
+                        opacity: customizerState.watermarkLogoOpacity ?? 0.05,
                       }}
                     />
                   </div>
@@ -2564,7 +2564,7 @@ export default function StudentCertificatesPage() {
                     alt="LabTutor Academy Watermark"
                     className="w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 object-contain transition-opacity duration-200"
                     style={{
-                      opacity: templateConfig.watermarkLogoOpacity ?? 0.08,
+                      opacity: templateConfig.watermarkLogoOpacity ?? 0.05,
                     }}
                   />
                 </div>
@@ -2834,7 +2834,7 @@ export default function StudentCertificatesPage() {
                     alt="LabTutor Academy Watermark"
                     className="w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 object-contain transition-opacity duration-200"
                     style={{
-                      opacity: templateConfig.watermarkLogoOpacity ?? 0.08,
+                      opacity: templateConfig.watermarkLogoOpacity ?? 0.05,
                     }}
                   />
                 </div>

@@ -142,7 +142,7 @@ const DEFAULT_TEMPLATE: CertificateTemplateConfig = {
   sealIcon: "SHIELD",
   holographicSeal: true,
   watermarkLogoUrl: "/images/certificate-watermark-logo.png",
-  watermarkLogoOpacity: 0.08,
+  watermarkLogoOpacity: 0.05,
   showCenterLogoWatermark: true,
 };
 
@@ -403,8 +403,8 @@ export function CertificateProvider({ children }: { children: React.ReactNode })
       const storedTemplate = localStorage.getItem(TEMPLATE_STORAGE_KEY);
       if (storedTemplate) {
         const parsedTemplate = JSON.parse(storedTemplate);
-        if (parsedTemplate.watermarkLogoOpacity === 0.18 || parsedTemplate.watermarkLogoOpacity === 0.15 || parsedTemplate.watermarkLogoOpacity === 0.2) {
-          parsedTemplate.watermarkLogoOpacity = 0.08;
+        if (parsedTemplate.watermarkLogoOpacity === 0.18 || parsedTemplate.watermarkLogoOpacity === 0.15 || parsedTemplate.watermarkLogoOpacity === 0.2 || parsedTemplate.watermarkLogoOpacity === 0.08) {
+          parsedTemplate.watermarkLogoOpacity = 0.05;
         }
         setTemplateConfig({ ...DEFAULT_TEMPLATE, ...parsedTemplate });
       }
