@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Activity, Menu, X, GraduationCap, ShieldCheck, Microscope } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthModal } from "@/components/auth/auth-modal-context";
+import { useSystemSettings } from "@/lib/stores/system-settings-store";
 
 const navLinks = [
   { href: "/student/curriculum", label: "Curriculum" },
@@ -21,21 +22,30 @@ export function PublicNavbar() {
   const [isOpen, setIsOpen] = React.useState(false);
   const pathname = usePathname();
   const { openAuthModal } = useAuthModal();
+  const { settings } = useSystemSettings();
+
+  const brandParts = settings.brandName.split(" ");
+  const brandFirst = brandParts[0] || "LabTutor";
+  const brandRest = brandParts.slice(1).join(" ") || "Academy";
 
   return (
     <header className="w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center space-x-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-            <Microscope className="h-6 w-6" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm overflow-hidden">
+            {settings.customLogoUrl ? (
+              <img src={settings.customLogoUrl} alt="Logo" className="h-full w-full object-cover" />
+            ) : (
+              <Microscope className="h-6 w-6" />
+            )}
           </div>
           <div className="flex flex-col">
             <span className="text-base font-bold tracking-tight text-foreground sm:text-lg">
-              LabTutor <span className="text-primary font-semibold">Academy</span>
+              {brandFirst} <span className="text-primary font-semibold">{brandRest}</span>
             </span>
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-              Dedicated LMS Platform
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground line-clamp-1">
+              {settings.brandTagline ? "Dedicated LMS Platform" : "Dedicated LMS Platform"}
             </span>
           </div>
         </Link>

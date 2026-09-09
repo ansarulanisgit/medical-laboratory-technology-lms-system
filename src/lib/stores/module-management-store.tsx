@@ -31,6 +31,7 @@ const INITIAL_NAV_MODULES: NavModuleItem[] = [
   { id: "mod-admin-modules", href: "/student/admin/modules", label: "Module Management", iconName: "Settings", exact: false, visible: true, order: 13, allowedRoles: ["SUPER_ADMIN"] },
   { id: "mod-admin-strings", href: "/student/admin/strings", label: "String Management", iconName: "Type", exact: false, visible: true, order: 14, allowedRoles: ["SUPER_ADMIN"] },
   { id: "mod-admin-logs", href: "/student/admin/logs", label: "Real-time Data Log", iconName: "Activity", exact: false, visible: true, order: 15, allowedRoles: ["SUPER_ADMIN"] },
+  { id: "mod-admin-settings", href: "/student/admin/settings", label: "System Settings", iconName: "Sliders", exact: false, visible: true, order: 16, allowedRoles: ["SUPER_ADMIN"] },
 ];
 
 const STORAGE_KEY = "labtutor_nav_modules_v1";

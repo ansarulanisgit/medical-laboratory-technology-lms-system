@@ -6,9 +6,11 @@ import { Microscope, User } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAcademicProfile } from "@/lib/curriculum/academic-context";
 import { NotificationBell } from "@/components/notifications/notification-bell";
+import { useSystemSettings } from "@/lib/stores/system-settings-store";
 
 export function StudentMobileHeader() {
   const { profile } = useAcademicProfile();
+  const { settings } = useSystemSettings();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
@@ -28,15 +30,23 @@ export function StudentMobileHeader() {
       ? "Mentor Portal"
       : "Student Portal";
 
+  const brandParts = settings.brandName.split(" ");
+  const brandFirst = brandParts[0] || "LabTutor";
+  const brandRest = brandParts.slice(1).join(" ") || "Academy";
+
   return (
     <header className="flex h-14 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur md:hidden print:hidden">
       <Link href="/student" className="flex items-center space-x-2.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-[11px] bg-primary text-primary-foreground shrink-0 shadow-xs">
-          <Microscope className="h-5 w-5" />
+        <div className="flex h-9 w-9 items-center justify-center rounded-[11px] bg-primary text-primary-foreground shrink-0 shadow-xs overflow-hidden">
+          {settings.customLogoUrl ? (
+            <img src={settings.customLogoUrl} alt="Logo" className="h-full w-full object-cover" />
+          ) : (
+            <Microscope className="h-5 w-5" />
+          )}
         </div>
         <div className="flex flex-col min-w-0">
           <span className="text-[16px] font-extrabold tracking-tight leading-tight whitespace-nowrap text-foreground">
-            LabTutor <span className="text-primary font-bold">Academy</span>
+            {brandFirst} <span className="text-primary font-bold">{brandRest}</span>
           </span>
           <span className="text-[10.5px] uppercase font-semibold text-muted-foreground tracking-wide mt-0.5 whitespace-nowrap leading-tight">
             {roleBadgeLabel}

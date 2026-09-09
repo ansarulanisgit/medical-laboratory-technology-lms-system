@@ -24,6 +24,7 @@ import {
   ChevronsRight,
   Code2,
   Shield,
+  Sliders,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -31,6 +32,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useAcademicProfile } from "@/lib/curriculum/academic-context";
 import { handleSignOut } from "@/lib/auth/logout";
 import { useSidebar } from "@/lib/context/sidebar-context";
+import { useSystemSettings } from "@/lib/stores/system-settings-store";
 import { UserRole } from "@/types/roles";
 
 export function StudentSidebar() {
@@ -38,6 +40,7 @@ export function StudentSidebar() {
   const router = useRouter();
   const { profile, updateUserRole } = useAcademicProfile();
   const { isCollapsed, toggleSidebar } = useSidebar();
+  const { settings } = useSystemSettings();
 
   const [tooltip, setTooltip] = React.useState<{
     label: string;
@@ -87,6 +90,7 @@ export function StudentSidebar() {
         { href: "/student/admin/strings", label: "String Management", icon: Type, exact: false },
         { href: "/student/admin/logs", label: "Real-time Data Log", icon: Activity, exact: false },
         ...sharedModules.slice(1), // All remaining modules
+        { href: "/student/admin/settings", label: "System Settings", icon: Sliders, exact: false },
       ];
     }
 
@@ -111,6 +115,10 @@ export function StudentSidebar() {
       ? "Mentor Portal"
       : "Student Portal";
 
+  const brandParts = settings.brandName.split(" ");
+  const brandFirst = brandParts[0] || "LabTutor";
+  const brandRest = brandParts.slice(1).join(" ") || "Academy";
+
   return (
     <aside
       className={cn(
@@ -128,12 +136,12 @@ export function StudentSidebar() {
       >
         <Link
           href="/student"
-          title={!isCollapsed ? "LabTutor Academy" : undefined}
+          title={!isCollapsed ? settings.brandName : undefined}
           onMouseEnter={(e) => {
             if (isCollapsed) {
               const rect = e.currentTarget.getBoundingClientRect();
               setTooltip({
-                label: "LabTutor Academy",
+                label: settings.brandName,
                 top: rect.top + rect.height / 2,
               });
             }
@@ -144,13 +152,17 @@ export function StudentSidebar() {
             isCollapsed ? "justify-center w-full" : "space-x-3"
           )}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-primary text-primary-foreground shadow-xs shrink-0 transition-transform group-hover:scale-105 mx-auto">
-            <Microscope className="h-5.5 w-5.5" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-primary text-primary-foreground shadow-xs shrink-0 transition-transform group-hover:scale-105 mx-auto overflow-hidden">
+            {settings.customLogoUrl ? (
+              <img src={settings.customLogoUrl} alt="Logo" className="h-full w-full object-cover" />
+            ) : (
+              <Microscope className="h-5.5 w-5.5" />
+            )}
           </div>
           {!isCollapsed && (
             <div className="flex flex-col min-w-0 transition-opacity duration-300 animate-in fade-in">
               <span className="text-[17px] font-extrabold tracking-tight text-foreground leading-tight whitespace-nowrap">
-                LabTutor <span className="text-primary font-bold">Academy</span>
+                {brandFirst} <span className="text-primary font-bold">{brandRest}</span>
               </span>
               <span className="text-[11px] uppercase font-semibold text-muted-foreground tracking-[0.06em] mt-0.5 whitespace-nowrap leading-tight">
                 {roleBadgeLabel}
@@ -178,7 +190,6 @@ export function StudentSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              title={!isCollapsed ? item.label : undefined}
               onMouseEnter={(e) => {
                 if (isCollapsed) {
                   const rect = e.currentTarget.getBoundingClientRect();
@@ -190,12 +201,11 @@ export function StudentSidebar() {
                 }
               }}
               onMouseLeave={() => setTooltip(null)}
-              onClick={() => setTooltip(null)}
               className={cn(
-                "flex items-center rounded-xl transition-all text-sm font-medium",
+                "flex items-center rounded-xl text-sm transition-all duration-150 relative group cursor-pointer",
                 isCollapsed
-                  ? "h-10 w-10 mx-auto justify-center shrink-0"
-                  : "space-x-3 px-3 py-2 min-h-[40px] w-full",
+                  ? "h-10 w-10 justify-center mx-auto"
+                  : "w-full space-x-3 px-3.5 py-2.5",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-xs font-semibold"
                   : "text-muted-foreground hover:bg-muted/60 hover:text-foreground font-normal"
@@ -207,6 +217,42 @@ export function StudentSidebar() {
           );
         })}
       </div>
+
+      {/* Super Admin Persistent Bottom Settings Link */}
+      {currentRole === "SUPER_ADMIN" && (
+        <div className={cn("px-3 pt-2 pb-1 border-t border-border/70", isCollapsed ? "px-2" : "")}>
+          <Link
+            href="/student/admin/settings"
+            title={isCollapsed ? "System Settings (Super Admin)" : undefined}
+            onMouseEnter={(e) => {
+              if (isCollapsed) {
+                const rect = e.currentTarget.getBoundingClientRect();
+                setTooltip({
+                  label: "System Settings",
+                  top: rect.top + rect.height / 2,
+                  isActive: pathname.startsWith("/student/admin/settings"),
+                });
+              }
+            }}
+            onMouseLeave={() => setTooltip(null)}
+            className={cn(
+              "flex items-center rounded-xl text-xs font-semibold transition-all duration-150 group cursor-pointer",
+              isCollapsed ? "h-10 w-10 justify-center mx-auto" : "w-full gap-2.5 px-3 py-2",
+              pathname.startsWith("/student/admin/settings")
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "text-foreground bg-primary/5 hover:bg-primary/10 border border-primary/20"
+            )}
+          >
+            <Sliders className={cn("shrink-0 text-primary", pathname.startsWith("/student/admin/settings") ? "text-primary-foreground" : "")} />
+            {!isCollapsed && <span className="truncate">System Settings</span>}
+            {!isCollapsed && (
+              <span className="ml-auto text-[10px] font-bold px-1.5 py-0.2 rounded bg-primary/15 text-primary">
+                Super Admin
+              </span>
+            )}
+          </Link>
+        </div>
+      )}
 
       {/* Footer Controls with Collapsible Toggle Button */}
       <div className={cn("p-3 border-t border-border", isCollapsed ? "px-2 py-3 space-y-2 flex flex-col items-center" : "")}>

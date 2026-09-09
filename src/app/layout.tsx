@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { NotificationProvider } from "@/components/ui/notification-context";
 import { AuthModalProvider } from "@/components/auth/auth-modal-context";
+import { SystemSettingsProvider } from "@/lib/stores/system-settings-store";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -57,11 +58,13 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <NotificationProvider>
-            <AuthModalProvider>
-              {children}
-            </AuthModalProvider>
-          </NotificationProvider>
+          <SystemSettingsProvider>
+            <NotificationProvider>
+              <AuthModalProvider>
+                {children}
+              </AuthModalProvider>
+            </NotificationProvider>
+          </SystemSettingsProvider>
         </ThemeProvider>
       </body>
     </html>
