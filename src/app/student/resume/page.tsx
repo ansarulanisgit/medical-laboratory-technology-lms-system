@@ -1094,14 +1094,14 @@ export default function StudentResumePage() {
               </div>
               {resume.personalDetails.fatherName && (
                 <div className="flex items-baseline">
-                  <span className="w-24 sm:w-28 text-slate-500 font-medium shrink-0">Father's Name</span>
+                  <span className="w-24 sm:w-28 text-slate-500 font-medium shrink-0">Father&apos;s Name</span>
                   <span className="text-slate-400 mr-1.5">:</span>
                   <span className="text-slate-800 font-semibold truncate">{resume.personalDetails.fatherName}</span>
                 </div>
               )}
               {resume.personalDetails.motherName && (
                 <div className="flex items-baseline">
-                  <span className="w-24 sm:w-28 text-slate-500 font-medium shrink-0">Mother's Name</span>
+                  <span className="w-24 sm:w-28 text-slate-500 font-medium shrink-0">Mother&apos;s Name</span>
                   <span className="text-slate-400 mr-1.5">:</span>
                   <span className="text-slate-800 font-semibold truncate">{resume.personalDetails.motherName}</span>
                 </div>
@@ -2377,7 +2377,7 @@ export default function StudentResumePage() {
                     <span>Personal Details</span>
                   </h3>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
-                    Standard institutional CV personal information: Full Name, Father's Name, Mother's Name, Address, NID, etc.
+                    Standard institutional CV personal information: Full Name, Father&apos;s Name, Mother&apos;s Name, Address, NID, etc.
                   </p>
                 </div>
               </div>
@@ -2419,7 +2419,7 @@ export default function StudentResumePage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-semibold text-muted-foreground">Father's Name</label>
+                  <label className="font-semibold text-muted-foreground">Father&apos;s Name</label>
                   <Input
                     value={resume.personalDetails?.fatherName || ""}
                     onChange={(e) =>
@@ -2436,7 +2436,7 @@ export default function StudentResumePage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-semibold text-muted-foreground">Mother's Name</label>
+                  <label className="font-semibold text-muted-foreground">Mother&apos;s Name</label>
                   <Input
                     value={resume.personalDetails?.motherName || ""}
                     onChange={(e) =>
@@ -3971,14 +3971,14 @@ export default function StudentResumePage() {
                         </div>
                         {resume.personalDetails.fatherName && (
                           <div className="flex items-baseline">
-                            <span className="w-24 text-slate-500 font-medium shrink-0">Father's Name</span>
+                            <span className="w-24 text-slate-500 font-medium shrink-0">Father&apos;s Name</span>
                             <span className="text-slate-400 mr-1.5">:</span>
                             <span className="text-slate-800 font-semibold truncate">{resume.personalDetails.fatherName}</span>
                           </div>
                         )}
                         {resume.personalDetails.motherName && (
                           <div className="flex items-baseline">
-                            <span className="w-24 text-slate-500 font-medium shrink-0">Mother's Name</span>
+                            <span className="w-24 text-slate-500 font-medium shrink-0">Mother&apos;s Name</span>
                             <span className="text-slate-400 mr-1.5">:</span>
                             <span className="text-slate-800 font-semibold truncate">{resume.personalDetails.motherName}</span>
                           </div>

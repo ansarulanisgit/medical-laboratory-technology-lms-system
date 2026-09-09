@@ -63,7 +63,6 @@ import {
   CertBorderStyle,
   AdminCertificateTemplate,
   COLOR_PRESETS,
-  US_LETTER_DIMENSION_LABEL,
 } from "@/lib/stores/certificate-store";
 import { useAcademic, ProgramLevel } from "@/lib/curriculum/academic-context";
 import { useActivityLog } from "@/lib/stores/activity-log-store";
@@ -186,7 +185,7 @@ export default function StudentCertificatesPage() {
     if (userProfile?.name && (!applyForm.candidateName || applyForm.candidateName === "Ansarul Islam")) {
       setApplyForm((prev) => ({ ...prev, candidateName: userProfile.name }));
     }
-  }, [userProfile?.name]);
+  }, [userProfile?.name, applyForm.candidateName]);
 
   // Watermark preview before application submission state
   const [candidateWatermarkPreview, setCandidateWatermarkPreview] = React.useState<null | {
@@ -226,7 +225,7 @@ export default function StudentCertificatesPage() {
       setAdminTplEditTitle(activeAdminTemplate.title);
       setAdminTplEditInst(activeAdminTemplate.institution);
     }
-  }, [selectedAdminTplProg, selectedAdminTplYear, adminTemplates]);
+  }, [selectedAdminTplProg, selectedAdminTplYear, adminTemplates, activeAdminTemplate]);
 
   // Close modals on Escape key
   React.useEffect(() => {

@@ -368,7 +368,7 @@ export default function QuestionBankPage() {
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Previous 10 years' official board & faculty examination question papers with verified solutions.
+            Previous 10 years&apos; official board & faculty examination question papers with verified solutions.
           </p>
         </div>
 
@@ -595,7 +595,7 @@ export default function QuestionBankPage() {
             )}
             {searchTerm && (
               <Badge variant="outline" className="gap-1 bg-primary/10 text-primary border-primary/20 pr-1 text-[11px] py-0.5">
-                <span>"{searchTerm}"</span>
+                <span>&ldquo;{searchTerm}&rdquo;</span>
                 <button
                   type="button"
                   onClick={() => setSearchTerm("")}
