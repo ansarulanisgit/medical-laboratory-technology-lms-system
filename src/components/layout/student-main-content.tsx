@@ -16,7 +16,7 @@ export function StudentMainContent({ children }: { children: React.ReactNode }) 
     >
       <div
         className={cn(
-          "w-full transition-all duration-300 px-4 pt-3 pb-6 sm:px-6 lg:px-8 print:p-0 print:m-0 print:max-w-none",
+          "w-full transition-all duration-300 px-4 pt-4 pb-6 sm:px-6 lg:px-8 print:p-0 print:m-0 print:max-w-none",
           isCollapsed ? "max-w-none" : "max-w-7xl mx-auto"
         )}
       >

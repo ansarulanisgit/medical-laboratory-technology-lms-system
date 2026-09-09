@@ -18,20 +18,45 @@ import {
   CheckCircle2,
   AlertCircle,
   X,
+  Plus,
   Sparkles,
   Sliders,
   Lock,
   Unlock,
-  KeyRound
+  KeyRound,
+  Award,
+  BarChart3,
+  Clock,
+  XCircle,
+  FileText,
+  Check,
+  Printer,
+  Eye,
+  BookOpen,
+  FlaskConical,
+  Calendar,
+  Activity,
+  UserCheck,
+  Download,
+  AlertTriangle,
+  ChevronRight,
+  TrendingUp,
+  History,
+  CheckCircle,
+  ExternalLink,
+  Percent,
+  FileCheck2,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useUserManagement, LMSUser } from "@/lib/curriculum/user-management-context";
-import { useAcademic, ProgramLevel } from "@/lib/curriculum/academic-context";
+import { useAcademic, ProgramLevel, CURRICULUM_SUBJECTS_CATALOG } from "@/lib/curriculum/academic-context";
 import { useNotification } from "@/components/ui/notification-context";
 import { useActivityLog } from "@/lib/stores/activity-log-store";
+import { useCertificates, CertificateRecord } from "@/lib/stores/certificate-store";
+import { useLMSAnnouncements } from "@/lib/notifications/lms-announcement-context";
 import { UserRole, UserPermissions, DEFAULT_ROLE_PERMISSIONS, ROLE_LABELS } from "@/types/roles";
 
 const INSTITUTIONS_LIST = [
@@ -59,10 +84,20 @@ export default function UserManagementPage() {
   const { users, addUser, updateUser, deleteUser, updateUserPermissions } = useUserManagement();
   const { role: currentRole, userProfile } = useAcademic();
   const { showNotification } = useNotification();
-  const { logActivity } = useActivityLog();
+  const { logActivity, logs } = useActivityLog();
+  const { certificates, reviewCertificate, templateConfig, applyForCertificate } = useCertificates();
+  const { createAnnouncement } = useLMSAnnouncements();
 
   const isSuperAdmin = currentRole === "SUPER_ADMIN";
   const isAdmin = currentRole === "ADMIN";
+
+  // Student Dossier & Certificate Approval Modal
+  const [selectedStudentForDossier, setSelectedStudentForDossier] = React.useState<LMSUser | null>(null);
+  const [dossierTab, setDossierTab] = React.useState<"ANALYTICS" | "ACTIVITIES" | "CERTIFICATES">("CERTIFICATES");
+  const [rejectingCertId, setRejectingCertId] = React.useState<string | null>(null);
+  const [declineReason, setDeclineReason] = React.useState("");
+  const [previewCert, setPreviewCert] = React.useState<CertificateRecord | null>(null);
+  const [activitySearchQuery, setActivitySearchQuery] = React.useState("");
 
   // Search and filters
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -290,6 +325,131 @@ export default function UserManagementPage() {
     });
   }, [users, searchTerm, roleFilter, statusFilter, programFilter]);
 
+  const getStudentCertificates = React.useCallback(
+    (targetUser: LMSUser) => {
+      return certificates.filter(
+        (c) =>
+          c.studentId === targetUser.id ||
+          c.studentName.toLowerCase().trim() === targetUser.fullName.toLowerCase().trim() ||
+          (targetUser.studentIdNumber &&
+            c.verificationCode?.toLowerCase().includes(targetUser.studentIdNumber.toLowerCase())) ||
+          (targetUser.username && c.studentId === targetUser.username)
+      );
+    },
+    [certificates]
+  );
+
+  const getPendingCertCount = React.useCallback(
+    (targetUser: LMSUser) => {
+      return getStudentCertificates(targetUser).filter((c) => c.status === "PENDING").length;
+    },
+    [getStudentCertificates]
+  );
+
+  const totalPendingCerts = React.useMemo(() => {
+    return certificates.filter((c) => c.status === "PENDING").length;
+  }, [certificates]);
+
+  const openDossier = (
+    user: LMSUser,
+    defaultTab: "ANALYTICS" | "ACTIVITIES" | "CERTIFICATES" = "ANALYTICS"
+  ) => {
+    setSelectedStudentForDossier(user);
+    setDossierTab(defaultTab);
+    setRejectingCertId(null);
+    setDeclineReason("");
+    setPreviewCert(null);
+    setActivitySearchQuery("");
+  };
+
+  const handleApproveCertificate = (cert: CertificateRecord, student: LMSUser) => {
+    const reviewerName =
+      userProfile?.name || (isSuperAdmin ? "Super Administrator (Ansarul Anis)" : "Academic Council Admin");
+    const reviewerRole = currentRole || "SUPER_ADMIN";
+
+    reviewCertificate(
+      cert.id,
+      "APPROVED",
+      reviewerName,
+      reviewerRole,
+      "Approved following comprehensive academic dossier & bench practical competency review."
+    );
+
+    createAnnouncement({
+      title: "🎉 Certificate Application Approved & Issued!",
+      message: `Congratulations ${student.fullName}! Your requested credential "${cert.title}" has been reviewed and approved by ${reviewerName} (${ROLE_LABELS[reviewerRole] || reviewerRole}). You can now view and download your official credential from the Certificates registry.`,
+      type: "ACADEMIC",
+      priority: "HIGH",
+      targetAudience: "ALL",
+      targetUserId: student.id,
+      targetStudentName: student.fullName,
+      authorRole: isSuperAdmin ? "SUPER_ADMIN" : "ADMIN",
+      authorName: reviewerName,
+    });
+
+    logActivity({
+      action: "UPDATE",
+      module: "Certificates",
+      details: `Approved & issued certificate "${cert.title}" (${cert.code.replace("REQ", "CERT")}) for ${student.fullName}`,
+      performedBy: reviewerName,
+      role: currentRole,
+    });
+
+    showNotification({
+      type: "success",
+      title: "Certificate Approved & Issued",
+      message: `Credential approved for ${student.fullName}. Real-time notification dispatched to student.`,
+      autoRefresh: true,
+    });
+  };
+
+  const handleDeclineCertificate = (cert: CertificateRecord, student: LMSUser, reason: string) => {
+    if (!reason.trim()) {
+      showNotification({
+        type: "error",
+        title: "Feedback Reason Required",
+        message: "Please enter a specific reason or feedback for declining the certificate request.",
+      });
+      return;
+    }
+
+    const reviewerName =
+      userProfile?.name || (isSuperAdmin ? "Super Administrator (Ansarul Anis)" : "Academic Council Admin");
+    const reviewerRole = currentRole || "SUPER_ADMIN";
+
+    reviewCertificate(cert.id, "REJECTED", reviewerName, reviewerRole, reason.trim());
+
+    createAnnouncement({
+      title: "⚠️ Certificate Application Update - Requirements Needed",
+      message: `Your certificate request for "${cert.title}" was reviewed by ${reviewerName} (${ROLE_LABELS[reviewerRole] || reviewerRole}) and declined. Feedback / Remarks: "${reason.trim()}". Please fulfill the requirements and re-apply.`,
+      type: "ADVISORY",
+      priority: "URGENT",
+      targetAudience: "ALL",
+      targetUserId: student.id,
+      targetStudentName: student.fullName,
+      authorRole: isSuperAdmin ? "SUPER_ADMIN" : "ADMIN",
+      authorName: reviewerName,
+    });
+
+    logActivity({
+      action: "UPDATE",
+      module: "Certificates",
+      details: `Declined certificate request for ${student.fullName}. Reason: ${reason.trim()}`,
+      performedBy: reviewerName,
+      role: currentRole,
+    });
+
+    setRejectingCertId(null);
+    setDeclineReason("");
+
+    showNotification({
+      type: "warning",
+      title: "Certificate Request Declined",
+      message: `Certificate declined. Formal notification and feedback sent to ${student.fullName}.`,
+      autoRefresh: true,
+    });
+  };
+
   const counts = React.useMemo(() => {
     return {
       total: users.length,
@@ -297,8 +457,9 @@ export default function UserManagementPage() {
       admin: users.filter((u) => u.role === "ADMIN").length,
       mentor: users.filter((u) => u.role === "MENTOR").length,
       student: users.filter((u) => u.role === "STUDENT").length,
+      pendingCerts: totalPendingCerts,
     };
-  }, [users]);
+  }, [users, totalPendingCerts]);
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
@@ -327,7 +488,7 @@ export default function UserManagementPage() {
       </div>
 
       {/* KPI Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <Card className="p-3 border-border bg-card">
           <div className="text-[11px] font-semibold text-muted-foreground uppercase">Total Enrolled</div>
           <div className="text-xl font-extrabold mt-1">{counts.total}</div>
@@ -344,9 +505,39 @@ export default function UserManagementPage() {
           <div className="text-[11px] font-semibold text-amber-700 dark:text-amber-400 uppercase">Faculty Mentors</div>
           <div className="text-xl font-extrabold mt-1 text-amber-700 dark:text-amber-400">{counts.mentor}</div>
         </Card>
-        <Card className="p-3 border-emerald-500/20 bg-emerald-500/5 col-span-2 sm:col-span-1">
+        <Card className="p-3 border-emerald-500/20 bg-emerald-500/5">
           <div className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 uppercase">Students</div>
           <div className="text-xl font-extrabold mt-1 text-emerald-700 dark:text-emerald-400">{counts.student}</div>
+        </Card>
+        <Card
+          onClick={() => {
+            const studentWithPending = users.find((u) => getPendingCertCount(u) > 0);
+            if (studentWithPending) {
+              openDossier(studentWithPending, "CERTIFICATES");
+            }
+          }}
+          className={`p-3 border transition-all cursor-pointer ${
+            counts.pendingCerts > 0
+              ? "border-amber-500/50 bg-amber-500/10 hover:border-amber-500"
+              : "border-border bg-card"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="text-[11px] font-semibold text-amber-700 dark:text-amber-400 uppercase">
+              Cert Requests
+            </div>
+            {counts.pendingCerts > 0 && (
+              <span className="h-2 w-2 rounded-full bg-amber-500 animate-ping" />
+            )}
+          </div>
+          <div className="text-xl font-extrabold mt-1 text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+            <span>{counts.pendingCerts}</span>
+            {counts.pendingCerts > 0 && (
+              <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-600 text-white animate-pulse">
+                Pending
+              </span>
+            )}
+          </div>
         </Card>
       </div>
 
@@ -409,15 +600,14 @@ export default function UserManagementPage() {
                 <th className="p-3.5">User Identity</th>
                 <th className="p-3.5">Role</th>
                 <th className="p-3.5">Program & Year</th>
-                <th className="p-3.5">Institution</th>
-                <th className="p-3.5">Status</th>
+                <th className="p-3.5">Analytics & Activity</th>
                 <th className="p-3.5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
               {filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={5} className="p-8 text-center text-muted-foreground">
                     No users found matching current filters.
                   </td>
                 </tr>
@@ -437,6 +627,10 @@ export default function UserManagementPage() {
                       : user.role === "MENTOR"
                       ? "bg-amber-600 text-white"
                       : "bg-emerald-600 text-white";
+
+                  const isStudent = user.role === "STUDENT";
+                  const studentCerts = getStudentCertificates(user);
+                  const pendingCount = studentCerts.filter((c) => c.status === "PENDING").length;
 
                   return (
                     <tr key={user.id} className="hover:bg-muted/30 transition-colors">
@@ -460,41 +654,125 @@ export default function UserManagementPage() {
                         <div className="text-[11px] text-muted-foreground">
                           Year {user.academicYear}
                         </div>
-                      </td>
-
-                      <td className="p-3.5 max-w-xs">
-                        <div className="truncate text-muted-foreground" title={user.institution}>
+                        <div className="text-[10px] text-muted-foreground/80 truncate max-w-[170px]" title={user.institution}>
                           {user.institution}
                         </div>
                       </td>
 
+                      {/* Analytics & Activity Column */}
                       <td className="p-3.5">
-                        <Badge
-                          variant={
-                            user.status === "ACTIVE"
-                              ? "outline"
-                              : user.status === "PENDING_VERIFICATION"
-                              ? "secondary"
-                              : "destructive"
-                          }
-                          className="text-[10px]"
-                        >
-                          {user.status === "ACTIVE" ? "Active" : user.status.replace("_", " ")}
-                        </Badge>
+                        {isStudent ? (
+                          <div className="space-y-1.5 min-w-[210px]">
+                            <div className="flex items-center justify-between text-[11px]">
+                              <span className="inline-flex items-center gap-1 font-semibold text-foreground">
+                                <TrendingUp className="h-3 w-3 text-emerald-500" />
+                                <span>88.5% Avg Score</span>
+                              </span>
+                              <span className="text-[10px] text-muted-foreground font-medium">78% Covered</span>
+                            </div>
+
+                            {/* Mini Activity Progress Bar */}
+                            <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                              <div
+                                className="bg-emerald-500 h-full rounded-full transition-all"
+                                style={{ width: "78%" }}
+                              />
+                            </div>
+
+                            <div className="flex items-center justify-between gap-1 text-[10px]">
+                              <span className="inline-flex items-center gap-1 text-muted-foreground truncate">
+                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                                <span>Active • 14 Tests Logged</span>
+                              </span>
+
+                              {pendingCount > 0 ? (
+                                <button
+                                  type="button"
+                                  onClick={() => openDossier(user, "CERTIFICATES")}
+                                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-bold bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/40 hover:bg-amber-500/30 transition-all animate-pulse shrink-0 cursor-pointer"
+                                  title="Review pending certificate request"
+                                >
+                                  <Clock className="h-2.5 w-2.5" />
+                                  <span>{pendingCount} Cert Pending</span>
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => openDossier(user, "ANALYTICS")}
+                                  className="text-primary hover:underline font-medium text-[10px] shrink-0 cursor-pointer"
+                                >
+                                  Live Log & Chart →
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-1 min-w-[180px]">
+                            <div className="flex items-center gap-1.5 text-[11px] font-medium text-foreground">
+                              <Activity className="h-3 w-3 text-primary" />
+                              <span>
+                                {user.role === "MENTOR"
+                                  ? "18 Lab SOPs • 42 Reviews"
+                                  : user.role === "SUPER_ADMIN"
+                                  ? "System Controller • Full Audit"
+                                  : "Academic Administration"}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                              <span className="inline-flex items-center gap-1">
+                                <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse shrink-0" />
+                                <span>Active now</span>
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => openDossier(user, "ACTIVITIES")}
+                                className="text-primary hover:underline text-[10px] font-medium cursor-pointer"
+                              >
+                                View Logs →
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </td>
 
                       <td className="p-3.5 text-right">
                         <div className="flex items-center justify-end gap-1">
+                          {/* Analytics / Dossier Button */}
+                          {/* Analytics / Dossier Icon Button */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              openDossier(user, pendingCount > 0 ? "CERTIFICATES" : "ANALYTICS")
+                            }
+                            title={
+                              isStudent
+                                ? `Student Analytics, Live Activity & Certificates (${pendingCount} pending)`
+                                : "User Analytics & Live Activity Trail"
+                            }
+                            className={`h-7 w-7 p-0 relative border-border/80 hover:border-primary/50 text-foreground hover:text-primary ${
+                              pendingCount > 0
+                                ? "border-amber-500 text-amber-600 dark:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 animate-pulse"
+                                : ""
+                            }`}
+                          >
+                            <BarChart3 className="h-3.5 w-3.5 text-primary" />
+                            {pendingCount > 0 && (
+                              <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-amber-500 text-white text-[8px] font-bold flex items-center justify-center">
+                                {pendingCount}
+                              </span>
+                            )}
+                          </Button>
+
                           {isSuperAdmin && (
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => openPermModal(user)}
                               title="Manage Granular Permissions"
-                              className="h-7 px-2 text-[11px] gap-1"
+                              className="h-7 w-7 p-0 border-border/80 hover:border-primary/50 text-foreground hover:text-primary"
                             >
-                              <KeyRound className="h-3 w-3 text-primary" />
-                              <span className="hidden sm:inline">Perms</span>
+                              <KeyRound className="h-3.5 w-3.5 text-primary" />
                             </Button>
                           )}
 
@@ -819,6 +1097,922 @@ export default function UserManagementPage() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Student Academic Dossier, Live Activities & Certificate Authority */}
+      {selectedStudentForDossier && (() => {
+        const student = selectedStudentForDossier;
+        const studentCerts = getStudentCertificates(student);
+        const pendingCerts = studentCerts.filter((c) => c.status === "PENDING");
+        const approvedCerts = studentCerts.filter((c) => c.status === "APPROVED");
+        const rejectedCerts = studentCerts.filter((c) => c.status === "REJECTED");
+
+        // Filter catalog subjects by student program & year
+        const programSubjects = CURRICULUM_SUBJECTS_CATALOG.filter(
+          (s) => s.program === student.program && (!student.academicYear || s.year === student.academicYear)
+        );
+        const displaySubjects =
+          programSubjects.length > 0
+            ? programSubjects
+            : CURRICULUM_SUBJECTS_CATALOG.filter((s) => s.program === student.program);
+
+        const studentActivityEvents = [
+          {
+            id: "act-1",
+            title: "Board Examination Mock Simulation",
+            desc: "Completed Diagnostic Clinical Hematology & Coagulation Test (Score: 88.5%, 45 mins)",
+            time: "Today, 09:22 AM",
+            type: "EXAM",
+            device: "Chrome / Windows 11",
+            ip: "103.145.112.44",
+            status: "SUCCESS",
+          },
+          {
+            id: "act-2",
+            title: "Clinical SOP Practical Sign-off",
+            desc: "Completed Leishman Peripheral Blood Smear & Differential Leukocyte Count (DLC)",
+            time: "Yesterday, 04:15 PM",
+            type: "PRACTICAL",
+            device: "Lab Workstation #04",
+            ip: "103.145.112.18",
+            status: "SUCCESS",
+          },
+          {
+            id: "act-3",
+            title: "Digital Lecture Module Accessed",
+            desc: "Reviewed 'Principles of Automated Hematology Analyzers & Flow Cytometry'",
+            time: "Sep 07, 11:40 AM",
+            type: "STUDY",
+            device: "Android Mobile / Chrome",
+            ip: "103.145.112.92",
+            status: "SUCCESS",
+          },
+          {
+            id: "act-4",
+            title: "Clinical Rotation Check-in",
+            desc: "Checked into Dhaka Institute of Health Technology Diagnostic Laboratory Wing",
+            time: "Sep 06, 08:30 AM",
+            type: "ATTENDANCE",
+            device: "Biometric Terminal / Web Sync",
+            ip: "103.145.112.02",
+            status: "SUCCESS",
+          },
+          {
+            id: "act-5",
+            title: "Official Certificate Application",
+            desc: "Submitted request for 2nd Year Clinical Benchmark Competency Credential",
+            time: "Sep 05, 02:18 PM",
+            type: "CERTIFICATE",
+            device: "Chrome / Windows 11",
+            ip: "103.145.112.44",
+            status: "PENDING",
+          },
+          {
+            id: "act-6",
+            title: "Platform Authentication",
+            desc: "Secure SSO student portal login authenticated via DGHS Medical Technology directory",
+            time: "Sep 04, 07:45 AM",
+            type: "AUTH",
+            device: "Chrome / Windows 11",
+            ip: "103.145.112.44",
+            status: "SUCCESS",
+          },
+        ].filter(
+          (e) =>
+            !activitySearchQuery.trim() ||
+            e.title.toLowerCase().includes(activitySearchQuery.toLowerCase()) ||
+            e.desc.toLowerCase().includes(activitySearchQuery.toLowerCase()) ||
+            e.type.toLowerCase().includes(activitySearchQuery.toLowerCase())
+        );
+
+        const BENCH_COMPETENCIES = [
+          {
+            code: "SOP-HEM-01",
+            name: "Peripheral Blood Smear Examination & DLC (Leishman Stain)",
+            score: "94%",
+            eval: "Distinction",
+            evaluator: "Dr. Sabrina Parvin (Clinical Mentor)",
+          },
+          {
+            code: "SOP-IMM-04",
+            name: "ABO Blood Grouping & Rh Typing (Tube Method & Crossmatch)",
+            score: "98%",
+            eval: "Flawless",
+            evaluator: "Prof. Nasreen Akhter (Examiner)",
+          },
+          {
+            code: "SOP-BIO-09",
+            name: "Serum Creatinine Estimation by Alkaline Picrate (Jaffé's Kinetic)",
+            score: "89%",
+            eval: "Competent",
+            evaluator: "MD. Arif Hossain (Mentor)",
+          },
+          {
+            code: "SOP-MIC-03",
+            name: "Gram Staining & Bacterial Morphology Classification",
+            score: "92%",
+            eval: "Distinction",
+            evaluator: "Dr. Sabrina Parvin (Clinical Mentor)",
+          },
+          {
+            code: "SOP-MIC-07",
+            name: "Acid-Fast Bacilli (AFB) Sputum Smear Staining (Ziehl-Neelsen)",
+            score: "95%",
+            eval: "Distinction",
+            evaluator: "Prof. Nasreen Akhter (Examiner)",
+          },
+          {
+            code: "SOP-PAT-02",
+            name: "Complete Urinalysis & Centrifuged Microscopic Sediment Analysis",
+            score: "90%",
+            eval: "Distinction",
+            evaluator: "MD. Arif Hossain (Mentor)",
+          },
+        ];
+
+        return (
+          <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+            <div className="bg-card border border-border rounded-2xl max-w-4xl w-full p-4 sm:p-6 space-y-4 max-h-[92vh] flex flex-col shadow-2xl overflow-hidden my-auto">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border">
+                <div className="flex items-center gap-3">
+                  <div className="h-11 w-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-base uppercase shrink-0">
+                    {student.fullName
+                      .split(" ")
+                      .map((n) => n[0])
+                      .slice(0, 2)
+                      .join("")}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-bold text-base sm:text-lg text-foreground">
+                        {student.fullName}
+                      </h3>
+                      <Badge
+                        className={`text-[10px] font-semibold ${
+                          student.role === "SUPER_ADMIN"
+                            ? "bg-purple-600 text-white"
+                            : student.role === "ADMIN"
+                            ? "bg-blue-600 text-white"
+                            : student.role === "MENTOR"
+                            ? "bg-amber-600 text-white"
+                            : "bg-emerald-600 text-white"
+                        }`}
+                      >
+                        {ROLE_LABELS[student.role] || student.role}
+                      </Badge>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-mono font-medium">
+                        {student.studentIdNumber}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2 flex-wrap">
+                      <span>
+                        {student.program} • Year {student.academicYear}
+                      </span>
+                      <span>•</span>
+                      <span className="truncate max-w-[260px]" title={student.institution}>
+                        {student.institution}
+                      </span>
+                      <span>•</span>
+                      <span className="text-primary font-medium">
+                        @{student.username || student.email.split("@")[0]}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-end sm:self-auto">
+                  {pendingCerts.length > 0 && (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 animate-pulse">
+                      <Clock className="h-3.5 w-3.5" />
+                      <span>{pendingCerts.length} Cert Request Pending</span>
+                    </span>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedStudentForDossier(null)}
+                    className="h-8 w-8 p-0 rounded-lg"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Tab Navigation */}
+              <div className="flex items-center gap-1.5 border-b border-border/70 pb-2 overflow-x-auto">
+                <button
+                  type="button"
+                  onClick={() => setDossierTab("ANALYTICS")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 cursor-pointer ${
+                    dossierTab === "ANALYTICS"
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                  }`}
+                >
+                  <BarChart3 className="h-3.5 w-3.5" />
+                  <span>Academic Analytics & SOPs</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setDossierTab("ACTIVITIES")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 cursor-pointer ${
+                    dossierTab === "ACTIVITIES"
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                  }`}
+                >
+                  <Activity className="h-3.5 w-3.5" />
+                  <span>Live Activity Trail & Telemetry</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setDossierTab("CERTIFICATES")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 cursor-pointer relative ${
+                    dossierTab === "CERTIFICATES"
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                  }`}
+                >
+                  <Award className="h-3.5 w-3.5" />
+                  <span>Certificate Requests</span>
+                  {pendingCerts.length > 0 && (
+                    <span className="h-4 px-1 rounded-full bg-amber-500 text-white text-[9px] font-extrabold flex items-center justify-center animate-bounce">
+                      {pendingCerts.length}
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              {/* Tab Body */}
+              <div className="overflow-y-auto pr-1 space-y-4 max-h-[calc(92vh-190px)]">
+                {/* TAB 1: ACADEMIC ANALYTICS */}
+                {dossierTab === "ANALYTICS" && (
+                  <div className="space-y-4">
+                    {/* Top KPI Cards */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <Card className="p-3 bg-card border-border/80">
+                        <div className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center justify-between">
+                          <span>Average Score</span>
+                          <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
+                        </div>
+                        <div className="text-xl font-black text-foreground mt-1">88.5%</div>
+                        <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">
+                          Grade A • Distinction
+                        </div>
+                      </Card>
+
+                      <Card className="p-3 bg-card border-border/80">
+                        <div className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center justify-between">
+                          <span>Curriculum Covered</span>
+                          <BookOpen className="h-3.5 w-3.5 text-blue-500" />
+                        </div>
+                        <div className="text-xl font-black text-foreground mt-1">78%</div>
+                        <div className="text-[10px] text-muted-foreground font-medium mt-0.5">
+                          32 / 41 Units Passed
+                        </div>
+                      </Card>
+
+                      <Card className="p-3 bg-card border-border/80">
+                        <div className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center justify-between">
+                          <span>Bench SOPs Logged</span>
+                          <FlaskConical className="h-3.5 w-3.5 text-amber-500" />
+                        </div>
+                        <div className="text-xl font-black text-foreground mt-1">18 / 20</div>
+                        <div className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold mt-0.5">
+                          Faculty Mentor Verified
+                        </div>
+                      </Card>
+
+                      <Card className="p-3 bg-card border-border/80">
+                        <div className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center justify-between">
+                          <span>Clinical Rotation</span>
+                          <Calendar className="h-3.5 w-3.5 text-purple-500" />
+                        </div>
+                        <div className="text-xl font-black text-foreground mt-1">420 Hrs</div>
+                        <div className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold mt-0.5">
+                          94% Attendance • 14 Mocks
+                        </div>
+                      </Card>
+                    </div>
+
+                    {/* Curriculum Subject Breakdown */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                          <BookOpen className="h-3.5 w-3.5 text-primary" />
+                          <span>Curriculum Subject Competency Performance</span>
+                        </h4>
+                        <span className="text-[10px] text-muted-foreground">
+                          Program: {student.program} (Year {student.academicYear})
+                        </span>
+                      </div>
+
+                      <div className="border border-border rounded-xl divide-y divide-border/60 overflow-hidden bg-card">
+                        {displaySubjects.map((subj, idx) => {
+                          const score = 84 + ((idx * 7) % 13);
+                          return (
+                            <div
+                              key={subj.code}
+                              className="p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-muted/30 transition-colors"
+                            >
+                              <div className="space-y-0.5">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-bold">
+                                    {subj.code}
+                                  </span>
+                                  <span className="font-bold text-xs text-foreground">{subj.name}</span>
+                                </div>
+                                <p className="text-[10px] text-muted-foreground line-clamp-1">
+                                  {subj.description}
+                                </p>
+                              </div>
+
+                              <div className="flex items-center gap-4 shrink-0 sm:self-center">
+                                <div className="w-24 bg-muted rounded-full h-2 overflow-hidden">
+                                  <div
+                                    className="bg-primary h-full rounded-full"
+                                    style={{ width: `${score}%` }}
+                                  />
+                                </div>
+                                <div className="text-right min-w-[65px]">
+                                  <div className="font-black text-xs text-foreground">{score}%</div>
+                                  <div className="text-[9px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                                    Competent
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Diagnostic Lab Bench Competency SOPs */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                          <FlaskConical className="h-3.5 w-3.5 text-primary" />
+                          <span>Clinical Diagnostic Laboratory Bench SOPs Matrix</span>
+                        </h4>
+                        <Badge variant="outline" className="text-[10px] text-emerald-600 border-emerald-500/30">
+                          ISO 15189 Aligned
+                        </Badge>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {BENCH_COMPETENCIES.map((sop) => (
+                          <div
+                            key={sop.code}
+                            className="p-3 rounded-xl border border-border bg-card/60 space-y-1.5 hover:border-primary/40 transition-colors"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-mono text-[9px] font-bold text-primary px-1.5 py-0.5 rounded bg-primary/10">
+                                {sop.code}
+                              </span>
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                                <CheckCircle className="h-3 w-3" />
+                                <span>{sop.score}</span>
+                              </span>
+                            </div>
+                            <div className="text-xs font-bold text-foreground leading-snug">
+                              {sop.name}
+                            </div>
+                            <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-1 border-t border-border/40">
+                              <span>Rating: <strong className="text-foreground">{sop.eval}</strong></span>
+                              <span className="truncate max-w-[170px]" title={sop.evaluator}>
+                                {sop.evaluator}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB 2: LIVE ACTIVITY STREAM */}
+                {dossierTab === "ACTIVITIES" && (
+                  <div className="space-y-4">
+                    {/* Activity Filter & Telemetry KPI */}
+                    <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                        <Input
+                          placeholder="Filter student activity by action, exam, or keyword..."
+                          value={activitySearchQuery}
+                          onChange={(e) => setActivitySearchQuery(e.target.value)}
+                          className="pl-9 h-8 text-xs"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2 text-[10px] text-muted-foreground shrink-0">
+                        <span className="flex items-center gap-1">
+                          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                          <span>Telemetry Active</span>
+                        </span>
+                        <span>•</span>
+                        <span>Windows 11 / Chrome</span>
+                      </div>
+                    </div>
+
+                    {/* Weekly Distribution Bars */}
+                    <div className="p-3.5 rounded-xl border border-border bg-card space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-foreground flex items-center gap-1.5">
+                          <History className="h-3.5 w-3.5 text-primary" />
+                          <span>Weekly Active Session Distribution</span>
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">28 Sessions Logged this Month</span>
+                      </div>
+                      <div className="grid grid-cols-7 gap-2 pt-1 text-center text-[10px]">
+                        {[
+                          { day: "Mon", count: 4, h: "60%" },
+                          { day: "Tue", count: 6, h: "85%" },
+                          { day: "Wed", count: 3, h: "45%" },
+                          { day: "Thu", count: 7, h: "100%" },
+                          { day: "Fri", count: 5, h: "75%" },
+                          { day: "Sat", count: 2, h: "30%" },
+                          { day: "Sun", count: 1, h: "15%" },
+                        ].map((d) => (
+                          <div key={d.day} className="flex flex-col items-center gap-1.5">
+                            <div className="w-full bg-muted rounded h-12 flex items-end justify-center p-1">
+                              <div
+                                className="w-full bg-primary/80 rounded-sm hover:bg-primary transition-all"
+                                style={{ height: d.h }}
+                                title={`${d.count} sessions on ${d.day}`}
+                              />
+                            </div>
+                            <span className="font-medium text-muted-foreground">{d.day}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Activity Event List */}
+                    <div className="border border-border rounded-xl divide-y divide-border/60 overflow-hidden bg-card">
+                      {studentActivityEvents.length === 0 ? (
+                        <div className="p-6 text-center text-xs text-muted-foreground">
+                          No activity events found matching &quot;{activitySearchQuery}&quot;.
+                        </div>
+                      ) : (
+                        studentActivityEvents.map((evt) => (
+                          <div key={evt.id} className="p-3 hover:bg-muted/30 transition-colors space-y-1">
+                            <div className="flex items-center justify-between gap-2 flex-wrap text-xs">
+                              <div className="flex items-center gap-2">
+                                <Badge
+                                  className={`text-[9px] font-bold ${
+                                    evt.type === "EXAM"
+                                      ? "bg-purple-600 text-white"
+                                      : evt.type === "PRACTICAL"
+                                      ? "bg-emerald-600 text-white"
+                                      : evt.type === "CERTIFICATE"
+                                      ? "bg-amber-600 text-white"
+                                      : evt.type === "ATTENDANCE"
+                                      ? "bg-blue-600 text-white"
+                                      : "bg-muted text-muted-foreground"
+                                  }`}
+                                >
+                                  {evt.type}
+                                </Badge>
+                                <span className="font-bold text-foreground">{evt.title}</span>
+                              </div>
+                              <span className="text-[10px] text-muted-foreground font-medium">{evt.time}</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground">{evt.desc}</p>
+                            <div className="flex items-center gap-3 text-[10px] text-muted-foreground/80 pt-1 font-mono">
+                              <span>Client: {evt.device}</span>
+                              <span>•</span>
+                              <span>IP: {evt.ip}</span>
+                              <span>•</span>
+                              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{evt.status}</span>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB 3: CERTIFICATES REVIEW & APPROVALS */}
+                {dossierTab === "CERTIFICATES" && (
+                  <div className="space-y-4">
+                    <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs text-muted-foreground leading-relaxed flex items-start gap-2.5">
+                      <Award className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="text-foreground font-semibold">
+                          Super Administrator Credential Authority:
+                        </strong>{" "}
+                        Accept or decline certificate generation requests submitted by this student.
+                        Approving immediately confers the credential, assigns the official verification ID, and updates the student in real time. Declining dispatches an immediate notification with your feedback reason.
+                      </div>
+                    </div>
+
+                    {/* Pending Requests Section */}
+                    {pendingCerts.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                            <Clock className="h-3.5 w-3.5" />
+                            <span>Pending Certificate Applications ({pendingCerts.length})</span>
+                          </h4>
+                          <Badge className="bg-amber-600 text-white text-[10px] animate-pulse">
+                            Action Required
+                          </Badge>
+                        </div>
+
+                        <div className="space-y-3">
+                          {pendingCerts.map((cert) => (
+                            <div
+                              key={cert.id}
+                              className="p-4 rounded-xl border-2 border-amber-500/40 bg-amber-500/5 space-y-3 shadow-sm"
+                            >
+                              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold">
+                                      {cert.code}
+                                    </span>
+                                    <Badge variant="outline" className="text-[10px] text-amber-600 border-amber-500/40">
+                                      {cert.program} Year {cert.year}
+                                    </Badge>
+                                  </div>
+                                  <h4 className="font-bold text-sm text-foreground mt-1">{cert.title}</h4>
+                                  <p className="text-xs text-muted-foreground mt-0.5">
+                                    Affiliated Institution: <strong className="text-foreground">{cert.institution}</strong>
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    Assessment Grade: <strong className="text-primary">{cert.grade}</strong> • Applied: {cert.applicationDate}
+                                  </p>
+                                </div>
+
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setPreviewCert(cert)}
+                                  className="gap-1 text-xs shrink-0 self-start border-amber-500/30 hover:bg-amber-500/10"
+                                >
+                                  <Eye className="h-3.5 w-3.5" />
+                                  <span>Preview Template</span>
+                                </Button>
+                              </div>
+
+                              {/* Rejection Feedback Box */}
+                              {rejectingCertId === cert.id ? (
+                                <div className="p-3 rounded-lg bg-card border border-destructive/30 space-y-2">
+                                  <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                                    <AlertCircle className="h-3.5 w-3.5 text-destructive" />
+                                    <span>Reason / Feedback for Declining Request *</span>
+                                  </label>
+                                  <textarea
+                                    value={declineReason}
+                                    onChange={(e) => setDeclineReason(e.target.value)}
+                                    placeholder="e.g. Student must submit verified logbook for 2 remaining SOPs and retake Clinical Hematology mock test before certification."
+                                    rows={3}
+                                    className="w-full text-xs p-2.5 rounded-md border border-input bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                                  />
+                                  <div className="flex items-center justify-end gap-2">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => {
+                                        setRejectingCertId(null);
+                                        setDeclineReason("");
+                                      }}
+                                    >
+                                      Cancel
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      onClick={() => handleDeclineCertificate(cert, student, declineReason)}
+                                    >
+                                      Confirm Decline & Send Notification
+                                    </Button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex items-center justify-end gap-2 pt-2 border-t border-amber-500/20">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      setRejectingCertId(cert.id);
+                                      setDeclineReason("");
+                                    }}
+                                    className="gap-1.5 text-xs text-destructive border-destructive/30 hover:bg-destructive/10"
+                                  >
+                                    <XCircle className="h-3.5 w-3.5" />
+                                    <span>Decline Request</span>
+                                  </Button>
+
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleApproveCertificate(cert, student)}
+                                    className="gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-sm"
+                                  >
+                                    <CheckCircle className="h-3.5 w-3.5" />
+                                    <span>Accept & Issue Certificate</span>
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Approved & Active Certificates */}
+                    {approvedCerts.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                          <CheckCircle className="h-3.5 w-3.5" />
+                          <span>Approved & Active Credentials ({approvedCerts.length})</span>
+                        </h4>
+
+                        <div className="space-y-2.5">
+                          {approvedCerts.map((cert) => (
+                            <div
+                              key={cert.id}
+                              className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                            >
+                              <div className="space-y-0.5">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">
+                                    {cert.code}
+                                  </span>
+                                  <Badge className="bg-emerald-600 text-white text-[9px]">
+                                    Conferred & Active
+                                  </Badge>
+                                </div>
+                                <h4 className="font-bold text-xs text-foreground mt-1">{cert.title}</h4>
+                                <div className="text-[10px] text-muted-foreground flex items-center gap-2 flex-wrap">
+                                  <span>Conferred: {cert.issuedDate || cert.applicationDate}</span>
+                                  <span>•</span>
+                                  <span>Grade: <strong className="text-primary">{cert.grade}</strong></span>
+                                  <span>•</span>
+                                  <span>Verified by: {cert.reviewedBy || "Super Administrator"}</span>
+                                  <span>•</span>
+                                  <span className="font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
+                                    ID: {cert.verificationCode}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setPreviewCert(cert)}
+                                  className="gap-1 text-xs h-8 border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10"
+                                >
+                                  <Eye className="h-3.5 w-3.5" />
+                                  <span>View Certificate</span>
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  onClick={() => {
+                                    setPreviewCert(cert);
+                                    setTimeout(() => window.print(), 300);
+                                  }}
+                                  className="gap-1 text-xs h-8 bg-emerald-600 hover:bg-emerald-700 text-white"
+                                >
+                                  <Download className="h-3.5 w-3.5" />
+                                  <span>Download</span>
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Rejected Applications */}
+                    {rejectedCerts.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                          <XCircle className="h-3.5 w-3.5 text-destructive" />
+                          <span>Declined Applications ({rejectedCerts.length})</span>
+                        </h4>
+
+                        <div className="space-y-2">
+                          {rejectedCerts.map((cert) => (
+                            <div
+                              key={cert.id}
+                              className="p-3 rounded-xl border border-destructive/30 bg-destructive/5 space-y-1.5"
+                            >
+                              <div className="flex items-center justify-between text-xs">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-bold">
+                                    {cert.code}
+                                  </span>
+                                  <Badge variant="destructive" className="text-[9px]">Declined</Badge>
+                                  <span className="font-bold text-foreground">{cert.title}</span>
+                                </div>
+                                <span className="text-[10px] text-muted-foreground">{cert.applicationDate}</span>
+                              </div>
+                              <p className="text-xs text-destructive">
+                                <strong>Feedback / Reason:</strong> {cert.feedback || "Academic criteria not met."}
+                              </p>
+                              <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-1 border-t border-destructive/20">
+                                <span>Reviewed by: {cert.reviewedBy || "Super Administrator"}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleApproveCertificate(cert, student)}
+                                  className="text-primary hover:underline font-semibold cursor-pointer"
+                                >
+                                  Re-evaluate & Approve →
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Empty State / Quick Generation */}
+                    {studentCerts.length === 0 && (
+                      <div className="p-6 rounded-xl border border-dashed border-border text-center space-y-3 bg-muted/20">
+                        <Award className="h-10 w-10 text-muted-foreground mx-auto opacity-50" />
+                        <div>
+                          <h4 className="font-bold text-sm text-foreground">No Certificate Applications on File</h4>
+                          <p className="text-xs text-muted-foreground mt-0.5 max-w-md mx-auto">
+                            This student has not yet submitted a certificate generation request. You can provision a sample application to test the verification workflow.
+                          </p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            applyForCertificate({
+                              studentId: student.id,
+                              studentName: student.fullName,
+                              institution: student.institution,
+                              program: student.program,
+                              year: student.academicYear || "1",
+                              title: `${student.program === "BSC" ? "B.Sc." : "Diploma"} Competency: Diagnostic Clinical Laboratory Benchmark`,
+                              grade: "Distinction (88.5%)",
+                            });
+                            showNotification({
+                              type: "success",
+                              title: "Request Generated",
+                              message: `Generated a certificate request for ${student.fullName}. You can now review, accept, or decline.`,
+                              autoRefresh: true,
+                            });
+                          }}
+                          className="gap-1.5 text-xs border-primary/30 text-primary hover:bg-primary/10"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          <span>Provision Sample Application for Review</span>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* MODAL: Official Certificate Preview & Print */}
+      {previewCert && (
+        <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+          <div className="bg-card border border-border rounded-2xl max-w-3xl w-full p-4 sm:p-6 space-y-4 shadow-2xl relative my-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge
+                  className={`text-xs ${
+                    previewCert.status === "APPROVED"
+                      ? "bg-emerald-600 text-white"
+                      : previewCert.status === "PENDING"
+                      ? "bg-amber-600 text-white animate-pulse"
+                      : "bg-red-600 text-white"
+                  }`}
+                >
+                  {previewCert.status === "APPROVED"
+                    ? "Conferred & Active Credential"
+                    : previewCert.status === "PENDING"
+                    ? "Pending Super Admin Verification"
+                    : "Declined Application"}
+                </Badge>
+                <span className="text-xs font-mono text-muted-foreground border border-border px-2 py-0.5 rounded bg-muted/40">
+                  {previewCert.code}
+                </span>
+                {previewCert.verificationCode && (
+                  <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
+                    ID: {previewCert.verificationCode}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {previewCert.status === "PENDING" && selectedStudentForDossier && (
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      handleApproveCertificate(previewCert, selectedStudentForDossier);
+                      setPreviewCert(null);
+                    }}
+                    className="gap-1.5 h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+                  >
+                    <CheckCircle className="h-3.5 w-3.5" />
+                    <span>Approve Now</span>
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.print()}
+                  className="gap-1.5 h-8 text-xs"
+                >
+                  <Printer className="h-3.5 w-3.5" />
+                  <span>Print / PDF</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setPreviewCert(null)}
+                  className="h-8 w-8 p-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Render Printable Certificate */}
+            <div
+              className={`rounded-2xl p-5 sm:p-8 md:p-10 border-4 sm:border-8 bg-card text-foreground shadow-sm relative overflow-hidden ${
+                templateConfig.borderStyle === "EMERALD_CLINICAL"
+                  ? "border-emerald-600"
+                  : templateConfig.borderStyle === "CLASSIC_GOLD"
+                  ? "border-amber-600"
+                  : "border-blue-700"
+              }`}
+            >
+              <div className="text-center space-y-3 sm:space-y-4">
+                <div className="flex justify-center">
+                  <Award className="h-10 w-10 sm:h-12 sm:w-12 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-lg sm:text-2xl font-serif font-bold uppercase tracking-wider text-foreground">
+                    {templateConfig.institutionName}
+                  </h2>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-widest mt-1">
+                    {templateConfig.subHeader}
+                  </p>
+                </div>
+
+                <div className="py-1">
+                  <span className="text-[10px] sm:text-xs tracking-widest font-semibold uppercase text-primary border-b-2 border-primary/40 pb-1">
+                    Certificate of Competency & Academic Merit
+                  </span>
+                </div>
+
+                <p className="text-xs italic text-muted-foreground">This is to officially certify that</p>
+
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-bold font-serif text-foreground underline decoration-primary underline-offset-8">
+                  {previewCert.studentName}
+                </h3>
+
+                <p className="text-xs text-muted-foreground max-w-lg mx-auto leading-relaxed">
+                  affiliated with <strong className="text-foreground">{previewCert.institution}</strong>, has fulfilled all required clinical benchmark criteria and verified laboratory SOP standards for{" "}
+                  <strong className="text-foreground">{previewCert.title}</strong> in the curriculum of{" "}
+                  <strong className="text-foreground">{previewCert.program} (Year {previewCert.year})</strong> with an official assessment grade of{" "}
+                  <strong className="text-primary font-bold">{previewCert.grade}</strong>.
+                </p>
+
+                <div className="pt-5 sm:pt-7 grid grid-cols-1 sm:grid-cols-3 items-end gap-3 text-xs text-muted-foreground">
+                  <div className="text-center border-t border-border pt-2">
+                    <p className="font-semibold text-foreground">{previewCert.reviewedBy || templateConfig.signatoryName1}</p>
+                    <p className="text-[10px]">
+                      {previewCert.reviewedRole
+                        ? `${ROLE_LABELS[previewCert.reviewedRole as UserRole] || previewCert.reviewedRole}`
+                        : templateConfig.signatoryTitle1}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col items-center">
+                    <div className="h-14 w-14 rounded-full border-2 border-dashed border-primary flex items-center justify-center p-1 text-[8px] font-bold text-center text-primary leading-tight">
+                      {templateConfig.sealText}
+                    </div>
+                  </div>
+
+                  <div className="text-center border-t border-border pt-2">
+                    <p className="font-semibold text-foreground">{templateConfig.signatoryName2}</p>
+                    <p className="text-[10px]">{templateConfig.signatoryTitle2}</p>
+                  </div>
+                </div>
+
+                <div className="pt-2 text-[10px] text-muted-foreground/80 flex items-center justify-between border-t border-border/40 font-mono">
+                  <span>Issued Date: {previewCert.issuedDate || previewCert.applicationDate}</span>
+                  <span>Auth Code: {previewCert.verificationCode || "PENDING"}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -71,6 +71,7 @@ export default function StudentDashboardPage() {
 
   const currentRole: UserRole = mounted ? (profile?.role || "STUDENT") : "STUDENT";
   const userFullName = mounted ? (profile?.fullName || "Md. Ansarul Islam") : "Md. Ansarul Islam";
+  const isSuperOrAdmin = currentRole === "SUPER_ADMIN" || currentRole === "ADMIN";
 
   const safeYear = String(mounted ? (profile?.academicYear || "1") : "2");
   const program = mounted ? (profile?.program || "DIPLOMA") : "DIPLOMA";
@@ -202,23 +203,38 @@ export default function StudentDashboardPage() {
           )}
         </div>
 
-        {/* Header Right Actions */}
-        <div className="flex items-center gap-2 shrink-0 self-start sm:self-center">
+        {/* Hero Actions Cluster: Role Switcher, Real-time Log, Theme Toggle, Notification Bell, Edit Profile */}
+        <div className="flex items-center gap-2 shrink-0 self-start sm:self-center flex-wrap">
           <RoleSwitcherModal />
-          <div className="hidden md:block">
-            <ThemeToggle />
-          </div>
-          <div className="hidden md:block">
-            <NotificationBell />
-          </div>
+
+          {/* Real-time System Audit Logs Icon (Super Admin and Admin exclusive) */}
+          {isSuperOrAdmin && (
+            <Link
+              href="/student/admin/logs"
+              title="Real-time Activity & Audit Logs"
+              aria-label="Real-time Activity & Audit Logs"
+            >
+              <button
+                type="button"
+                className="h-9 w-9 rounded-xl border border-border/80 bg-card text-foreground hover:bg-muted/60 transition-all flex items-center justify-center shadow-2xs group shrink-0 cursor-pointer"
+              >
+                <Activity className="h-4 w-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform" />
+              </button>
+            </Link>
+          )}
+
+          <ThemeToggle />
+
+          <NotificationBell />
+
           <Link href="/student/profile">
             <Button
               size="sm"
               variant="outline"
-              className="text-sm rounded-xl font-medium min-h-[38px] border-border/80 hover:border-primary/50 text-foreground"
+              className="h-9 px-3 text-xs rounded-xl font-medium border-border/80 hover:border-primary/50 text-foreground gap-1.5 cursor-pointer shadow-2xs"
             >
-              <User className="h-4 w-4 mr-1.5 text-primary" />
-              Edit Profile
+              <User className="h-4 w-4 text-primary" />
+              <span>Edit Profile</span>
             </Button>
           </Link>
         </div>

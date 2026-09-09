@@ -14,6 +14,8 @@ export interface LMSAnnouncement {
   type: AnnouncementType;
   priority: AnnouncementPriority;
   targetAudience: "ALL" | "DIPLOMA" | "BSC";
+  targetUserId?: string;
+  targetStudentName?: string;
   authorRole: "SUPER_ADMIN" | "ADMIN";
   authorName: string;
   createdAt: string;
@@ -126,16 +128,39 @@ export function LMSAnnouncementProvider({ children }: { children: React.ReactNod
     }
   };
 
-  // Filter announcements for current student program
+  // Filter announcements for current student program or targeted student
   const visibleAnnouncements = React.useMemo(() => {
     const program = profile?.program || "DIPLOMA";
+    const isManagement = profile?.role === "SUPER_ADMIN" || profile?.role === "ADMIN";
+
     return announcements.filter((a) => {
+      // Management roles see all announcements and targeted decisions
+      if (isManagement) return true;
+
+      // Targeted notification matching current student
+      if (
+        a.targetUserId &&
+        ((profile as any)?.id === a.targetUserId ||
+          profile?.username?.toLowerCase() === a.targetUserId.toLowerCase() ||
+          profile?.studentIdNumber?.toLowerCase() === a.targetUserId.toLowerCase() ||
+          profile?.email?.toLowerCase() === a.targetUserId.toLowerCase())
+      ) {
+        return true;
+      }
+      if (
+        a.targetStudentName &&
+        profile?.fullName?.toLowerCase().trim() === a.targetStudentName.toLowerCase().trim()
+      ) {
+        return true;
+      }
+
+      // General audience
       if (a.targetAudience === "ALL") return true;
       if (a.targetAudience === "DIPLOMA" && program === "DIPLOMA") return true;
       if (a.targetAudience === "BSC" && program === "BSC") return true;
       return false;
     });
-  }, [announcements, profile?.program]);
+  }, [announcements, profile?.program, profile?.role, profile?.studentIdNumber, profile?.username, profile?.fullName]);
 
   // Compute unread count for current user
   const unreadCount = React.useMemo(() => {
