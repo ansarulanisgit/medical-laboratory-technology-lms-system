@@ -122,25 +122,25 @@ export function PublicNavbar() {
               </Link>
             ))}
           </nav>
-          <div className="pt-3 border-t border-border flex flex-col space-y-2">
+          <div className="pt-3 border-t border-border grid grid-cols-2 gap-2.5">
             <Button
               variant="outline"
-              className="w-full justify-center cursor-pointer"
+              className="h-11 justify-center rounded-xl font-bold text-sm cursor-pointer border-border hover:bg-muted"
               onClick={() => {
                 setIsOpen(false);
                 openAuthModal("LOGIN");
               }}
             >
-              Log In
+              Sign In
             </Button>
             <Button
-              className="w-full justify-center bg-primary text-primary-foreground font-semibold cursor-pointer"
+              className="h-11 justify-center bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-xl cursor-pointer shadow-xs"
               onClick={() => {
                 setIsOpen(false);
                 openAuthModal("REGISTER");
               }}
             >
-              Create Free Account
+              Create Account
             </Button>
           </div>
         </div>
