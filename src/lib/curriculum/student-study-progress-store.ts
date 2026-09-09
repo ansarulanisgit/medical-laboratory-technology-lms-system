@@ -449,6 +449,34 @@ export function useStudentStudyProgress(
     [studentId, program, year, refresh]
   );
 
+  const completeTask = React.useCallback(
+    (subjectCode: string) => {
+      const all = getAllStoredStudentStudyRecords();
+      const key = `${studentId}_${program}_${year}`;
+      const r = getStudentStudyRecord(studentId, program, year);
+      const curr = r.subjectTasks[subjectCode];
+      const total = curr ? curr.totalTasks : 14;
+      const nextCount = total;
+
+      all[key] = {
+        ...r,
+        subjectTasks: {
+          ...r.subjectTasks,
+          [subjectCode]: {
+            completedTasks: nextCount,
+            totalTasks: total,
+            avgQuizScore: curr?.avgQuizScore || 92,
+            isCompleted: true,
+            lastStudied: "Completed & Verified",
+          },
+        },
+      };
+      saveAllStoredStudentStudyRecords(all);
+      refresh();
+    },
+    [studentId, program, year, refresh]
+  );
+
   const logActivity = React.useCallback(
     (event: Omit<StudentActivityEvent, "id" | "timestamp" | "time">) => {
       recordStudentActivity(studentId, program, year, event);
@@ -459,9 +487,13 @@ export function useStudentStudyProgress(
 
   return {
     record,
+    studyRecord: record,
     eligibility,
     refresh,
     markAllCompleted,
+    completeTask,
+    resetProgress: () => markAllCompleted(false),
+    completeAllTasks: () => markAllCompleted(true),
     logActivity,
   };
 }

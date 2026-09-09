@@ -1823,8 +1823,8 @@ export default function UserManagementPage() {
             if (e.target === e.currentTarget) setPreviewCert(null);
           }}
         >
-          <div className="bg-card border border-border rounded-2xl max-w-3xl w-full p-4 sm:p-6 space-y-4 shadow-2xl relative my-auto animate-in zoom-in-95">
-            <div className="flex items-center justify-between pb-3 border-b border-border">
+          <div className="bg-card border border-border rounded-2xl max-w-4xl lg:max-w-5xl w-full p-4 sm:p-6 space-y-4 shadow-2xl relative my-auto animate-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-border flex-wrap gap-2">
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge
                   className={`text-xs ${
@@ -1849,6 +1849,9 @@ export default function UserManagementPage() {
                     ID: {previewCert.verificationCode}
                   </span>
                 )}
+                <Badge variant="outline" className="text-[10px] font-mono border-primary/30 text-primary bg-primary/5">
+                  US Letter: 8.5 × 11 inches (21.6 × 27.9 cm)
+                </Badge>
               </div>
 
               <div className="flex items-center gap-2">
@@ -1889,9 +1892,10 @@ export default function UserManagementPage() {
               </div>
             </div>
 
-            {/* Render Printable Certificate */}
+            {/* Render Printable Certificate (US Letter Standard) */}
             <div
-              className={`rounded-2xl p-5 sm:p-8 md:p-10 border-4 sm:border-8 bg-card text-foreground shadow-sm relative overflow-hidden ${
+              id="users-official-cert-print"
+              className={`printable-cert-document rounded-2xl p-6 sm:p-8 md:p-10 border-4 sm:border-8 bg-card text-foreground shadow-sm relative overflow-hidden aspect-[11/8.5] max-w-[960px] min-h-[520px] flex flex-col justify-between mx-auto ${
                 templateConfig.borderStyle === "EMERALD_CLINICAL"
                   ? "border-emerald-600"
                   : templateConfig.borderStyle === "CLASSIC_GOLD"
@@ -1899,22 +1903,41 @@ export default function UserManagementPage() {
                   : "border-blue-700"
               }`}
             >
+              {/* Dimensions tag */}
+              <div className="absolute top-2 right-4 z-10 pointer-events-none opacity-50 text-[9px] font-mono select-none">
+                US Letter: 8.5 × 11 inches (21.6 × 27.9 cm)
+              </div>
               {/* Security Watermark for Non-Approved / Pending Previews */}
               {previewCert.status !== "APPROVED" && (
                 <div className="absolute inset-0 pointer-events-none select-none z-10 overflow-hidden flex flex-col justify-around opacity-30">
                   <div className="rotate-[-22deg] scale-110 whitespace-nowrap text-red-600 font-mono font-black text-lg sm:text-xl tracking-[0.25em] text-center border-y-2 border-red-500/40 py-2 bg-red-500/5">
-                    UNOFFICIAL CANDIDATE PREVIEW • NOT CONFERRED • PENDING SUPER ADMIN APPROVAL
+                    NOT APPROVED BY LABTUTOR ACADEMY
                   </div>
                   <div className="rotate-[-22deg] scale-110 whitespace-nowrap text-red-600 font-mono font-black text-lg sm:text-xl tracking-[0.25em] text-center border-y-2 border-red-500/40 py-2 bg-red-500/5">
-                    FOR INSTITUTIONAL AUDIT ONLY • NOT VALID FOR CLINICAL PRACTICE
+                    Not Approved by LabTutor Academy • Official Conferral Pending
                   </div>
                   <div className="rotate-[-22deg] scale-110 whitespace-nowrap text-red-600 font-mono font-black text-lg sm:text-xl tracking-[0.25em] text-center border-y-2 border-red-500/40 py-2 bg-red-500/5">
-                    LABTUTOR ACADEMY DGHS VALIDATION PENDING
+                    NOT APPROVED BY LABTUTOR ACADEMY
                   </div>
                 </div>
               )}
 
-              <div className="text-center space-y-3 sm:space-y-4 relative z-0">
+              {/* CENTRAL LABTUTOR ACADEMY LOGO WATERMARK */}
+              {(templateConfig.showCenterLogoWatermark ?? true) && (
+                <div className="absolute inset-0 pointer-events-none select-none z-0 flex items-center justify-center overflow-hidden p-6">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={templateConfig.watermarkLogoUrl || "/images/certificate-watermark-logo.png"}
+                    alt="LabTutor Academy Watermark"
+                    className="w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 object-contain transition-opacity duration-200"
+                    style={{
+                      opacity: templateConfig.watermarkLogoOpacity ?? 0.18,
+                    }}
+                  />
+                </div>
+              )}
+
+              <div className="text-center space-y-3 sm:space-y-4 relative z-10">
                 <div className="flex justify-center">
                   <Award className="h-10 w-10 sm:h-12 sm:w-12 text-primary" />
                 </div>
@@ -2024,6 +2047,37 @@ export default function UserManagementPage() {
                 </Button>
               </div>
             </div>
+
+            {/* Print Stylesheet for exact US Letter Dimensions */}
+            <style>{`
+              @page {
+                size: letter landscape;
+                margin: 0.35in;
+              }
+              @media print {
+                body * {
+                  visibility: hidden !important;
+                }
+                #users-official-cert-print, #users-official-cert-print * {
+                  visibility: visible !important;
+                }
+                #users-official-cert-print {
+                  position: fixed !important;
+                  left: 0 !important;
+                  top: 0 !important;
+                  width: 10.3in !important;
+                  height: 7.8in !important;
+                  max-width: none !important;
+                  max-height: none !important;
+                  margin: 0 auto !important;
+                  padding: 0.4in !important;
+                  box-shadow: none !important;
+                  page-break-inside: avoid !important;
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                }
+              }
+            `}</style>
           </div>
         </div>
       )}
