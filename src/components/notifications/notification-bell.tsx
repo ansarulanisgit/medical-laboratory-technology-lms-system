@@ -73,17 +73,28 @@ export function NotificationBell() {
 
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
-  // Close dropdown on click outside
+  // Close dropdown on click outside or ESC
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+        setSelectedNotice(null);
+        setIsCreateModalOpen(false);
+      }
+    };
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [isOpen]);
 
   const handleOpenNotice = (notice: LMSAnnouncement) => {
@@ -159,7 +170,7 @@ export function NotificationBell() {
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Open notifications"
         title="View Notifications & Announcements"
-        className="h-9 w-9 rounded-xl border border-border/80 bg-card text-foreground hover:bg-muted/60 transition-all flex items-center justify-center relative shadow-2xs group shrink-0"
+        className="h-9 w-9 rounded-xl border border-border/80 bg-card text-foreground hover:bg-muted/60 transition-all flex items-center justify-center relative shadow-2xs group shrink-0 cursor-pointer"
       >
         <Bell className="h-4 w-4 text-muted-foreground group-hover:text-foreground group-hover:scale-105 transition-transform" />
         {unreadCount > 0 && (
@@ -169,20 +180,29 @@ export function NotificationBell() {
         )}
       </button>
 
-      {/* Dropdown Popover */}
+      {/* Mobile Backdrop Overlay */}
       {isOpen && (
-        <div className="absolute right-0 top-11 z-50 w-[calc(100vw-32px)] max-w-[360px] sm:w-[410px] sm:max-w-[410px] rounded-2xl border border-border/80 bg-card text-card-foreground shadow-2xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 sm:hidden animate-in fade-in duration-150"
+          onClick={() => setIsOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Notifications Popover / Mobile Modal */}
+      {isOpen && (
+        <div className="fixed inset-x-3.5 top-16 sm:inset-x-auto sm:absolute sm:right-0 sm:top-11 z-50 w-auto sm:w-[420px] sm:max-w-[420px] max-h-[calc(100vh-5rem)] sm:max-h-[540px] rounded-2xl border border-border/80 bg-card text-card-foreground shadow-2xl overflow-hidden flex flex-col animate-in fade-in-0 zoom-in-95 duration-150">
           {/* Header */}
-          <div className="p-3.5 border-b border-border/80 bg-muted/20 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
+          <div className="p-3.5 sm:p-4 border-b border-border/80 bg-muted/20 flex items-center justify-between gap-2 shrink-0">
+            <div className="flex items-center space-x-2.5 min-w-0">
+              <div className="p-2 rounded-xl bg-primary/10 text-primary shrink-0">
                 <Bell className="h-4 w-4" />
               </div>
-              <div>
-                <h3 className="text-sm font-semibold text-foreground tracking-tight flex items-center gap-1.5">
-                  <span>Announcements & Notices</span>
+              <div className="min-w-0">
+                <h3 className="text-sm sm:text-base font-bold text-foreground tracking-tight flex items-center gap-1.5 truncate">
+                  <span>Announcements</span>
                   {unreadCount > 0 && (
-                    <Badge variant="filled" className="text-xs px-2 py-0.5 font-semibold">
+                    <Badge variant="filled" className="text-xs px-2 py-0.5 font-bold">
                       {unreadCount} New
                     </Badge>
                   )}
@@ -190,15 +210,15 @@ export function NotificationBell() {
               </div>
             </div>
 
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-1.5 shrink-0">
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
                   title="Mark all as read"
-                  className="p-1.5 text-xs text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/60 transition-colors flex items-center gap-1"
+                  className="px-2 py-1 text-xs text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/60 transition-colors flex items-center gap-1 font-semibold cursor-pointer"
                 >
                   <CheckCheck className="h-3.5 w-3.5 text-primary" />
-                  <span className="text-xs hidden sm:inline font-medium">Read All</span>
+                  <span className="hidden sm:inline">Read All</span>
                 </button>
               )}
 
@@ -209,18 +229,28 @@ export function NotificationBell() {
                     setIsOpen(false);
                     setIsCreateModalOpen(true);
                   }}
-                  className="h-8 text-xs px-2.5 rounded-lg bg-primary text-primary-foreground font-semibold shadow-2xs"
+                  className="h-8 text-xs px-2.5 rounded-xl bg-primary text-primary-foreground font-semibold shadow-2xs"
                   title="Broadcast new announcement"
                 >
                   <PlusCircle className="h-3.5 w-3.5 mr-1" />
                   Broadcast
                 </Button>
               )}
+
+              {/* Close Button on Mobile */}
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="sm:hidden p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer"
+                aria-label="Close notifications"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
           </div>
 
           {/* Announcements List */}
-          <div className="max-h-[380px] overflow-y-auto divide-y divide-border/60 scrollbar-none">
+          <div className="flex-1 overflow-y-auto divide-y divide-border/60 scrollbar-none overscroll-contain">
             {announcements.length === 0 ? (
               <div className="p-8 text-center text-muted-foreground space-y-2">
                 <Bell className="h-8 w-8 mx-auto text-muted-foreground/40" />
@@ -238,50 +268,50 @@ export function NotificationBell() {
                     key={notice.id}
                     onClick={() => handleOpenNotice(notice)}
                     className={cn(
-                      "p-3.5 hover:bg-muted/40 cursor-pointer transition-colors relative flex gap-3 group text-left",
-                      isUnread ? "bg-primary/[0.03]" : ""
+                      "p-3.5 sm:p-4 hover:bg-muted/40 active:bg-muted/60 cursor-pointer transition-colors relative flex gap-3 group text-left",
+                      isUnread ? "bg-primary/[0.04]" : ""
                     )}
                   >
                     {/* Unread dot */}
-                    <div className="pt-1 shrink-0">
+                    <div className="pt-1.5 shrink-0">
                       {isUnread ? (
-                        <div className="h-2 w-2 rounded-full bg-primary shadow-xs ring-2 ring-primary/20" />
+                        <div className="h-2.5 w-2.5 rounded-full bg-primary shadow-xs ring-2 ring-primary/20" />
                       ) : (
                         <div className="h-2 w-2 rounded-full bg-muted-foreground/30" />
                       )}
                     </div>
 
-                    <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex-1 min-w-0 space-y-1.5">
                       <div className="flex items-center justify-between gap-1.5">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           {getTypeBadge(notice.type)}
                           {notice.priority === "URGENT" && (
-                            <span className="inline-flex items-center text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-rose-500 text-white uppercase tracking-wider">
+                            <span className="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-rose-500 text-white uppercase tracking-wider">
                               Urgent
                             </span>
                           )}
                         </div>
-                        <span className="text-xs text-muted-foreground font-mono shrink-0">
+                        <span className="text-[11px] text-muted-foreground font-mono shrink-0">
                           {getRelativeTime(notice.createdAt)}
                         </span>
                       </div>
 
                       <h4
                         className={cn(
-                          "text-sm leading-snug line-clamp-2",
-                          isUnread ? "font-semibold text-foreground" : "font-medium text-foreground/85"
+                          "text-sm sm:text-base leading-snug line-clamp-2",
+                          isUnread ? "font-bold text-foreground" : "font-medium text-foreground/85"
                         )}
                       >
                         {notice.title}
                       </h4>
 
-                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed font-normal">
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed font-normal">
                         {notice.message}
                       </p>
 
                       <div className="flex items-center justify-between pt-0.5 text-xs text-muted-foreground">
                         <span className="truncate">
-                          By: <span className="font-medium text-foreground">{notice.authorName}</span>
+                          By: <span className="font-semibold text-foreground">{notice.authorName}</span>
                         </span>
 
                         {isManagementRole && (
@@ -292,7 +322,7 @@ export function NotificationBell() {
                               deleteAnnouncement(notice.id);
                             }}
                             title="Delete notice"
-                            className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors"
+                            className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors cursor-pointer"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -306,8 +336,8 @@ export function NotificationBell() {
           </div>
 
           {/* Footer */}
-          <div className="p-2.5 border-t border-border/80 bg-muted/20 text-center">
-            <span className="text-[10.5px] text-muted-foreground font-normal">
+          <div className="p-3 border-t border-border/80 bg-muted/20 text-center shrink-0">
+            <span className="text-[11px] sm:text-xs text-muted-foreground font-normal">
               State Medical Faculty & DGHS Clinical LMS Announcements
             </span>
           </div>
@@ -316,10 +346,10 @@ export function NotificationBell() {
 
       {/* Detail Dialog */}
       {selectedNotice && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-lg rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xl space-y-4 animate-in zoom-in-95">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border border-border/80 bg-card p-4 sm:p-6 shadow-2xl space-y-4 animate-in zoom-in-95">
             <div className="flex items-start justify-between gap-3">
-              <div className="space-y-1">
+              <div className="space-y-1.5 min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   {getTypeBadge(selectedNotice.type)}
                   {selectedNotice.priority === "URGENT" && (
@@ -337,7 +367,7 @@ export function NotificationBell() {
                     })}
                   </span>
                 </div>
-                <h3 className="text-base sm:text-lg font-semibold text-foreground tracking-tight">
+                <h3 className="text-base sm:text-xl font-bold text-foreground tracking-tight leading-snug">
                   {selectedNotice.title}
                 </h3>
               </div>
@@ -345,24 +375,25 @@ export function NotificationBell() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setSelectedNotice(null)}
-                className="h-8 w-8 rounded-lg shrink-0 text-muted-foreground hover:text-foreground"
+                className="h-8 w-8 rounded-xl shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer"
+                aria-label="Close"
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
 
-            <div className="p-4 rounded-xl bg-muted/30 border border-border text-xs sm:text-sm text-foreground/90 leading-relaxed font-normal whitespace-pre-wrap">
+            <div className="p-4 rounded-xl bg-muted/30 border border-border text-sm md:text-base text-foreground/90 leading-relaxed font-normal whitespace-pre-wrap">
               {selectedNotice.message}
             </div>
 
-            <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border">
-              <span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm text-muted-foreground pt-3 border-t border-border">
+              <span className="leading-snug">
                 Authorized By: <span className="font-semibold text-foreground">{selectedNotice.authorName}</span> ({selectedNotice.authorRole.replace("_", " ")})
               </span>
               <Button
                 size="sm"
                 onClick={() => setSelectedNotice(null)}
-                className="rounded-xl text-xs font-medium min-h-[34px]"
+                className="rounded-xl text-xs sm:text-sm font-semibold min-h-[36px] w-full sm:w-auto cursor-pointer"
               >
                 Dismiss Notice
               </Button>
@@ -373,8 +404,8 @@ export function NotificationBell() {
 
       {/* Broadcast / Create Notification Modal (for Super Admin & Admin) */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-md rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xl space-y-4 animate-in zoom-in-95">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl border border-border/80 bg-card p-4 sm:p-6 shadow-2xl space-y-4 animate-in zoom-in-95">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <div className="p-2 rounded-xl bg-primary/10 text-primary">
@@ -393,7 +424,8 @@ export function NotificationBell() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsCreateModalOpen(false)}
-                className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground"
+                className="h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer"
+                aria-label="Close"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -414,7 +446,7 @@ export function NotificationBell() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-foreground">
                     Notice Category *
@@ -477,20 +509,20 @@ export function NotificationBell() {
                 />
               </div>
 
-              <div className="flex items-center justify-end space-x-2 pt-2 border-t border-border">
+              <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-end gap-2 pt-2 border-t border-border">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="rounded-xl text-xs font-medium min-h-[38px]"
+                  className="rounded-xl text-xs font-medium min-h-[38px] w-full sm:w-auto cursor-pointer"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   size="sm"
-                  className="bg-primary text-primary-foreground rounded-xl text-xs font-semibold min-h-[38px] shadow-xs"
+                  className="bg-primary text-primary-foreground rounded-xl text-xs font-semibold min-h-[38px] shadow-xs w-full sm:w-auto cursor-pointer"
                 >
                   Broadcast Notice Now
                 </Button>
