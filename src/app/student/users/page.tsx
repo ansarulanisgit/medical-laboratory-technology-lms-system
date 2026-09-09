@@ -1973,7 +1973,7 @@ export default function UserManagementPage() {
                     {previewCert.studentName}
                   </h3>
 
-                  <p className="text-xs text-muted-foreground max-w-lg mx-auto leading-relaxed">
+                  <p className="text-xs sm:text-sm text-muted-foreground max-w-3xl sm:max-w-4xl mx-auto leading-relaxed px-2">
                     affiliated with <strong className="text-foreground">{previewCert.institution}</strong>, has fulfilled all required clinical benchmark criteria and verified laboratory SOP standards for{" "}
                     <strong className="text-foreground">{previewCert.title}</strong> in the curriculum of{" "}
                     <strong className="text-foreground">{previewCert.program} (Year {previewCert.year})</strong> with an official assessment grade of{" "}
