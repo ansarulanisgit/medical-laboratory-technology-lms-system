@@ -1931,7 +1931,7 @@ export default function UserManagementPage() {
                     alt="LabTutor Academy Watermark"
                     className="w-56 h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 object-contain transition-opacity duration-200"
                     style={{
-                      opacity: templateConfig.watermarkLogoOpacity ?? 0.18,
+                      opacity: templateConfig.watermarkLogoOpacity ?? 0.08,
                     }}
                   />
                 </div>
