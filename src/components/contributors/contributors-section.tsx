@@ -7,8 +7,7 @@ import {
   Building2,
   GraduationCap,
   Calendar,
-  Phone,
-  Mail,
+  ExternalLink,
   Edit2,
   Trash2,
   ArrowRightLeft,
@@ -17,7 +16,6 @@ import {
   X,
   Upload,
   Image as ImageIcon,
-  Sparkles,
   AlertCircle,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,6 +30,25 @@ import {
 
 interface ContributorsSectionProps {
   isAdmin?: boolean;
+}
+
+function formatFacebookUrl(urlOrUser?: string): string | null {
+  if (!urlOrUser?.trim()) return null;
+  const val = urlOrUser.trim();
+  if (val.startsWith("http://") || val.startsWith("https://")) return val;
+  if (val.startsWith("facebook.com/")) return `https://${val}`;
+  return `https://www.facebook.com/${val.replace(/^@/, "")}`;
+}
+
+function formatWhatsappUrl(numOrUrl?: string): string | null {
+  if (!numOrUrl?.trim()) return null;
+  const val = numOrUrl.trim();
+  if (val.startsWith("http://") || val.startsWith("https://")) return val;
+  const digits = val.replace(/\D/g, "");
+  if (!digits) return null;
+  if (digits.startsWith("01")) return `https://wa.me/88${digits}`;
+  if (digits.startsWith("8801")) return `https://wa.me/${digits}`;
+  return `https://wa.me/${digits}`;
 }
 
 export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectionProps) {
@@ -92,6 +109,23 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
   const [editingContributor, setEditingContributor] = React.useState<Contributor | null>(null);
   const [deletingContributor, setDeletingContributor] = React.useState<Contributor | null>(null);
 
+  // Close modals on Escape key
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (isAddModalOpen || editingContributor) {
+          setIsAddModalOpen(false);
+          setEditingContributor(null);
+        }
+        if (deletingContributor) {
+          setDeletingContributor(null);
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isAddModalOpen, editingContributor, deletingContributor]);
+
   // Form states
   const [formData, setFormData] = React.useState({
     name: "",
@@ -99,13 +133,14 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
     institute: "",
     course: "Diploma in Medical Laboratory Technology (DMLT)",
     yearOfContribution: new Date().getFullYear().toString(),
-    phone: "",
-    email: "",
+    whatsapp: "",
+    facebook: "",
     status: "ACTIVE" as ContributorStatus,
     role: "",
   });
   const [formError, setFormError] = React.useState<string | null>(null);
   const [photoPreview, setPhotoPreview] = React.useState<string>("");
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const resetForm = () => {
     setFormData({
@@ -114,13 +149,16 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
       institute: "",
       course: "Diploma in Medical Laboratory Technology (DMLT)",
       yearOfContribution: new Date().getFullYear().toString(),
-      phone: "",
-      email: "",
+      whatsapp: "",
+      facebook: "",
       status: "ACTIVE",
       role: "",
     });
     setPhotoPreview("");
     setFormError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleOpenAddModal = () => {
@@ -135,8 +173,8 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
       institute: c.institute,
       course: c.course,
       yearOfContribution: c.yearOfContribution,
-      phone: c.phone || "",
-      email: c.email || "",
+      whatsapp: c.whatsapp || c.phone || "",
+      facebook: c.facebook || "",
       status: c.status,
       role: c.role || "",
     });
@@ -149,9 +187,19 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check size max 2MB
     if (file.size > 2 * 1024 * 1024) {
-      setFormError("Photo size must be less than 2MB");
+      setFormError("Photo file size exceeds 2MB limit. Please upload an image under 2MB.");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      setFormError("Please upload a valid image file (JPG, PNG, or WebP).");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
       return;
     }
 
@@ -163,6 +211,14 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
       setFormError(null);
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = () => {
+    setPhotoPreview("");
+    setFormData((prev) => ({ ...prev, avatarUrl: "" }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -187,8 +243,8 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
         institute: formData.institute.trim(),
         course: formData.course.trim(),
         yearOfContribution: formData.yearOfContribution.trim(),
-        phone: formData.phone.trim(),
-        email: formData.email.trim(),
+        whatsapp: formData.whatsapp.trim(),
+        facebook: formData.facebook.trim(),
         status: formData.status,
         role: formData.role.trim(),
       });
@@ -204,8 +260,8 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
         institute: formData.institute.trim(),
         course: formData.course.trim(),
         yearOfContribution: formData.yearOfContribution.trim(),
-        phone: formData.phone.trim(),
-        email: formData.email.trim(),
+        whatsapp: formData.whatsapp.trim(),
+        facebook: formData.facebook.trim(),
         status: formData.status,
         role: formData.role.trim(),
       });
@@ -359,22 +415,37 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
         )}
       </div>
 
-      {/* ADD / EDIT CONTRIBUTOR MODAL */}
+      {/* ADD / EDIT CONTRIBUTOR MODAL (Spacious, Wide & Modern) */}
       {(isAddModalOpen || editingContributor) && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-card border border-border rounded-3xl shadow-xl w-full max-w-lg overflow-hidden my-8">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-5 sm:p-6 border-b border-border/80">
-              <div className="flex items-center gap-2.5">
-                <span className="p-2 rounded-xl bg-primary/10 text-primary">
+        <div
+          className="fixed inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 md:p-8 overflow-y-auto animate-in fade-in duration-200"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsAddModalOpen(false);
+              setEditingContributor(null);
+              resetForm();
+            }
+          }}
+        >
+          <div
+            className="relative w-full max-w-3xl lg:max-w-4xl my-auto bg-card border border-border/80 rounded-2xl sm:rounded-3xl shadow-2xl max-h-[88vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+            role="dialog"
+            aria-modal="true"
+          >
+            {/* Modal Header (Sticky Top) */}
+            <div className="shrink-0 flex items-center justify-between px-6 py-4 sm:py-5 border-b border-border/80 bg-card">
+              <div className="flex items-center gap-3">
+                <span className="p-2.5 rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
                   {editingContributor ? <Edit2 className="h-5 w-5" /> : <UserPlus className="h-5 w-5" />}
                 </span>
                 <div>
-                  <h3 className="text-lg font-bold text-foreground">
-                    {editingContributor ? "Edit Contributor" : "Add New Contributor"}
+                  <h3 className="text-lg sm:text-xl font-bold text-foreground">
+                    {editingContributor ? "Edit Contributor Profile" : "Add New Contributor"}
                   </h3>
-                  <p className="text-xs text-muted-foreground">
-                    Provide credentials, institute affiliation, and contact details.
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {editingContributor
+                      ? "Update contributor profile photo, institute affiliation, and social contact links."
+                      : "Add dedicated laboratory professionals, student researchers, and academic faculty."}
                   </p>
                 </div>
               </div>
@@ -385,29 +456,47 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
                   setEditingContributor(null);
                   resetForm();
                 }}
-                className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+                className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors"
+                aria-label="Close modal"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            {/* Modal Body */}
-            <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
+            {/* Modal Body (Scrollable with Comfortable Spacing & Guaranteed No Clipping) */}
+            <form
+              onSubmit={handleSubmit}
+              id="contributor-form"
+              className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-7 space-y-6 overscroll-contain"
+            >
               {formError && (
-                <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs flex items-center gap-2">
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-destructive/10 border border-destructive/25 text-destructive text-xs sm:text-sm flex items-center gap-3 animate-in fade-in">
                   <AlertCircle className="h-4 w-4 shrink-0" />
-                  <span>{formError}</span>
+                  <span className="font-medium">{formError}</span>
                 </div>
               )}
 
-              {/* Profile Photo (Circular with Light Border) */}
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-foreground block">
-                  Profile Photo
-                </label>
-                <div className="flex items-center gap-4">
-                  {/* Photo Preview: Circular with Light Border */}
-                  <div className="relative h-16 w-16 rounded-full overflow-hidden border-2 border-border/80 p-0.5 bg-muted/40 shadow-xs shrink-0 flex items-center justify-center">
+              {/* 1. Profile Photo (File Upload Only - Max 2MB) */}
+              <div className="p-4 sm:p-5 rounded-2xl border border-border/80 bg-muted/20 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs sm:text-sm font-bold text-foreground tracking-tight flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4 text-primary" />
+                    <span>Profile Photo (Max Size: 2MB)</span>
+                  </label>
+                  {photoPreview && (
+                    <Badge
+                      variant="outline"
+                      className="text-[11px] border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 gap-1 font-semibold"
+                    >
+                      <CheckCircle2 className="h-3 w-3" />
+                      Photo Loaded
+                    </Badge>
+                  )}
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center gap-5 pt-1">
+                  {/* Circular Preview with Light Border */}
+                  <div className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-full overflow-hidden border-2 border-border p-0.5 bg-background shadow-xs ring-4 ring-primary/10 shrink-0 flex items-center justify-center">
                     {photoPreview ? (
                       <img
                         src={photoPreview}
@@ -415,220 +504,282 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
                         className="h-full w-full rounded-full object-cover"
                       />
                     ) : (
-                      <div className="h-full w-full rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
-                        {formData.name ? formData.name.charAt(0).toUpperCase() : <ImageIcon className="h-6 w-6 text-muted-foreground" />}
+                      <div className="h-full w-full rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xl sm:text-2xl">
+                        {formData.name ? (
+                          formData.name.charAt(0).toUpperCase()
+                        ) : (
+                          <ImageIcon className="h-8 w-8 text-muted-foreground/50" />
+                        )}
                       </div>
                     )}
                   </div>
 
-                  <div className="space-y-1.5 flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border/80 hover:bg-muted/50 text-xs font-medium transition-colors">
-                        <Upload className="h-3.5 w-3.5 text-primary" />
-                        <span>Upload Photo</span>
+                  {/* Upload Actions & Instructions */}
+                  <div className="flex-1 w-full space-y-2 text-center sm:text-left">
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
+                      <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 text-xs sm:text-sm font-semibold shadow-xs transition-colors">
+                        <Upload className="h-4 w-4" />
+                        <span>{photoPreview ? "Change Photo File" : "Choose Photo File"}</span>
                         <input
+                          ref={fileInputRef}
                           type="file"
-                          accept="image/*"
+                          accept="image/png,image/jpeg,image/jpg,image/webp"
                           onChange={handlePhotoUpload}
                           className="sr-only"
                         />
                       </label>
+
                       {photoPreview && (
-                        <button
+                        <Button
                           type="button"
-                          onClick={() => {
-                            setPhotoPreview("");
-                            setFormData((prev) => ({ ...prev, avatarUrl: "" }));
-                          }}
-                          className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleRemovePhoto}
+                          className="h-10 px-3.5 rounded-xl text-xs font-semibold text-destructive hover:bg-destructive/10 border-destructive/30 hover:border-destructive/50 transition-colors"
                         >
-                          Remove
-                        </button>
+                          <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                          Remove Photo
+                        </Button>
                       )}
                     </div>
-                    <Input
-                      type="text"
-                      placeholder="Or paste photo URL (https://...)"
-                      value={formData.avatarUrl}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setFormData((prev) => ({ ...prev, avatarUrl: val }));
-                        setPhotoPreview(val);
-                      }}
-                      className="h-8 text-xs rounded-xl"
-                    />
+                    <p className="text-[11.5px] text-muted-foreground">
+                      Upload from your device (JPG, PNG, or WebP). Maximum file size: <strong>2MB</strong>.
+                    </p>
                   </div>
                 </div>
               </div>
 
-              {/* Full Name */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground block">
-                  Full Name <span className="text-destructive">*</span>
-                </label>
-                <Input
-                  type="text"
-                  placeholder="e.g. Dr. Sabrina Parvin / Md. Arif Hossain"
-                  value={formData.name}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                  required
-                  className="rounded-xl h-9 sm:h-10 text-xs sm:text-sm"
-                />
-              </div>
-
-              {/* Institute */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground block">
-                  Institute <span className="text-destructive">*</span>
-                </label>
-                <Input
-                  type="text"
-                  placeholder="e.g. Dhaka Institute of Health Technology (DIHT)"
-                  value={formData.institute}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, institute: e.target.value }))}
-                  required
-                  className="rounded-xl h-9 sm:h-10 text-xs sm:text-sm"
-                />
-                {/* Institute Quick Suggestions */}
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {[
-                    "DIHT, Dhaka",
-                    "IHT, Rajshahi",
-                    "IHT, Chittagong",
-                    "IHT, Sylhet",
-                    "IHT, Rangpur",
-                    "SSMC, Dhaka",
-                  ].map((inst) => (
-                    <button
-                      key={inst}
-                      type="button"
-                      onClick={() => setFormData((prev) => ({ ...prev, institute: inst }))}
-                      className="text-[10px] px-2 py-0.5 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground transition-colors"
-                    >
-                      + {inst}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Course & Year of Contribution */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* 2. Row: Full Name & Contribution Role */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground block">
-                    Course <span className="text-destructive">*</span>
+                  <label className="text-xs sm:text-[13px] font-semibold text-foreground flex items-center gap-1">
+                    <span>Full Name</span>
+                    <span className="text-destructive">*</span>
                   </label>
                   <Input
                     type="text"
-                    placeholder="e.g. Diploma in DMLT"
-                    value={formData.course}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, course: e.target.value }))}
+                    placeholder="e.g. Dr. Sabrina Parvin / Md. Arif Hossain"
+                    value={formData.name}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                     required
-                    className="rounded-xl h-9 sm:h-10 text-xs sm:text-sm"
+                    className="rounded-xl h-11 text-xs sm:text-sm"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground block">
-                    Year of Contribution
+                  <label className="text-xs sm:text-[13px] font-semibold text-foreground flex items-center justify-between">
+                    <span>Contribution Area / Specialty</span>
+                    <span className="text-[11px] text-muted-foreground font-normal">Optional</span>
                   </label>
                   <Input
                     type="text"
-                    placeholder="e.g. 2025 - Present or 2024"
+                    placeholder="e.g. Clinical Hematology SOP Contributor"
+                    value={formData.role}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, role: e.target.value }))}
+                    className="rounded-xl h-11 text-xs sm:text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* 3. Row: Institute & Course */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-1.5">
+                  <label className="text-xs sm:text-[13px] font-semibold text-foreground flex items-center gap-1">
+                    <span>Institute / College</span>
+                    <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="e.g. Dhaka Institute of Health Technology (DIHT)"
+                    value={formData.institute}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, institute: e.target.value }))}
+                    required
+                    className="rounded-xl h-11 text-xs sm:text-sm"
+                  />
+                  {/* Institute Quick Suggestions */}
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {[
+                      "DIHT, Dhaka",
+                      "IHT, Rajshahi",
+                      "IHT, Chittagong",
+                      "IHT, Sylhet",
+                      "IHT, Rangpur",
+                      "SSMC, Dhaka",
+                    ].map((inst) => (
+                      <button
+                        key={inst}
+                        type="button"
+                        onClick={() => setFormData((prev) => ({ ...prev, institute: inst }))}
+                        className="text-[11px] px-2.5 py-0.5 rounded-full bg-muted/80 hover:bg-muted text-muted-foreground hover:text-foreground font-medium transition-colors border border-border/50"
+                      >
+                        + {inst}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs sm:text-[13px] font-semibold text-foreground flex items-center gap-1">
+                    <span>Course / Program</span>
+                    <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="e.g. Diploma in Medical Laboratory Technology (DMLT)"
+                    value={formData.course}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, course: e.target.value }))}
+                    required
+                    className="rounded-xl h-11 text-xs sm:text-sm"
+                  />
+                  {/* Course Quick Suggestions */}
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {[
+                      "Diploma in Medical Laboratory Technology (DMLT)",
+                      "B.Sc. in Health Technology (Laboratory)",
+                      "Faculty / Subject Specialist",
+                    ].map((crs) => (
+                      <button
+                        key={crs}
+                        type="button"
+                        onClick={() => setFormData((prev) => ({ ...prev, course: crs }))}
+                        className="text-[11px] px-2.5 py-0.5 rounded-full bg-muted/80 hover:bg-muted text-muted-foreground hover:text-foreground font-medium transition-colors border border-border/50"
+                      >
+                        + {crs.includes("(") ? crs.split("(")[1].replace(")", "") : crs}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. Row: Year of Contribution & Status */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-1.5">
+                  <label className="text-xs sm:text-[13px] font-semibold text-foreground flex items-center gap-1">
+                    <span>Year of Contribution</span>
+                    <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="e.g. 2025 - Present or 2026"
                     value={formData.yearOfContribution}
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, yearOfContribution: e.target.value }))
                     }
-                    className="rounded-xl h-9 sm:h-10 text-xs sm:text-sm"
+                    required
+                    className="rounded-xl h-11 text-xs sm:text-sm"
                   />
-                </div>
-              </div>
-
-              {/* Contact Info: Phone & Email */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground block">
-                    Phone Number
-                  </label>
-                  <Input
-                    type="tel"
-                    placeholder="e.g. 017XXXXXXXX"
-                    value={formData.phone}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
-                    className="rounded-xl h-9 sm:h-10 text-xs sm:text-sm"
-                  />
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {["2026 - Present", "2025 - Present", "2025", "2024 - 2025"].map((yr) => (
+                      <button
+                        key={yr}
+                        type="button"
+                        onClick={() => setFormData((prev) => ({ ...prev, yearOfContribution: yr }))}
+                        className="text-[11px] px-2.5 py-0.5 rounded-full bg-muted/80 hover:bg-muted text-muted-foreground hover:text-foreground font-medium transition-colors border border-border/50"
+                      >
+                        + {yr}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground block">
-                    Email Address
+                  <label className="text-xs sm:text-[13px] font-semibold text-foreground block">
+                    Contribution Status
                   </label>
-                  <Input
-                    type="email"
-                    placeholder="e.g. name@example.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                    className="rounded-xl h-9 sm:h-10 text-xs sm:text-sm"
-                  />
-                </div>
-              </div>
-
-              {/* Status Toggle: Active vs Past */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground block">
-                  Contribution Status
-                </label>
-                <div className="grid grid-cols-2 gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setFormData((prev) => ({ ...prev, status: "ACTIVE" }))}
-                    className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-semibold transition-all ${
-                      formData.status === "ACTIVE"
-                        ? "bg-emerald-500/15 border-emerald-500 text-emerald-700 dark:text-emerald-300 shadow-2xs"
-                        : "bg-muted/30 border-border text-muted-foreground hover:bg-muted/50"
-                    }`}
-                  >
-                    <span
-                      className={`h-2 w-2 rounded-full ${
-                        formData.status === "ACTIVE" ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground"
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => setFormData((prev) => ({ ...prev, status: "ACTIVE" }))}
+                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-semibold transition-all text-center ${
+                        formData.status === "ACTIVE"
+                          ? "bg-emerald-500/15 border-emerald-500 text-emerald-700 dark:text-emerald-300 ring-2 ring-emerald-500/20 shadow-xs"
+                          : "bg-muted/30 border-border text-muted-foreground hover:bg-muted/50"
                       }`}
-                    />
-                    <span>Active Contributor</span>
-                  </button>
+                    >
+                      <div className="flex items-center gap-1.5 font-bold">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>Active Contributor</span>
+                      </div>
+                      <span className="text-[10.5px] opacity-75 mt-0.5 font-normal">
+                        Shows in Current section
+                      </span>
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setFormData((prev) => ({ ...prev, status: "PAST" }))}
-                    className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-semibold transition-all ${
-                      formData.status === "PAST"
-                        ? "bg-amber-500/15 border-amber-500 text-amber-700 dark:text-amber-300 shadow-2xs"
-                        : "bg-muted/30 border-border text-muted-foreground hover:bg-muted/50"
-                    }`}
-                  >
-                    <Clock className="h-3.5 w-3.5" />
-                    <span>Past Contributor</span>
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData((prev) => ({ ...prev, status: "PAST" }))}
+                      className={`flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-semibold transition-all text-center ${
+                        formData.status === "PAST"
+                          ? "bg-amber-500/15 border-amber-500 text-amber-700 dark:text-amber-300 ring-2 ring-amber-500/20 shadow-xs"
+                          : "bg-muted/30 border-border text-muted-foreground hover:bg-muted/50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5 font-bold">
+                        <Clock className="h-3 w-3" />
+                        <span>Past / Alumni</span>
+                      </div>
+                      <span className="text-[10.5px] opacity-75 mt-0.5 font-normal">
+                        Shows in Archive section
+                      </span>
+                    </button>
+                  </div>
                 </div>
-                <p className="text-[11px] text-muted-foreground">
-                  Active contributors display in Current Contributors; inactive or alumni display in Past Contributors.
-                </p>
               </div>
 
-              {/* Role / Focus (Optional) */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground block">
-                  Contribution Area / Role (Optional)
-                </label>
-                <Input
-                  type="text"
-                  placeholder="e.g. Clinical Hematology SOP Contributor"
-                  value={formData.role}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, role: e.target.value }))}
-                  className="rounded-xl h-9 sm:h-10 text-xs sm:text-sm"
-                />
-              </div>
+              {/* 5. Row: WhatsApp & Facebook Links */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-1.5">
+                  <label className="text-xs sm:text-[13px] font-semibold text-foreground flex items-center gap-1.5">
+                    <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-[#25D366] text-white">
+                      <svg className="h-2.5 w-2.5 fill-current" viewBox="0 0 24 24">
+                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+                      </svg>
+                    </span>
+                    <span className="text-[#25D366] font-bold">WhatsApp</span>
+                    <span className="text-muted-foreground font-normal text-xs">(Number or Link)</span>
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="e.g. 017XXXXXXXX or https://wa.me/..."
+                    value={formData.whatsapp}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, whatsapp: e.target.value }))}
+                    className="rounded-xl h-11 text-xs sm:text-sm"
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Creates a 1-click WhatsApp chat button styled like the developer profile.
+                  </p>
+                </div>
 
-              {/* Modal Actions */}
-              <div className="pt-3 border-t border-border/80 flex items-center justify-end gap-2.5">
+                <div className="space-y-1.5">
+                  <label className="text-xs sm:text-[13px] font-semibold text-foreground flex items-center gap-1.5">
+                    <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-[#1877F2] text-white">
+                      <svg className="h-2.5 w-2.5 fill-current" viewBox="0 0 24 24">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                      </svg>
+                    </span>
+                    <span className="text-[#1877F2] font-bold">Facebook</span>
+                    <span className="text-muted-foreground font-normal text-xs">(Profile Link)</span>
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="e.g. https://facebook.com/username"
+                    value={formData.facebook}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, facebook: e.target.value }))}
+                    className="rounded-xl h-11 text-xs sm:text-sm"
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Creates a direct Facebook link button styled like the developer profile.
+                  </p>
+                </div>
+              </div>
+            </form>
+
+            {/* Modal Footer (Sticky Bottom) */}
+            <div className="shrink-0 px-6 py-4 sm:py-5 border-t border-border/80 flex items-center justify-between gap-3 bg-muted/20">
+              <p className="text-[11.5px] text-muted-foreground hidden sm:block">
+                <span className="text-destructive font-bold">*</span> Mandatory fields
+              </p>
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
                 <Button
                   type="button"
                   variant="outline"
@@ -638,19 +789,20 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
                     setEditingContributor(null);
                     resetForm();
                   }}
-                  className="rounded-xl text-xs sm:text-sm h-9 px-4"
+                  className="rounded-xl text-xs sm:text-sm h-10 px-5"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
+                  form="contributor-form"
                   size="sm"
-                  className="rounded-xl text-xs sm:text-sm h-9 px-5 bg-primary text-primary-foreground hover:bg-primary/90 font-medium"
+                  className="rounded-xl text-xs sm:text-sm h-10 px-6 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-xs"
                 >
                   {editingContributor ? "Save Changes" : "Add Contributor"}
                 </Button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
@@ -716,6 +868,8 @@ function ContributorCard({
   onToggleStatus,
 }: ContributorCardProps) {
   const isCurrent = contributor.status === "ACTIVE";
+  const facebookUrl = formatFacebookUrl(contributor.facebook);
+  const whatsappUrl = formatWhatsappUrl(contributor.whatsapp || contributor.phone);
 
   return (
     <Card className="rounded-2xl border border-border/80 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between overflow-hidden bg-card group relative">
@@ -818,30 +972,44 @@ function ContributorCard({
           </div>
         </div>
 
-        {/* 5. Contact Info (Phone & Email) */}
-        {(contributor.phone || contributor.email) && (
-          <div className="pt-2 w-full border-t border-border/60 flex items-center justify-center gap-2">
-            {contributor.phone && (
+        {/* 5. Contact Info: Facebook & WhatsApp Styled Exactly Like Developer */}
+        {(facebookUrl || whatsappUrl) && (
+          <div className="pt-3 w-full border-t border-border/60 flex flex-wrap items-center justify-center gap-2.5">
+            {/* Facebook Button */}
+            {facebookUrl && (
               <a
-                href={`tel:${contributor.phone}`}
-                title={`Call ${contributor.phone}`}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-medium bg-muted/50 hover:bg-muted text-foreground border border-border/60 transition-colors"
+                href={facebookUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#1877F2]/10 text-[#1877F2] hover:bg-[#1877F2] hover:text-white border border-[#1877F2]/30 transition-all shadow-2xs group"
               >
-                <Phone className="h-3 w-3 text-primary shrink-0" />
-                <span className="text-[11.5px] font-mono">{contributor.phone}</span>
+                <svg
+                  className="h-3.5 w-3.5 fill-current group-hover:scale-110 transition-transform"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+                <span>Facebook</span>
+                <ExternalLink className="h-3 w-3 opacity-60 ml-0.5" />
               </a>
             )}
 
-            {contributor.email && (
+            {/* WhatsApp Button */}
+            {whatsappUrl && (
               <a
-                href={`mailto:${contributor.email}`}
-                title={`Email ${contributor.email}`}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-medium bg-muted/50 hover:bg-muted text-foreground border border-border/60 transition-colors"
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white border border-[#25D366]/30 transition-all shadow-2xs group"
               >
-                <Mail className="h-3 w-3 text-primary shrink-0" />
-                <span className="text-[11.5px] truncate max-w-[130px]">
-                  {contributor.email}
-                </span>
+                <svg
+                  className="h-3.5 w-3.5 fill-current group-hover:scale-110 transition-transform"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+                </svg>
+                <span>WhatsApp</span>
+                <ExternalLink className="h-3 w-3 opacity-60 ml-0.5" />
               </a>
             )}
           </div>

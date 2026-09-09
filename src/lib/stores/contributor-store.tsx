@@ -11,6 +11,8 @@ export interface Contributor {
   institute: string;
   course: string;
   yearOfContribution: string;
+  whatsapp?: string;
+  facebook?: string;
   phone?: string;
   email?: string;
   status: ContributorStatus;
@@ -19,7 +21,7 @@ export interface Contributor {
   updatedAt: string;
 }
 
-const STORAGE_KEY = "labtutor_contributors_v1";
+const STORAGE_KEY = "labtutor_contributors_v2";
 const SYNC_EVENT = "labtutor_contributors_updated";
 
 const INITIAL_CONTRIBUTORS: Contributor[] = [
@@ -30,8 +32,8 @@ const INITIAL_CONTRIBUTORS: Contributor[] = [
     institute: "Dhaka Institute of Health Technology (DIHT)",
     course: "B.Sc. in Health Technology (Laboratory)",
     yearOfContribution: "2025 - Present",
-    phone: "01712345678",
-    email: "sabrina.parvin@diht.edu.bd",
+    whatsapp: "01712345678",
+    facebook: "https://www.facebook.com/sabrina.parvin.dmlt",
     status: "ACTIVE",
     role: "Clinical Hematology SOP Contributor",
     createdAt: "2025-01-10T10:00:00.000Z",
@@ -44,8 +46,8 @@ const INITIAL_CONTRIBUTORS: Contributor[] = [
     institute: "Institute of Health Technology (IHT), Rajshahi",
     course: "Diploma in Medical Laboratory Technology (DMLT)",
     yearOfContribution: "2024 - Present",
-    phone: "01819456789",
-    email: "arif.hossain@ihtrajshahi.edu.bd",
+    whatsapp: "01819456789",
+    facebook: "https://www.facebook.com/arif.hossain.lab",
     status: "ACTIVE",
     role: "OSPE Revision & Microscopic Slides Author",
     createdAt: "2024-06-15T12:00:00.000Z",
@@ -58,8 +60,8 @@ const INITIAL_CONTRIBUTORS: Contributor[] = [
     institute: "Institute of Health Technology (IHT), Chittagong",
     course: "Diploma in Medical Laboratory Technology (DMLT)",
     yearOfContribution: "2025",
-    phone: "01911234567",
-    email: "fahmida.rahman@ihtctg.edu.bd",
+    whatsapp: "01911234567",
+    facebook: "https://www.facebook.com/fahmida.rahman.iht",
     status: "ACTIVE",
     role: "Clinical Biochemistry Bench Protocol Reviewer",
     createdAt: "2025-02-01T09:00:00.000Z",
@@ -72,8 +74,8 @@ const INITIAL_CONTRIBUTORS: Contributor[] = [
     institute: "Shaheed Suhrawardy Medical College IHT",
     course: "Diploma in Medical Laboratory Technology (DMLT)",
     yearOfContribution: "2023 - 2024",
-    phone: "01733987654",
-    email: "tanvir.ahmed@ssmc-iht.edu.bd",
+    whatsapp: "01733987654",
+    facebook: "https://www.facebook.com/tanvir.ahmed.dmlt",
     status: "PAST",
     role: "Histopathology Staining SOP Contributor",
     createdAt: "2023-03-10T08:00:00.000Z",
@@ -86,8 +88,8 @@ const INITIAL_CONTRIBUTORS: Contributor[] = [
     institute: "Institute of Health Technology (IHT), Sylhet",
     course: "B.Sc. in Health Technology (Laboratory)",
     yearOfContribution: "2022 - 2023",
-    phone: "01622334455",
-    email: "nusrat.jahan@ihtsylhet.edu.bd",
+    whatsapp: "01622334455",
+    facebook: "https://www.facebook.com/nusrat.jahan.lab",
     status: "PAST",
     role: "Medical Microbiology Media Preparation Contributor",
     createdAt: "2022-09-01T11:00:00.000Z",
@@ -115,7 +117,29 @@ export function ContributorProvider({ children }: { children: React.ReactNode })
   // Load from localStorage on mount
   React.useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      // Check v2 storage key first, fallback to v1 with migration
+      let stored = localStorage.getItem(STORAGE_KEY);
+      if (!stored) {
+        const v1 = localStorage.getItem("labtutor_contributors_v1");
+        if (v1) {
+          try {
+            const parsedV1 = JSON.parse(v1);
+            if (Array.isArray(parsedV1)) {
+              // Migrate phone to whatsapp
+              const migrated = parsedV1.map((item: Contributor) => ({
+                ...item,
+                whatsapp: item.whatsapp || item.phone || "",
+                facebook: item.facebook || "",
+              }));
+              stored = JSON.stringify(migrated);
+              localStorage.setItem(STORAGE_KEY, stored);
+            }
+          } catch {
+            // ignore
+          }
+        }
+      }
+
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -134,7 +158,7 @@ export function ContributorProvider({ children }: { children: React.ReactNode })
     }
   }, []);
 
-  // Save to localStorage and dispatch sync event on state changes (after mount)
+  // Save to localStorage and dispatch sync event on state changes
   const saveContributors = React.useCallback((items: Contributor[]) => {
     setContributors(items);
     try {
@@ -189,8 +213,8 @@ export function ContributorProvider({ children }: { children: React.ReactNode })
         institute: data.institute.trim(),
         course: data.course.trim(),
         yearOfContribution: data.yearOfContribution?.trim() || new Date().getFullYear().toString(),
-        phone: data.phone?.trim() || "",
-        email: data.email?.trim() || "",
+        whatsapp: data.whatsapp?.trim() || "",
+        facebook: data.facebook?.trim() || "",
         status: data.status || "ACTIVE",
         role: data.role?.trim() || "",
         createdAt: now,
