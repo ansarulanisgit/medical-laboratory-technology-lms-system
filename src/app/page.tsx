@@ -32,7 +32,6 @@ import {
   HeartPulse,
   Clock,
   Eye,
-  QrCode,
   Calendar,
   Compass,
 } from "lucide-react";

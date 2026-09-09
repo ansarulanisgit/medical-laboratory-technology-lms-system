@@ -38,6 +38,7 @@ import {
   Eye,
   EyeOff,
   RefreshCw,
+  Mail,
   QrCode,
   Camera,
   Upload,
@@ -46,6 +47,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { QRCodeView } from "@/components/ui/qr-code-view";
 
 function CertificateVerificationContent() {
   const searchParams = useSearchParams();
@@ -170,7 +172,6 @@ function CertificateVerificationContent() {
       }
     } catch {}
 
-    // Check query string style: ?code=...
     const match = rawText.match(/[?&](?:code|id|cert)=([^&]+)/i);
     if (match && match[1]) {
       return decodeURIComponent(match[1]).trim();
@@ -352,7 +353,7 @@ function CertificateVerificationContent() {
             Verify Issued Certificate
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            Enter the official <strong>Certificate Number</strong>, <strong>Authentication Code</strong>, or click <strong>Scan Code</strong> to verify candidate competency, institutional conferral, and academic benchmark records.
+            Enter the official <strong>Certificate Number</strong> or <strong>Authentication Code</strong> to confirm candidate competency, institutional conferral, and academic benchmark records.
           </p>
         </div>
 
@@ -366,9 +367,6 @@ function CertificateVerificationContent() {
                 </div>
                 <span>Credential Verification Search</span>
               </div>
-              <span className="text-xs font-normal text-muted-foreground">
-                Official DGHS & SMFB Competency Platform
-              </span>
             </CardTitle>
             <CardDescription className="text-xs">
               Supports official Certificate Numbers (e.g. <span className="font-mono font-bold text-primary">LTA-DIP-2025-48201</span>), verification hashes, or QR code camera scanning.
@@ -500,8 +498,9 @@ function CertificateVerificationContent() {
                     </p>
                     <ul className="text-xs text-muted-foreground list-disc list-inside pt-1 space-y-0.5">
                       <li>Check that the Certificate Number is typed exactly as printed (e.g. <span className="font-mono">LTA-DIP-2025-48201</span>).</li>
-                      <li>Click <strong>Scan Code</strong> to scan the printed certificate QR code using your device camera.</li>
+                      <li>Verify the official authentication code stamped on the physical credential.</li>
                       <li>Try testing one of the official sample credentials above.</li>
+                      <li>Need help? Contact support at <a href="mailto:labtutor.academy@gmail.com" className="text-primary hover:underline font-mono">labtutor.academy@gmail.com</a>.</li>
                     </ul>
                   </div>
                 </div>
@@ -621,7 +620,7 @@ function CertificateVerificationContent() {
                         {verifiedCert.title}
                       </h2>
                       <p className="text-xs text-muted-foreground">
-                        Governed by State Medical Faculty of Bangladesh (SMFB) & DGHS Medical Technology Directorate
+                        Governed by State Medical Faculty of Bangladesh (SMFB) &amp; DGHS Medical Technology Directorate
                       </p>
                     </div>
 
@@ -707,13 +706,13 @@ function CertificateVerificationContent() {
                     <div className="p-3.5 rounded-xl bg-muted/30 border border-border/60 space-y-1">
                       <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                         <Award className="h-3.5 w-3.5 text-emerald-600" />
-                        <span>Assessment Grade & Competency</span>
+                        <span>Assessment Grade &amp; Competency</span>
                       </span>
                       <p className="font-bold text-base text-emerald-600 dark:text-emerald-400">
                         {verifiedCert.grade}
                       </p>
                       <p className="text-[11px] text-muted-foreground">
-                        Verified via Diagnostic Practical Tasks & Case Scenarios
+                        Verified via Diagnostic Practical Tasks &amp; Case Scenarios
                       </p>
                     </div>
 
@@ -721,7 +720,7 @@ function CertificateVerificationContent() {
                     <div className="p-3.5 rounded-xl bg-muted/30 border border-border/60 space-y-1">
                       <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                         <Calendar className="h-3.5 w-3.5 text-primary" />
-                        <span>Date of Conferral & Application</span>
+                        <span>Date of Conferral &amp; Application</span>
                       </span>
                       <div className="space-y-0.5">
                         <p className="font-bold text-foreground">
@@ -739,7 +738,7 @@ function CertificateVerificationContent() {
                     <div className="p-3.5 rounded-xl bg-muted/30 border border-border/60 space-y-1">
                       <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                         <FileBadge className="h-3.5 w-3.5 text-primary" />
-                        <span>Certificate Serial & Code</span>
+                        <span>Certificate Serial &amp; Code</span>
                       </span>
                       <p className="font-mono font-bold text-foreground text-sm">
                         {verifiedCert.certificateNumber}
@@ -753,7 +752,7 @@ function CertificateVerificationContent() {
                     <div className="p-3.5 rounded-xl bg-muted/30 border border-border/60 space-y-1">
                       <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                         <UserCheck className="h-3.5 w-3.5 text-primary" />
-                        <span>Authentication Key & Reviewer</span>
+                        <span>Authentication Key &amp; Reviewer</span>
                       </span>
                       <p className="font-mono font-bold text-primary text-sm">
                         {verifiedCert.verificationCode || "PENDING-ISSUANCE"}
@@ -789,8 +788,9 @@ function CertificateVerificationContent() {
                     </Button>
 
                     <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-                      <Link href="/contact" className="hover:text-primary transition-colors underline">
-                        Report Credential Inconsistency
+                      <Link href="/contact" className="hover:text-primary transition-colors underline flex items-center gap-1">
+                        <Mail className="h-3 w-3" />
+                        <span>Support: labtutor.academy@gmail.com</span>
                       </Link>
                     </div>
                   </div>
@@ -807,10 +807,10 @@ function CertificateVerificationContent() {
                       {/* Render realistic parchment certificate view */}
                       <div
                         className={cn(
-                          "rounded-2xl p-6 sm:p-10 relative overflow-hidden shadow-md transition-all flex flex-col justify-between mx-auto border-8 border-emerald-700 ring-4 ring-emerald-500/20 bg-[#fdfbf7] text-slate-900 font-serif",
+                          "rounded-2xl p-5 sm:p-7 md:p-8 relative overflow-visible shadow-md transition-all flex flex-col justify-between mx-auto border-8 border-emerald-700 ring-4 ring-emerald-500/20 bg-[#fdfbf7] text-slate-900 font-serif",
                           templateConfig.orientation === "PORTRAIT"
-                            ? "aspect-[8.5/11] max-w-[620px]"
-                            : "aspect-[11/8.5] max-w-[920px]"
+                            ? "aspect-[8.5/11] max-w-[620px] min-h-[660px]"
+                            : "aspect-[11/8.5] max-w-[920px] min-h-[520px]"
                         )}
                       >
                         {/* Watermark Logo */}
@@ -824,89 +824,100 @@ function CertificateVerificationContent() {
                           />
                         </div>
 
-                        <div className="text-center space-y-3 relative z-10">
-                          <div className="flex justify-center">
-                            <div className="h-11 w-11 rounded-2xl flex items-center justify-center text-white bg-emerald-700 shadow-md">
-                              <Award className="h-6 w-6" />
-                            </div>
-                          </div>
-                          <div>
-                            <h2 className="text-lg sm:text-2xl font-bold uppercase tracking-wider text-slate-900">
-                              {templateConfig.institutionName}
-                            </h2>
-                            <p className="text-xs text-slate-600 uppercase tracking-widest mt-0.5">
-                              {templateConfig.subHeader}
-                            </p>
-                          </div>
-
-                          <div className="py-0.5">
-                            <span className="text-xs sm:text-sm tracking-widest font-semibold uppercase pb-1 border-b-2 border-emerald-700 text-emerald-700">
-                              Certificate of Competency & Academic Achievement
-                            </span>
-                          </div>
-
-                          <p className="text-xs italic text-slate-600">This is to officially certify that</p>
-
-                          <h3 className="text-xl sm:text-3xl font-bold underline underline-offset-8 decoration-emerald-700">
-                            {verifiedCert.studentName}
-                          </h3>
-
-                          <p className="text-xs sm:text-sm text-slate-700 max-w-lg mx-auto leading-relaxed">
-                            having completed clinical laboratory training at <strong>{verifiedCert.institution}</strong>, has fulfilled all diagnostic benchmark requirements for{" "}
-                            <strong>{verifiedCert.title}</strong> in the curriculum of{" "}
-                            <strong>{verifiedCert.program} (Year {verifiedCert.year})</strong> with an assessment grade of{" "}
-                            <strong className="text-emerald-700">{verifiedCert.grade}</strong>.
-                          </p>
-
-                          {/* Signatories and Seal */}
-                          <div className="pt-6 grid grid-cols-3 items-end gap-2 text-xs text-slate-700">
-                            <div className="text-center border-t border-slate-300 pt-1 flex flex-col items-center">
-                              {templateConfig.signatorySignature1 ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  src={templateConfig.signatorySignature1}
-                                  alt="Signature 1"
-                                  className="h-8 max-w-[100px] object-contain mb-1"
-                                />
-                              ) : (
-                                <span className="font-serif italic text-xs text-slate-800 mb-1">
-                                  {templateConfig.signatoryName1.split(",")[0]}
-                                </span>
-                              )}
-                              <p className="font-bold text-slate-900 text-xs">{templateConfig.signatoryName1}</p>
-                              <p className="text-[10px] text-slate-600">{templateConfig.signatoryTitle1}</p>
-                            </div>
-
-                            <div className="flex flex-col items-center">
-                              <div className="h-16 w-16 rounded-full border-2 border-dashed border-emerald-700 text-emerald-700 bg-emerald-700/10 flex items-center justify-center p-1 text-[8px] font-bold text-center leading-tight">
-                                {templateConfig.sealText}
+                        <div className="text-center relative z-10 flex-1 flex flex-col justify-between h-full space-y-4">
+                          {/* Upper Body */}
+                          <div className="space-y-2 sm:space-y-2.5">
+                            <div className="flex justify-center">
+                              <div className="h-11 w-11 rounded-2xl flex items-center justify-center text-white bg-emerald-700 shadow-md">
+                                <Award className="h-6 w-6" />
                               </div>
-                              <span className="text-[10px] font-mono font-bold mt-1 text-slate-600">
-                                {verifiedCert.certificateNumber}
+                            </div>
+                            <div>
+                              <h2 className="text-lg sm:text-2xl font-bold uppercase tracking-wider text-slate-900">
+                                {templateConfig.institutionName}
+                              </h2>
+                              <p className="text-xs text-slate-600 uppercase tracking-widest mt-0.5">
+                                {templateConfig.subHeader}
+                              </p>
+                            </div>
+
+                            <div className="py-0.5">
+                              <span className="text-xs sm:text-sm tracking-widest font-semibold uppercase pb-1 border-b-2 border-emerald-700 text-emerald-700">
+                                Certificate of Competency &amp; Academic Achievement
                               </span>
                             </div>
 
-                            <div className="text-center border-t border-slate-300 pt-1 flex flex-col items-center">
-                              {templateConfig.signatorySignature2 ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  src={templateConfig.signatorySignature2}
-                                  alt="Signature 2"
-                                  className="h-8 max-w-[100px] object-contain mb-1"
-                                />
-                              ) : (
-                                <span className="font-serif italic text-xs text-slate-800 mb-1">
-                                  {templateConfig.signatoryName2.split(",")[0]}
-                                </span>
-                              )}
-                              <p className="font-bold text-slate-900 text-xs">{templateConfig.signatoryName2}</p>
-                              <p className="text-[10px] text-slate-600">{templateConfig.signatoryTitle2}</p>
-                            </div>
+                            <p className="text-xs italic text-slate-600">This is to officially certify that</p>
+
+                            <h3 className="text-xl sm:text-3xl font-bold underline underline-offset-8 decoration-emerald-700">
+                              {verifiedCert.studentName}
+                            </h3>
+
+                            <p className="text-xs sm:text-sm text-slate-700 max-w-lg mx-auto leading-relaxed">
+                              having completed clinical laboratory training at <strong>{verifiedCert.institution}</strong>, has fulfilled all diagnostic benchmark requirements for{" "}
+                              <strong>{verifiedCert.title}</strong> in the curriculum of{" "}
+                              <strong>{verifiedCert.program} (Year {verifiedCert.year})</strong> with an assessment grade of{" "}
+                              <strong className="text-emerald-700">{verifiedCert.grade}</strong>.
+                            </p>
                           </div>
 
-                          <div className="pt-2 text-xs text-slate-500 flex items-center justify-between border-t border-slate-200 font-mono">
-                            <span>Issued: {verifiedCert.issuedDate || verifiedCert.applicationDate}</span>
-                            <span>Verify Code: {verifiedCert.verificationCode}</span>
+                          {/* Lower Body: Signatories and Footer */}
+                          <div className="space-y-3 pt-2">
+                            {/* Signatories and Seal */}
+                            <div className="grid grid-cols-3 items-end gap-2 text-xs text-slate-700">
+                              <div className="text-center border-t border-slate-300 pt-1 flex flex-col items-center">
+                                {templateConfig.signatorySignature1 ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={templateConfig.signatorySignature1}
+                                    alt="Signature 1"
+                                    className="h-8 max-w-[100px] object-contain mb-1"
+                                  />
+                                ) : (
+                                  <span className="font-serif italic text-xs text-slate-800 mb-1">
+                                    {templateConfig.signatoryName1.split(",")[0]}
+                                  </span>
+                                )}
+                                <p className="font-bold text-slate-900 text-xs">{templateConfig.signatoryName1}</p>
+                                <p className="text-[10px] text-slate-600">{templateConfig.signatoryTitle1}</p>
+                              </div>
+
+                              <div className="flex flex-col items-center">
+                                <QRCodeView
+                                  value={
+                                    typeof window !== "undefined"
+                                      ? `${window.location.origin}/verify?code=${encodeURIComponent(verifiedCert.certificateNumber)}`
+                                      : `https://labtutor.academy/verify?code=${encodeURIComponent(verifiedCert.certificateNumber)}`
+                                  }
+                                  size={56}
+                                />
+                                <span className="text-[9px] font-bold tracking-wider text-slate-700 uppercase mt-1">
+                                  Scan to Verify
+                                </span>
+                              </div>
+
+                              <div className="text-center border-t border-slate-300 pt-1 flex flex-col items-center">
+                                {templateConfig.signatorySignature2 ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={templateConfig.signatorySignature2}
+                                    alt="Signature 2"
+                                    className="h-8 max-w-[100px] object-contain mb-1"
+                                  />
+                                ) : (
+                                  <span className="font-serif italic text-xs text-slate-800 mb-1">
+                                    {templateConfig.signatoryName2.split(",")[0]}
+                                  </span>
+                                )}
+                                <p className="font-bold text-slate-900 text-xs">{templateConfig.signatoryName2}</p>
+                                <p className="text-[10px] text-slate-600">{templateConfig.signatoryTitle2}</p>
+                              </div>
+                            </div>
+
+                            <div className="pt-2 text-xs text-slate-500 flex items-center justify-between border-t border-slate-200 font-mono flex-wrap gap-1">
+                              <span>Issued: {verifiedCert.issuedDate || verifiedCert.applicationDate}</span>
+                              <span>Certificate ID: {verifiedCert.certificateNumber}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -914,13 +925,13 @@ function CertificateVerificationContent() {
                   )}
                 </div>
 
-                {/* Bottom Verification Footer Notice */}
+                {/* Bottom Verification Footer Notice with primary support email */}
                 <div className="text-center text-xs text-muted-foreground space-y-1 pt-2">
                   <p>
                     Official Public Verification Query ID: <span className="font-mono font-semibold">{verifiedCert.verificationCode || verifiedCert.certificateNumber}</span>
                   </p>
                   <p>
-                    For institutional credential inquiries, contact the Directorate of Medical Technology at <Link href="/contact" className="text-primary hover:underline">contact@labtutor.academy</Link>.
+                    For institutional credential inquiries or verification support, contact <a href="mailto:labtutor.academy@gmail.com" className="text-primary hover:underline font-mono font-bold">labtutor.academy@gmail.com</a>.
                   </p>
                 </div>
               </div>

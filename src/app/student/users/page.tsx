@@ -60,6 +60,7 @@ import { useCertificates, CertificateRecord } from "@/lib/stores/certificate-sto
 import { useLMSAnnouncements } from "@/lib/notifications/lms-announcement-context";
 import { getStudentStudyRecord, checkEnrollmentEligibility } from "@/lib/curriculum/student-study-progress-store";
 import { UserRole, UserPermissions, DEFAULT_ROLE_PERMISSIONS, ROLE_LABELS } from "@/types/roles";
+import { QRCodeView } from "@/components/ui/qr-code-view";
 
 const INSTITUTIONS_LIST = [
   "Dhaka Institute of Health Technology (DIHT)",
@@ -1904,10 +1905,10 @@ export default function UserManagementPage() {
               </div>
             </div>
 
-            {/* Render Printable Certificate (US Letter Standard) */}
+            {/* Render Printable Certificate */}
             <div
               id="users-official-cert-print"
-              className={`printable-cert-document rounded-2xl p-6 sm:p-8 md:p-10 border-4 sm:border-8 bg-card text-foreground shadow-sm relative overflow-hidden aspect-[11/8.5] max-w-[960px] min-h-[520px] flex flex-col justify-between mx-auto ${
+              className={`printable-cert-document rounded-2xl p-5 sm:p-7 md:p-8 border-4 sm:border-8 bg-card text-foreground shadow-sm relative overflow-visible aspect-[11/8.5] max-w-[960px] min-h-[520px] flex flex-col justify-between mx-auto ${
                 templateConfig.borderStyle === "EMERALD_CLINICAL"
                   ? "border-emerald-600"
                   : templateConfig.borderStyle === "CLASSIC_GOLD"
@@ -1915,10 +1916,6 @@ export default function UserManagementPage() {
                   : "border-blue-700"
               }`}
             >
-              {/* Dimensions tag */}
-              <div className="absolute top-2 right-4 z-10 pointer-events-none opacity-50 text-[9px] font-mono select-none">
-                US Letter: 8.5 × 11 inches (21.6 × 27.9 cm)
-              </div>
               {/* Security Watermark for Non-Approved / Pending Previews */}
               {previewCert.status !== "APPROVED" && (
                 <div className="absolute inset-0 pointer-events-none select-none z-10 overflow-hidden flex flex-col justify-around opacity-30">
@@ -1949,64 +1946,77 @@ export default function UserManagementPage() {
                 </div>
               )}
 
-              <div className="text-center space-y-3 sm:space-y-4 relative z-10">
-                <div className="flex justify-center">
-                  <Award className="h-10 w-10 sm:h-12 sm:w-12 text-primary" />
-                </div>
-                <div>
-                  <h2 className="text-lg sm:text-2xl font-serif font-bold uppercase tracking-wider text-foreground">
-                    {templateConfig.institutionName}
-                  </h2>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-widest mt-1">
-                    {templateConfig.subHeader}
-                  </p>
-                </div>
-
-                <div className="py-1">
-                  <span className="text-[10px] sm:text-xs tracking-widest font-semibold uppercase text-primary border-b-2 border-primary/40 pb-1">
-                    Certificate of Competency & Academic Merit
-                  </span>
-                </div>
-
-                <p className="text-xs italic text-muted-foreground">This is to officially certify that</p>
-
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-bold font-serif text-foreground underline decoration-primary underline-offset-8">
-                  {previewCert.studentName}
-                </h3>
-
-                <p className="text-xs text-muted-foreground max-w-lg mx-auto leading-relaxed">
-                  affiliated with <strong className="text-foreground">{previewCert.institution}</strong>, has fulfilled all required clinical benchmark criteria and verified laboratory SOP standards for{" "}
-                  <strong className="text-foreground">{previewCert.title}</strong> in the curriculum of{" "}
-                  <strong className="text-foreground">{previewCert.program} (Year {previewCert.year})</strong> with an official assessment grade of{" "}
-                  <strong className="text-primary font-bold">{previewCert.grade}</strong>.
-                </p>
-
-                <div className="pt-5 sm:pt-7 grid grid-cols-1 sm:grid-cols-3 items-end gap-3 text-xs text-muted-foreground">
-                  <div className="text-center border-t border-border pt-2">
-                    <p className="font-semibold text-foreground">{previewCert.reviewedBy || templateConfig.signatoryName1}</p>
-                    <p className="text-[10px]">
-                      {previewCert.reviewedRole
-                        ? `${ROLE_LABELS[previewCert.reviewedRole as UserRole] || previewCert.reviewedRole}`
-                        : templateConfig.signatoryTitle1}
+              <div className="text-center relative z-10 flex-1 flex flex-col justify-between h-full space-y-4">
+                {/* Upper Body */}
+                <div className="space-y-2 sm:space-y-2.5">
+                  <div className="flex justify-center">
+                    <Award className="h-10 w-10 sm:h-12 sm:w-12 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg sm:text-2xl font-serif font-bold uppercase tracking-wider text-foreground">
+                      {templateConfig.institutionName}
+                    </h2>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-widest mt-1">
+                      {templateConfig.subHeader}
                     </p>
                   </div>
 
-                  <div className="flex flex-col items-center">
-                    <div className="h-14 w-14 rounded-full border-2 border-dashed border-primary flex items-center justify-center p-1 text-[8px] font-bold text-center text-primary leading-tight">
-                      {templateConfig.sealText}
+                  <div className="py-0.5">
+                    <span className="text-[10px] sm:text-xs tracking-widest font-semibold uppercase text-primary border-b-2 border-primary/40 pb-1">
+                      Certificate of Competency & Academic Merit
+                    </span>
+                  </div>
+
+                  <p className="text-xs italic text-muted-foreground">This is to officially certify that</p>
+
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold font-serif text-foreground underline decoration-primary underline-offset-8">
+                    {previewCert.studentName}
+                  </h3>
+
+                  <p className="text-xs text-muted-foreground max-w-lg mx-auto leading-relaxed">
+                    affiliated with <strong className="text-foreground">{previewCert.institution}</strong>, has fulfilled all required clinical benchmark criteria and verified laboratory SOP standards for{" "}
+                    <strong className="text-foreground">{previewCert.title}</strong> in the curriculum of{" "}
+                    <strong className="text-foreground">{previewCert.program} (Year {previewCert.year})</strong> with an official assessment grade of{" "}
+                    <strong className="text-primary font-bold">{previewCert.grade}</strong>.
+                  </p>
+                </div>
+
+                {/* Lower Body: Signatories and Footer */}
+                <div className="space-y-3 pt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 items-end gap-3 text-xs text-muted-foreground">
+                    <div className="text-center border-t border-border pt-2">
+                      <p className="font-semibold text-foreground">{previewCert.reviewedBy || templateConfig.signatoryName1}</p>
+                      <p className="text-[10px]">
+                        {previewCert.reviewedRole
+                          ? `${ROLE_LABELS[previewCert.reviewedRole as UserRole] || previewCert.reviewedRole}`
+                          : templateConfig.signatoryTitle1}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col items-center">
+                      <QRCodeView
+                        value={
+                          typeof window !== "undefined"
+                            ? `${window.location.origin}/verify?code=${encodeURIComponent(previewCert.verificationCode || previewCert.id)}`
+                            : `https://labtutor.academy/verify?code=${encodeURIComponent(previewCert.verificationCode || previewCert.id)}`
+                        }
+                        size={52}
+                      />
+                      <span className="text-[8.5px] font-bold tracking-wider text-muted-foreground uppercase mt-1">
+                        Scan to Verify
+                      </span>
+                    </div>
+
+                    <div className="text-center border-t border-border pt-2">
+                      <p className="font-semibold text-foreground">{templateConfig.signatoryName2}</p>
+                      <p className="text-[10px]">{templateConfig.signatoryTitle2}</p>
                     </div>
                   </div>
 
-                  <div className="text-center border-t border-border pt-2">
-                    <p className="font-semibold text-foreground">{templateConfig.signatoryName2}</p>
-                    <p className="text-[10px]">{templateConfig.signatoryTitle2}</p>
+                  <div className="pt-2 text-[10px] text-muted-foreground/80 flex items-center justify-between border-t border-border/40 font-mono flex-wrap gap-1">
+                    <span>Issued Date: {previewCert.issuedDate || previewCert.applicationDate}</span>
+                    <span>Auth Code: {previewCert.verificationCode || "PENDING"}</span>
                   </div>
-                </div>
-
-                <div className="pt-2 text-[10px] text-muted-foreground/80 flex items-center justify-between border-t border-border/40 font-mono flex-wrap gap-1">
-                  <span>Issued Date: {previewCert.issuedDate || previewCert.applicationDate}</span>
-                  <span>Verify: /verify?code={previewCert.certificateNumber || previewCert.code}</span>
-                  <span>Auth Code: {previewCert.verificationCode || "PENDING"}</span>
                 </div>
               </div>
             </div>

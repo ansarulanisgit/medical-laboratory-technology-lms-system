@@ -2334,7 +2334,7 @@ export default function StudentCertificatesPage() {
               {/* Live Certificate Card Container */}
               <div
                 className={cn(
-                  "rounded-3xl p-6 sm:p-8 md:p-10 relative overflow-hidden transition-all flex flex-col justify-between shadow-md mx-auto",
+                  "rounded-3xl p-5 sm:p-7 md:p-8 relative overflow-visible transition-all flex flex-col justify-between shadow-md mx-auto",
                   customizerState.orientation === "PORTRAIT"
                     ? "aspect-[8.5/11] max-w-[620px] min-h-[660px]"
                     : "aspect-[11/8.5] max-w-[960px] min-h-[520px]",
@@ -2343,11 +2343,6 @@ export default function StudentCertificatesPage() {
                   getFontFamilyClass(customizerState.fontFamily)
                 )}
               >
-                {/* Dimensions watermark pill */}
-                <div className="absolute top-2 right-4 z-10 pointer-events-none opacity-50 text-[9px] font-mono select-none">
-                  US Letter: 8.5 × 11 inches (21.6 × 27.9 cm)
-                </div>
-
                 {/* CENTRAL LABTUTOR ACADEMY LOGO WATERMARK */}
                 {(customizerState.showCenterLogoWatermark ?? true) && (
                   <div className="absolute inset-0 pointer-events-none select-none z-0 flex items-center justify-center overflow-hidden p-6">
@@ -2363,128 +2358,121 @@ export default function StudentCertificatesPage() {
                   </div>
                 )}
 
-                <div className="text-center space-y-3 relative z-10">
-                  {/* Emblem */}
-                  <div className="flex justify-center">
-                    <div
-                      className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md"
-                      style={{ backgroundColor: customizerState.primaryColor }}
-                    >
-                      <Award className="h-7 w-7" />
+                {/* CERTIFICATE CONTENT CONTAINER */}
+                <div className="text-center relative z-10 flex-1 flex flex-col justify-between h-full space-y-4">
+                  {/* Upper Body */}
+                  <div className="space-y-2 sm:space-y-2.5">
+                    {/* Emblem */}
+                    <div className="flex justify-center">
+                      <div
+                        className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl flex items-center justify-center text-white shadow-md"
+                        style={{ backgroundColor: customizerState.primaryColor }}
+                      >
+                        <Award className="h-6 w-6 sm:h-7 sm:w-7" />
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Institution Heading */}
-                  <div>
-                    <h3 className="text-lg sm:text-xl font-bold uppercase tracking-wider text-slate-900">
-                      {customizerState.institutionName}
-                    </h3>
-                    <p className="text-[10px] sm:text-xs text-slate-600 uppercase tracking-widest mt-0.5">
-                      {customizerState.subHeader}
+                    {/* Institution Heading */}
+                    <div>
+                      <h3 className="text-lg sm:text-xl font-bold uppercase tracking-wider text-slate-900">
+                        {customizerState.institutionName}
+                      </h3>
+                      <p className="text-[10px] sm:text-xs text-slate-600 uppercase tracking-widest mt-0.5">
+                        {customizerState.subHeader}
+                      </p>
+                    </div>
+
+                    <div className="py-0.5">
+                      <span
+                        className="text-xs sm:text-sm tracking-widest font-bold uppercase pb-1 border-b-2"
+                        style={{
+                          color: customizerState.primaryColor,
+                          borderColor: customizerState.primaryColor,
+                        }}
+                      >
+                        Certificate of Competency & Academic Achievement
+                      </span>
+                    </div>
+
+                    <p className="text-xs italic text-slate-600">This is to officially certify that</p>
+
+                    {/* Candidate Name */}
+                    <h2
+                      className="text-xl sm:text-2xl font-bold underline underline-offset-8 decoration-2"
+                      style={{ textDecorationColor: customizerState.primaryColor }}
+                    >
+                      Md. Ansarul Islam
+                    </h2>
+
+                    <p className="text-xs text-slate-700 max-w-md mx-auto leading-relaxed">
+                      having studied at <strong>Dhaka Institute of Health Technology (DIHT)</strong>, has successfully fulfilled all clinical benchmark requirements and verified laboratory SOP standards for{" "}
+                      <strong>Clinical Pathology, Routine Hematology & Microbiology</strong> in the curriculum of{" "}
+                      <strong>Diploma in Medical Laboratory Technology (Year 2)</strong> with an official assessment grade of{" "}
+                      <strong style={{ color: customizerState.primaryColor }}>Distinction (92.5%)</strong>.
                     </p>
                   </div>
 
-                  <div className="py-1">
-                    <span
-                      className="text-xs sm:text-sm tracking-widest font-bold uppercase pb-1 border-b-2"
-                      style={{
-                        color: customizerState.primaryColor,
-                        borderColor: customizerState.primaryColor,
-                      }}
-                    >
-                      Certificate of Competency & Academic Achievement
-                    </span>
-                  </div>
+                  {/* Lower Body: Signatories and Footer */}
+                  <div className="space-y-3 pt-2">
+                    {/* Signatories and Seal */}
+                    <div className="grid grid-cols-3 items-end gap-2 text-[11px] text-slate-700">
+                      {/* Signatory 1 */}
+                      <div className="text-center border-t border-slate-300 pt-1.5 flex flex-col items-center">
+                        {customizerState.signatorySignature1 ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={customizerState.signatorySignature1}
+                            alt="Signature 1"
+                            className="h-8 max-w-[100px] object-contain mb-1"
+                          />
+                        ) : (
+                          <span className="font-serif italic text-xs text-slate-800 mb-1">
+                            {customizerState.signatoryName1.split(",")[0]}
+                          </span>
+                        )}
+                        <p className="font-bold text-slate-900 text-[11px]">{customizerState.signatoryName1}</p>
+                        <p className="text-[9.5px] text-slate-500 leading-tight">{customizerState.signatoryTitle1}</p>
+                      </div>
 
-                  <p className="text-xs italic text-slate-600">This is to officially certify that</p>
-
-                  {/* Candidate Name */}
-                  <h2
-                    className="text-xl sm:text-2xl font-bold underline underline-offset-8 decoration-2"
-                    style={{ textDecorationColor: customizerState.primaryColor }}
-                  >
-                    Md. Ansarul Islam
-                  </h2>
-
-                  <p className="text-xs text-slate-700 max-w-md mx-auto leading-relaxed">
-                    having studied at <strong>Dhaka Institute of Health Technology (DIHT)</strong>, has successfully fulfilled all clinical benchmark requirements and verified laboratory SOP standards for{" "}
-                    <strong>Clinical Pathology, Routine Hematology & Microbiology</strong> in the curriculum of{" "}
-                    <strong>Diploma in Medical Laboratory Technology (Year 2)</strong> with an official assessment grade of{" "}
-                    <strong style={{ color: customizerState.primaryColor }}>Distinction (92.5%)</strong>.
-                  </p>
-
-                  {/* Signatories and Seal */}
-                  <div className="pt-6 grid grid-cols-3 items-end gap-2 text-[11px] text-slate-700">
-                    {/* Signatory 1 */}
-                    <div className="text-center border-t border-slate-300 pt-1.5 flex flex-col items-center">
-                      {customizerState.signatorySignature1 ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={customizerState.signatorySignature1}
-                          alt="Signature 1"
-                          className="h-8 max-w-[100px] object-contain mb-1"
-                        />
-                      ) : (
-                        <span className="font-serif italic text-xs text-slate-800 mb-1">
-                          {customizerState.signatoryName1.split(",")[0]}
-                        </span>
-                      )}
-                      <p className="font-bold text-slate-900 text-[11px]">{customizerState.signatoryName1}</p>
-                      <p className="text-[9.5px] text-slate-500 leading-tight">{customizerState.signatoryTitle1}</p>
-                    </div>
-
-                    {/* Official Seal and QR Code */}
-                    <div className="flex flex-col items-center">
-                      <div className="flex items-center gap-1.5">
-                        <div
-                          className="h-14 w-14 rounded-full border-2 border-dashed flex flex-col items-center justify-center p-1 text-[7.5px] font-bold text-center leading-tight shadow-2xs"
-                          style={{
-                            borderColor: customizerState.primaryColor,
-                            color: customizerState.primaryColor,
-                            backgroundColor: `${customizerState.primaryColor}10`,
-                          }}
-                        >
-                          <ShieldCheck className="h-3.5 w-3.5 mb-0.5" />
-                          <span className="line-clamp-2 uppercase text-[7px]">{customizerState.sealText}</span>
-                        </div>
+                      {/* QR Code and Scan to Verify */}
+                      <div className="flex flex-col items-center">
                         <QRCodeView
                           value={
                             typeof window !== "undefined"
                               ? `${window.location.origin}/verify?code=LTA-DIP-2026-88412`
                               : "https://labtutor.academy/verify?code=LTA-DIP-2026-88412"
                           }
-                          size={48}
+                          size={50}
                         />
-                      </div>
-                      <span className="text-[9px] font-mono mt-1 text-slate-500 font-bold">
-                        LTA-DIP-2026-88412
-                      </span>
-                    </div>
-
-                    {/* Signatory 2 */}
-                    <div className="text-center border-t border-slate-300 pt-1.5 flex flex-col items-center">
-                      {customizerState.signatorySignature2 ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={customizerState.signatorySignature2}
-                          alt="Signature 2"
-                          className="h-8 max-w-[100px] object-contain mb-1"
-                        />
-                      ) : (
-                        <span className="font-serif italic text-xs text-slate-800 mb-1">
-                          {customizerState.signatoryName2.split(",")[0]}
+                        <span className="text-[8.5px] font-bold tracking-wider text-slate-700 uppercase mt-1">
+                          Scan to Verify
                         </span>
-                      )}
-                      <p className="font-bold text-slate-900 text-[11px]">{customizerState.signatoryName2}</p>
-                      <p className="text-[9.5px] text-slate-500 leading-tight">{customizerState.signatoryTitle2}</p>
-                    </div>
-                  </div>
+                      </div>
 
-                  {/* Footer Metadata */}
-                  <div className="pt-2 text-[9.5px] text-slate-500 flex items-center justify-between border-t border-slate-200 font-mono flex-wrap gap-1">
-                    <span>Issued Date: {new Date().toISOString().split("T")[0]}</span>
-                    <span>Verify: /verify?code=LTA-DIP-2026-88412</span>
-                    <span>Certificate ID: LTA-DIP-2026-88412</span>
+                      {/* Signatory 2 */}
+                      <div className="text-center border-t border-slate-300 pt-1.5 flex flex-col items-center">
+                        {customizerState.signatorySignature2 ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={customizerState.signatorySignature2}
+                            alt="Signature 2"
+                            className="h-8 max-w-[100px] object-contain mb-1"
+                          />
+                        ) : (
+                          <span className="font-serif italic text-xs text-slate-800 mb-1">
+                            {customizerState.signatoryName2.split(",")[0]}
+                          </span>
+                        )}
+                        <p className="font-bold text-slate-900 text-[11px]">{customizerState.signatoryName2}</p>
+                        <p className="text-[9.5px] text-slate-500 leading-tight">{customizerState.signatoryTitle2}</p>
+                      </div>
+                    </div>
+
+                    {/* Footer Metadata */}
+                    <div className="pt-2 text-[9.5px] text-slate-500 flex items-center justify-between border-t border-slate-200 font-mono flex-wrap gap-1">
+                      <span>Issued Date: {new Date().toISOString().split("T")[0]}</span>
+                      <span>Certificate ID: LTA-DIP-2026-88412</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2532,19 +2520,15 @@ export default function StudentCertificatesPage() {
             {/* Render Printable Certificate with WATERMARK OVERLAYS (US Letter Standard) */}
             <div
               className={cn(
-                "rounded-2xl p-6 sm:p-8 md:p-10 relative overflow-hidden shadow-sm transition-all flex flex-col justify-between mx-auto",
+                "rounded-2xl p-5 sm:p-7 md:p-8 relative shadow-sm transition-all flex flex-col justify-between mx-auto overflow-visible",
                 templateConfig.orientation === "PORTRAIT"
-                  ? "aspect-[8.5/11] max-w-[620px] min-h-[660px]"
-                  : "aspect-[11/8.5] max-w-[960px] min-h-[520px]",
+                  ? "aspect-[8.5/11] max-w-[640px] min-h-[700px]"
+                  : "aspect-[11/8.5] max-w-[960px] min-h-[560px]",
                 getPaperToneClass(templateConfig.paperTone),
                 getBorderStyleClasses(templateConfig.borderStyle, templateConfig.primaryColor),
                 getFontFamilyClass(templateConfig.fontFamily)
               )}
             >
-              {/* Dimensions tag */}
-              <div className="absolute top-2 right-4 z-10 pointer-events-none opacity-50 text-[9px] font-mono select-none">
-                US Letter: 8.5 × 11 inches (21.6 × 27.9 cm)
-              </div>
               {/* DIAGONAL WATERMARK REPEATING RIBBONS */}
               <div className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between overflow-hidden select-none opacity-30 dark:opacity-35">
                 <div className="w-[160%] -rotate-12 -translate-x-16 -translate-y-8 flex flex-col gap-8">
@@ -2587,118 +2571,112 @@ export default function StudentCertificatesPage() {
               )}
 
               {/* CERTIFICATE CONTENT */}
-              <div className="text-center space-y-3 sm:space-y-4 relative z-10">
-                <div className="flex justify-center">
-                  <div
-                    className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md"
-                    style={{ backgroundColor: templateConfig.primaryColor }}
-                  >
-                    <Award className="h-7 w-7" />
+              <div className="text-center relative z-10 flex-1 flex flex-col justify-between h-full space-y-4">
+                {/* Upper Body Content */}
+                <div className="space-y-2 sm:space-y-2.5">
+                  <div className="flex justify-center">
+                    <div
+                      className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl flex items-center justify-center text-white shadow-md"
+                      style={{ backgroundColor: templateConfig.primaryColor }}
+                    >
+                      <Award className="h-6 w-6" />
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <h2 className="text-lg sm:text-2xl font-bold uppercase tracking-wider text-slate-900">
-                    {templateConfig.institutionName}
-                  </h2>
-                  <p className="text-xs text-slate-600 uppercase tracking-widest mt-1">
-                    {templateConfig.subHeader}
+                  <div>
+                    <h2 className="text-base sm:text-xl md:text-2xl font-bold uppercase tracking-wider text-slate-900">
+                      {templateConfig.institutionName}
+                    </h2>
+                    <p className="text-[10px] sm:text-xs text-slate-600 uppercase tracking-widest mt-0.5">
+                      {templateConfig.subHeader}
+                    </p>
+                  </div>
+
+                  <div className="py-0.5">
+                    <span
+                      className="text-[10px] sm:text-xs tracking-widest font-semibold uppercase pb-0.5 border-b-2"
+                      style={{
+                        color: templateConfig.primaryColor,
+                        borderColor: templateConfig.primaryColor,
+                      }}
+                    >
+                      Certificate of Competency & Academic Achievement
+                    </span>
+                  </div>
+
+                  <p className="text-[11px] sm:text-xs italic text-slate-600">This is to officially certify that</p>
+
+                  <h3
+                    className="text-lg sm:text-2xl font-bold underline underline-offset-4"
+                    style={{ textDecorationColor: templateConfig.primaryColor }}
+                  >
+                    {candidateWatermarkPreview.studentName}
+                  </h3>
+
+                  <p className="text-xs sm:text-[13px] text-slate-700 max-w-lg mx-auto leading-relaxed">
+                    affiliated with <strong>{candidateWatermarkPreview.institution}</strong>, having completed all prescribed syllabus modules and verified clinical bench SOPs, has fulfilled competency criteria for{" "}
+                    <strong>{candidateWatermarkPreview.title}</strong> in the curriculum of{" "}
+                    <strong>{candidateWatermarkPreview.program} (Year {candidateWatermarkPreview.year})</strong> with an assessment grade of{" "}
+                    <strong style={{ color: templateConfig.primaryColor }}>{candidateWatermarkPreview.grade}</strong>.
                   </p>
                 </div>
 
-                <div className="py-1">
-                  <span
-                    className="text-xs sm:text-sm tracking-widest font-semibold uppercase pb-1 border-b-2"
-                    style={{
-                      color: templateConfig.primaryColor,
-                      borderColor: templateConfig.primaryColor,
-                    }}
-                  >
-                    Certificate of Competency & Academic Achievement
-                  </span>
-                </div>
+                {/* Lower Signatories & Footer Section */}
+                <div className="space-y-3 pt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 items-end gap-2 sm:gap-4 text-xs text-slate-700">
+                    <div className="text-center border-t border-slate-300 pt-1.5 flex flex-col items-center">
+                      {templateConfig.signatorySignature1 ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={templateConfig.signatorySignature1}
+                          alt="Signature 1"
+                          className="h-7 max-w-[100px] object-contain mb-0.5"
+                        />
+                      ) : (
+                        <span className="font-serif italic text-xs text-slate-800 mb-0.5">
+                          {templateConfig.signatoryName1.split(",")[0]}
+                        </span>
+                      )}
+                      <p className="font-bold text-slate-900 text-[11px] sm:text-xs">{templateConfig.signatoryName1}</p>
+                      <p className="text-[9.5px] text-slate-600 leading-tight">{templateConfig.signatoryTitle1}</p>
+                    </div>
 
-                <p className="text-xs italic text-slate-600">This is to officially certify that</p>
-
-                <h3
-                  className="text-xl sm:text-2xl md:text-3xl font-bold underline underline-offset-8"
-                  style={{ textDecorationColor: templateConfig.primaryColor }}
-                >
-                  {candidateWatermarkPreview.studentName}
-                </h3>
-
-                <p className="text-xs sm:text-sm text-slate-700 max-w-lg mx-auto leading-relaxed">
-                  affiliated with <strong>{candidateWatermarkPreview.institution}</strong>, having completed all prescribed syllabus modules and verified clinical bench SOPs, has fulfilled competency criteria for{" "}
-                  <strong>{candidateWatermarkPreview.title}</strong> in the curriculum of{" "}
-                  <strong>{candidateWatermarkPreview.program} (Year {candidateWatermarkPreview.year})</strong> with an assessment grade of{" "}
-                  <strong style={{ color: templateConfig.primaryColor }}>{candidateWatermarkPreview.grade}</strong>.
-                </p>
-
-                <div className="pt-6 sm:pt-8 grid grid-cols-1 sm:grid-cols-3 items-end gap-3 text-xs text-slate-700">
-                  <div className="text-center border-t border-slate-300 pt-2 flex flex-col items-center">
-                    {templateConfig.signatorySignature1 ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={templateConfig.signatorySignature1}
-                        alt="Signature 1"
-                        className="h-8 max-w-[110px] object-contain mb-1"
-                      />
-                    ) : (
-                      <span className="font-serif italic text-xs text-slate-800 mb-1">
-                        {templateConfig.signatoryName1.split(",")[0]}
-                      </span>
-                    )}
-                    <p className="font-bold text-slate-900">{templateConfig.signatoryName1}</p>
-                    <p className="text-xs text-slate-600">{templateConfig.signatoryTitle1}</p>
-                  </div>
-
-                  <div className="flex flex-col items-center">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="h-15 w-15 rounded-full border-2 border-dashed flex items-center justify-center p-1 text-[8.5px] font-bold text-center leading-tight shadow-xs"
-                        style={{
-                          borderColor: templateConfig.primaryColor,
-                          color: templateConfig.primaryColor,
-                          backgroundColor: `${templateConfig.primaryColor}10`,
-                        }}
-                      >
-                        {templateConfig.sealText}
-                      </div>
+                    <div className="flex flex-col items-center justify-center">
                       <QRCodeView
                         value={
                           typeof window !== "undefined"
                             ? `${window.location.origin}/verify?code=${encodeURIComponent(candidateWatermarkPreview.certificateNumber)}`
                             : `https://labtutor.academy/verify?code=${encodeURIComponent(candidateWatermarkPreview.certificateNumber)}`
                         }
-                        size={56}
+                        size={52}
                       />
-                    </div>
-                    <span className="text-[10px] font-mono font-bold mt-1 text-slate-600">
-                      {candidateWatermarkPreview.certificateNumber}
-                    </span>
-                  </div>
-
-                  <div className="text-center border-t border-slate-300 pt-2 flex flex-col items-center">
-                    {templateConfig.signatorySignature2 ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={templateConfig.signatorySignature2}
-                        alt="Signature 2"
-                        className="h-8 max-w-[110px] object-contain mb-1"
-                      />
-                    ) : (
-                      <span className="font-serif italic text-xs text-slate-800 mb-1">
-                        {templateConfig.signatoryName2.split(",")[0]}
+                      <span className="text-[8.5px] font-bold tracking-wider text-slate-700 uppercase mt-0.5">
+                        Scan to Verify
                       </span>
-                    )}
-                    <p className="font-bold text-slate-900">{templateConfig.signatoryName2}</p>
-                    <p className="text-xs text-slate-600">{templateConfig.signatoryTitle2}</p>
-                  </div>
-                </div>
+                    </div>
 
-                <div className="pt-2 text-[10.5px] text-slate-500 flex items-center justify-between border-t border-slate-200 font-mono flex-wrap gap-1">
-                  <span>Application Status: PENDING SUBMISSION</span>
-                  <span>Verify: /verify?code={candidateWatermarkPreview.certificateNumber}</span>
-                  <span>Auth Code: PENDING SUPER ADMIN APPROVAL</span>
+                    <div className="text-center border-t border-slate-300 pt-1.5 flex flex-col items-center">
+                      {templateConfig.signatorySignature2 ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={templateConfig.signatorySignature2}
+                          alt="Signature 2"
+                          className="h-7 max-w-[100px] object-contain mb-0.5"
+                        />
+                      ) : (
+                        <span className="font-serif italic text-xs text-slate-800 mb-0.5">
+                          {templateConfig.signatoryName2.split(",")[0]}
+                        </span>
+                      )}
+                      <p className="font-bold text-slate-900 text-[11px] sm:text-xs">{templateConfig.signatoryName2}</p>
+                      <p className="text-[9.5px] text-slate-600 leading-tight">{templateConfig.signatoryTitle2}</p>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 text-[9.5px] sm:text-[10px] text-slate-500 flex items-center justify-between border-t border-slate-200 font-mono flex-wrap gap-1">
+                    <span>Application Status: PENDING SUBMISSION</span>
+                    <span>Certificate ID: {candidateWatermarkPreview.certificateNumber}</span>
+                    <span>Auth Code: PENDING SUPER ADMIN APPROVAL</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2808,19 +2786,15 @@ export default function StudentCertificatesPage() {
             <div
               id="official-us-letter-cert"
               className={cn(
-                "printable-cert-document rounded-2xl p-6 sm:p-8 md:p-10 relative overflow-hidden shadow-sm transition-all flex flex-col justify-between mx-auto",
+                "printable-cert-document rounded-2xl p-5 sm:p-7 md:p-8 relative shadow-sm transition-all flex flex-col justify-between mx-auto overflow-visible",
                 templateConfig.orientation === "PORTRAIT"
-                  ? "aspect-[8.5/11] max-w-[620px] min-h-[660px]"
-                  : "aspect-[11/8.5] max-w-[960px] min-h-[520px]",
+                  ? "aspect-[8.5/11] max-w-[640px] min-h-[700px]"
+                  : "aspect-[11/8.5] max-w-[960px] min-h-[560px]",
                 getPaperToneClass(templateConfig.paperTone),
                 getBorderStyleClasses(templateConfig.borderStyle, templateConfig.primaryColor),
                 getFontFamilyClass(templateConfig.fontFamily)
               )}
             >
-              {/* Dimensions tag */}
-              <div className="absolute top-2 right-4 z-10 pointer-events-none opacity-50 text-[9px] font-mono select-none">
-                US Letter: 8.5 × 11 inches (21.6 × 27.9 cm)
-              </div>
               {/* WATERMARK IF NOT APPROVED: "Not Approved by LabTutor Academy" */}
               {selectedCertForPreview.status !== "APPROVED" && (
                 <>
@@ -2866,123 +2840,111 @@ export default function StudentCertificatesPage() {
                 </div>
               )}
 
-              <div className="text-center space-y-3 sm:space-y-4 relative z-10">
-                <div className="flex justify-center">
-                  <div
-                    className="h-12 w-12 rounded-2xl flex items-center justify-center text-white shadow-md"
-                    style={{ backgroundColor: templateConfig.primaryColor }}
-                  >
-                    <Award className="h-7 w-7" />
+              <div className="text-center relative z-10 flex-1 flex flex-col justify-between h-full space-y-4">
+                {/* Upper Body Content */}
+                <div className="space-y-2 sm:space-y-2.5">
+                  <div className="flex justify-center">
+                    <div
+                      className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl flex items-center justify-center text-white shadow-md"
+                      style={{ backgroundColor: templateConfig.primaryColor }}
+                    >
+                      <Award className="h-6 w-6" />
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <h2 className="text-lg sm:text-2xl font-bold uppercase tracking-wider text-slate-900">
-                    {templateConfig.institutionName}
-                  </h2>
-                  <p className="text-xs text-slate-600 uppercase tracking-widest mt-1">
-                    {templateConfig.subHeader}
+                  <div>
+                    <h2 className="text-base sm:text-xl md:text-2xl font-bold uppercase tracking-wider text-slate-900">
+                      {templateConfig.institutionName}
+                    </h2>
+                    <p className="text-[10px] sm:text-xs text-slate-600 uppercase tracking-widest mt-0.5">
+                      {templateConfig.subHeader}
+                    </p>
+                  </div>
+
+                  <div className="py-0.5">
+                    <span
+                      className="text-[10px] sm:text-xs tracking-widest font-semibold uppercase pb-0.5 border-b-2"
+                      style={{
+                        color: templateConfig.primaryColor,
+                        borderColor: templateConfig.primaryColor,
+                      }}
+                    >
+                      Certificate of Competency & Academic Achievement
+                    </span>
+                  </div>
+
+                  <p className="text-[11px] sm:text-xs italic text-slate-600">This is to officially certify that</p>
+
+                  <h3
+                    className="text-lg sm:text-2xl font-bold underline underline-offset-4"
+                    style={{ textDecorationColor: templateConfig.primaryColor }}
+                  >
+                    {selectedCertForPreview.studentName}
+                  </h3>
+
+                  <p className="text-xs sm:text-[13px] text-slate-700 max-w-lg mx-auto leading-relaxed">
+                    having studied at <strong>{selectedCertForPreview.institution}</strong>, has successfully fulfilled all clinical benchmark requirements and verified laboratory SOP standards for{" "}
+                    <strong>{selectedCertForPreview.title}</strong> in the curriculum of{" "}
+                    <strong>{selectedCertForPreview.program} (Year {selectedCertForPreview.year})</strong> with an official assessment grade of{" "}
+                    <strong style={{ color: templateConfig.primaryColor }}>{selectedCertForPreview.grade}</strong>.
                   </p>
                 </div>
 
-                <div className="py-1">
-                  <span
-                    className="text-xs sm:text-sm tracking-widest font-semibold uppercase pb-1 border-b-2"
-                    style={{
-                      color: templateConfig.primaryColor,
-                      borderColor: templateConfig.primaryColor,
-                    }}
-                  >
-                    Certificate of Competency & Academic Achievement
-                  </span>
-                </div>
+                {/* Lower Signatories & Footer Section */}
+                <div className="space-y-3 pt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 items-end gap-2 sm:gap-4 text-xs text-slate-700">
+                    <div className="text-center border-t border-slate-300 pt-1.5 flex flex-col items-center">
+                      {templateConfig.signatorySignature1 ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={templateConfig.signatorySignature1}
+                          alt="Signature 1"
+                          className="h-7 max-w-[100px] object-contain mb-0.5"
+                        />
+                      ) : (
+                        <span className="font-serif italic text-xs text-slate-800 mb-0.5">
+                          {templateConfig.signatoryName1.split(",")[0]}
+                        </span>
+                      )}
+                      <p className="font-bold text-slate-900 text-[11px] sm:text-xs">{templateConfig.signatoryName1}</p>
+                      <p className="text-[9.5px] text-slate-600 leading-tight">{templateConfig.signatoryTitle1}</p>
+                    </div>
 
-                <p className="text-xs italic text-slate-600">This is to officially certify that</p>
-
-                <h3
-                  className="text-xl sm:text-2xl md:text-3xl font-bold underline underline-offset-8"
-                  style={{ textDecorationColor: templateConfig.primaryColor }}
-                >
-                  {selectedCertForPreview.studentName}
-                </h3>
-
-                <p className="text-xs sm:text-sm text-slate-700 max-w-lg mx-auto leading-relaxed">
-                  having studied at <strong>{selectedCertForPreview.institution}</strong>, has successfully fulfilled all clinical benchmark requirements and verified laboratory SOP standards for{" "}
-                  <strong>{selectedCertForPreview.title}</strong> in the curriculum of{" "}
-                  <strong>{selectedCertForPreview.program} (Year {selectedCertForPreview.year})</strong> with an official assessment grade of{" "}
-                  <strong style={{ color: templateConfig.primaryColor }}>{selectedCertForPreview.grade}</strong>.
-                </p>
-
-                <div className="pt-6 sm:pt-8 grid grid-cols-1 sm:grid-cols-3 items-end gap-3 text-xs text-slate-700">
-                  <div className="text-center border-t border-slate-300 pt-2 flex flex-col items-center">
-                    {templateConfig.signatorySignature1 ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={templateConfig.signatorySignature1}
-                        alt="Signature 1"
-                        className="h-8 max-w-[110px] object-contain mb-1"
-                      />
-                    ) : (
-                      <span className="font-serif italic text-xs text-slate-800 mb-1">
-                        {templateConfig.signatoryName1.split(",")[0]}
-                      </span>
-                    )}
-                    <p className="font-bold text-slate-900">{templateConfig.signatoryName1}</p>
-                    <p className="text-xs text-slate-600">{templateConfig.signatoryTitle1}</p>
-                  </div>
-
-                  <div className="flex flex-col items-center">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="h-15 w-15 rounded-full border-2 border-dashed flex items-center justify-center p-1 text-[8.5px] font-bold text-center leading-tight shadow-xs"
-                        style={{
-                          borderColor: templateConfig.primaryColor,
-                          color: templateConfig.primaryColor,
-                          backgroundColor: `${templateConfig.primaryColor}10`,
-                        }}
-                      >
-                        {templateConfig.sealText}
-                      </div>
+                    <div className="flex flex-col items-center justify-center">
                       <QRCodeView
                         value={
                           typeof window !== "undefined"
                             ? `${window.location.origin}/verify?code=${encodeURIComponent(selectedCertForPreview.certificateNumber || selectedCertForPreview.code)}`
                             : `https://labtutor.academy/verify?code=${encodeURIComponent(selectedCertForPreview.certificateNumber || selectedCertForPreview.code)}`
                         }
-                        size={56}
+                        size={52}
                       />
-                    </div>
-                    <span className="text-[10px] font-mono font-bold mt-1 text-slate-600">
-                      {selectedCertForPreview.certificateNumber}
-                    </span>
-                  </div>
-
-                  <div className="text-center border-t border-slate-300 pt-2 flex flex-col items-center">
-                    {templateConfig.signatorySignature2 ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={templateConfig.signatorySignature2}
-                        alt="Signature 2"
-                        className="h-8 max-w-[110px] object-contain mb-1"
-                      />
-                    ) : (
-                      <span className="font-serif italic text-xs text-slate-800 mb-1">
-                        {templateConfig.signatoryName2.split(",")[0]}
+                      <span className="text-[8.5px] font-bold tracking-wider text-slate-700 uppercase mt-0.5">
+                        Scan to Verify
                       </span>
-                    )}
-                    <p className="font-bold text-slate-900">{templateConfig.signatoryName2}</p>
-                    <p className="text-xs text-slate-600">{templateConfig.signatoryTitle2}</p>
-                  </div>
-                </div>
+                    </div>
 
-                <div className="pt-2 text-[10.5px] text-slate-500 flex items-center justify-between border-t border-slate-200 font-mono flex-wrap gap-1">
-                  <span>Issued: {selectedCertForPreview.issuedDate || selectedCertForPreview.applicationDate}</span>
-                  <span className="flex items-center gap-1 font-semibold text-slate-700">
-                    <span>Verify:</span>
-                    <span className="underline">
-                      /verify?code={selectedCertForPreview.certificateNumber}
-                    </span>
-                  </span>
-                  <span>Certificate ID: {selectedCertForPreview.certificateNumber}</span>
+                    <div className="text-center border-t border-slate-300 pt-1.5 flex flex-col items-center">
+                      {templateConfig.signatorySignature2 ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={templateConfig.signatorySignature2}
+                          alt="Signature 2"
+                          className="h-7 max-w-[100px] object-contain mb-0.5"
+                        />
+                      ) : (
+                        <span className="font-serif italic text-xs text-slate-800 mb-0.5">
+                          {templateConfig.signatoryName2.split(",")[0]}
+                        </span>
+                      )}
+                      <p className="font-bold text-slate-900 text-[11px] sm:text-xs">{templateConfig.signatoryName2}</p>
+                      <p className="text-[9.5px] text-slate-600 leading-tight">{templateConfig.signatoryTitle2}</p>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 text-[9.5px] sm:text-[10px] text-slate-500 flex items-center justify-between border-t border-slate-200 font-mono flex-wrap gap-1">
+                    <span>Issued: {selectedCertForPreview.issuedDate || selectedCertForPreview.applicationDate}</span>
+                    <span>Certificate ID: {selectedCertForPreview.certificateNumber}</span>
+                  </div>
                 </div>
               </div>
             </div>

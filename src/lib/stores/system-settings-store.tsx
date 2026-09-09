@@ -191,6 +191,12 @@ export const DEFAULT_STRINGS: SystemStringItem[] = [
     category: "FOOTER",
     description: "Footer accreditation and copyright text.",
   },
+  {
+    key: "app.supportEmail",
+    value: "labtutor.academy@gmail.com",
+    category: "GENERAL",
+    description: "Primary support and academic helpline email address.",
+  },
 ];
 
 export interface SystemSettingsState {
@@ -223,6 +229,7 @@ export interface SystemSettingsState {
   strings: SystemStringItem[];
 
   // 5. Platform Operations
+  supportEmail: string;
   maintenanceMode: boolean;
   maintenanceMessage: string;
   selfRegistrationEnabled: boolean;
@@ -256,6 +263,7 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettingsState = {
 
   strings: DEFAULT_STRINGS,
 
+  supportEmail: "labtutor.academy@gmail.com",
   maintenanceMode: false,
   maintenanceMessage: "Scheduled platform maintenance is currently underway. Academic records remain intact.",
   selfRegistrationEnabled: true,

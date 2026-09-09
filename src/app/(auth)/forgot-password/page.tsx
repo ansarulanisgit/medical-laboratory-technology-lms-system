@@ -92,7 +92,7 @@ export default function ForgotPasswordPage() {
                   </label>
                   <Input
                     type="email"
-                    placeholder="ansarul.support@gmail.com"
+                    placeholder="student@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -106,6 +106,12 @@ export default function ForgotPasswordPage() {
                 >
                   {loading ? "Sending..." : "Send Recovery Link"}
                 </Button>
+                <p className="text-[11px] text-center text-muted-foreground">
+                  Need assistance? Contact support at{" "}
+                  <a href="mailto:labtutor.academy@gmail.com" className="text-primary hover:underline font-medium">
+                    labtutor.academy@gmail.com
+                  </a>
+                </p>
               </form>
             )}
           </CardContent>
