@@ -894,7 +894,7 @@ export default function SystemSettingsPage() {
                     />
                   ) : (
                     <img
-                      src="/favicon.ico"
+                      src="/favicon.png"
                       alt="Default Favicon"
                       className="h-8 w-8 object-contain"
                     />
@@ -951,7 +951,7 @@ export default function SystemSettingsPage() {
                     {settings.customFaviconUrl ? (
                       <img src={settings.customFaviconUrl} alt="Tab icon" className="h-4 w-4 object-contain" />
                     ) : (
-                      <Microscope className="h-4 w-4 text-primary" />
+                      <img src="/favicon.png" alt="Tab icon" className="h-4 w-4 rounded-[3px] object-contain" />
                     )}
                   </div>
                   <span className="text-xs font-semibold text-foreground truncate">
