@@ -458,6 +458,8 @@ export function StudentAcademicProvider({ children }: { children: React.ReactNod
         const effectiveBaseRole =
           parsed.baseRole ||
           (parsed.username === "ansarulanis" ||
+          parsed.username === "ansarul.admin" ||
+          parsed.email?.includes("ansarul.admin") ||
           parsed.email?.includes("ansarul.contact") ||
           parsed.role === "SUPER_ADMIN"
             ? "SUPER_ADMIN"
@@ -509,6 +511,8 @@ export function StudentAcademicProvider({ children }: { children: React.ReactNod
     const effectiveBaseRole =
       profile.baseRole ||
       (profile.username === "ansarulanis" ||
+      profile.username === "ansarul.admin" ||
+      profile.email?.includes("ansarul.admin") ||
       profile.email?.includes("ansarul.contact") ||
       profile.role === "SUPER_ADMIN"
         ? "SUPER_ADMIN"

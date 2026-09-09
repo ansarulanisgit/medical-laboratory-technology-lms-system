@@ -151,6 +151,29 @@ export function CertificateProvider({ children }: { children: React.ReactNode })
 
       const updated = [newCert, ...certificates];
       persistCertificates(updated);
+
+      // Record study activity
+      try {
+        const { recordStudentActivity } = require("@/lib/curriculum/student-study-progress-store");
+        recordStudentActivity(data.studentId || "usr-005", data.program, data.year, {
+          type: "CERTIFICATE",
+          title: `Applied for Certificate: ${data.title}`,
+          desc: `Submitted official credential verification application with grade ${data.grade}. Pending Super Admin review.`,
+          device: "Candidate Web Client",
+          ip: "103.205.71.18",
+          status: "Pending Verification",
+        });
+      } catch {}
+
+      // Dispatch event
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("labtutor_certificate_applied", {
+            detail: { cert: newCert },
+          })
+        );
+      }
+
       return { success: true };
     },
     [certificates]
@@ -158,9 +181,11 @@ export function CertificateProvider({ children }: { children: React.ReactNode })
 
   const reviewCertificate = React.useCallback(
     (id: string, decision: "APPROVED" | "REJECTED", reviewerName: string, reviewerRole: string, feedback?: string) => {
+      let targetCert: CertificateRecord | undefined;
+
       const updated = certificates.map((cert) => {
         if (cert.id === id) {
-          return {
+          targetCert = {
             ...cert,
             status: decision,
             code: decision === "APPROVED" ? cert.code.replace("REQ", "CERT") : cert.code,
@@ -169,10 +194,57 @@ export function CertificateProvider({ children }: { children: React.ReactNode })
             reviewedRole: reviewerRole,
             feedback,
           };
+          return targetCert;
         }
         return cert;
       });
       persistCertificates(updated);
+
+      // Record student activity event and dispatch in-app notification
+      if (targetCert) {
+        try {
+          const { recordStudentActivity } = require("@/lib/curriculum/student-study-progress-store");
+          recordStudentActivity(targetCert.studentId || "usr-005", targetCert.program, targetCert.year, {
+            type: "CERTIFICATE",
+            title: decision === "APPROVED" ? `Certificate Conferred: ${targetCert.title}` : `Certificate Request Declined: ${targetCert.title}`,
+            desc: decision === "APPROVED"
+              ? `Officially conferred by ${reviewerName} (${reviewerRole}). Verification Code: ${targetCert.verificationCode}.`
+              : `Declined by ${reviewerName}. Reason: ${feedback || "Curriculum criteria not met."}`,
+            device: "Super Admin Directorate",
+            ip: "103.205.71.18",
+            status: decision === "APPROVED" ? "Conferred & Active" : "Declined",
+          });
+
+          // Dispatch in-app notification into localStorage announcements
+          const storedNotifs = localStorage.getItem("labtutor_lms_announcements_v1");
+          const notifsList = storedNotifs ? JSON.parse(storedNotifs) : [];
+          const notifEntry = {
+            id: `notif-cert-${Date.now()}`,
+            title: decision === "APPROVED" ? `Certificate Conferred: ${targetCert.title}` : `Certificate Request Declined`,
+            message: decision === "APPROVED"
+              ? `Congratulations ${targetCert.studentName}! Your certificate application for ${targetCert.title} has been APPROVED by ${reviewerName}. You can now download and print your official credential.`
+              : `Your certificate request for ${targetCert.title} was declined by ${reviewerName}. Reason: "${feedback || "Please complete all pending practical tasks and bench SOPs."}"`,
+            type: "ACADEMIC",
+            priority: decision === "APPROVED" ? "HIGH" : "URGENT",
+            targetAudience: "ALL",
+            targetUserId: targetCert.studentId,
+            targetStudentName: targetCert.studentName,
+            authorRole: reviewerRole === "SUPER_ADMIN" ? "SUPER_ADMIN" : "ADMIN",
+            authorName: reviewerName,
+            createdAt: new Date().toISOString(),
+            readBy: [],
+          };
+          localStorage.setItem("labtutor_lms_announcements_v1", JSON.stringify([notifEntry, ...notifsList]));
+        } catch {}
+
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("labtutor_certificate_reviewed", {
+              detail: { cert: targetCert, decision, feedback, reviewerName },
+            })
+          );
+        }
+      }
     },
     [certificates]
   );

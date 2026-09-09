@@ -1,11 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="153.6" fill="#0ea06a" />
-  <g transform="translate(115.2, 115.2) scale(11.733333)" stroke="#ffffff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" fill="none">
-    <path d="M6 18h8" />
-    <path d="M3 22h18" />
-    <path d="M14 22a7 7 0 1 0 0-14h-1" />
-    <path d="M9 14h2" />
-    <path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z" />
-    <path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3" />
-  </g>
+  <rect width="512" height="512" rx="144" fill="#0ea06a" />
+  <!-- Platform base -->
+  <path d="M 112 416 L 400 416" stroke="#ffffff" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  <!-- Curved support arm -->
+  <path d="M 288 416 A 112 112 0 1 0 288 192 L 272 192" stroke="#ffffff" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  <!-- Stage -->
+  <path d="M 160 352 L 288 352" stroke="#ffffff" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  <!-- Slide clip -->
+  <path d="M 208 288 L 240 288" stroke="#ffffff" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  <!-- Objective barrel -->
+  <path d="M 208 256 A 32 32 0 0 1 176 224 L 176 160 L 272 160 L 272 224 A 32 32 0 0 1 240 256 Z" stroke="#ffffff" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" fill="#ffffff" fill-opacity="0.3" />
+  <!-- Eyepiece head -->
+  <path d="M 256 160 L 256 112 A 16 16 0 0 0 240 96 L 208 96 A 16 16 0 0 0 192 112 L 192 160" stroke="#ffffff" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" fill="none" />
 </svg>

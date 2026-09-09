@@ -16,6 +16,7 @@ const navLinks = [
   { href: "/student/resume", label: "Resume Maker" },
   { href: "/student/jobs", label: "Jobs" },
   { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact Us" },
 ];
 
 export function PublicNavbar() {

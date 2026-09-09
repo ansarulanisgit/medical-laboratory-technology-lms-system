@@ -890,13 +890,13 @@ export default function SystemSettingsPage() {
                     <img
                       src={settings.customFaviconUrl}
                       alt="Favicon"
-                      className="h-8 w-8 object-contain"
+                      className="h-9 w-9 object-contain"
                     />
                   ) : (
                     <img
-                      src="/favicon.png"
+                      src="/favicon-32x32.png"
                       alt="Default Favicon"
-                      className="h-8 w-8 object-contain"
+                      className="h-9 w-9 object-contain"
                     />
                   )}
                 </div>
@@ -935,26 +935,26 @@ export default function SystemSettingsPage() {
                       </Button>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     Recommended dimensions: 32x32px or 48x48px (.ico, .png, or .svg, max 1MB).
                   </p>
                 </div>
               </div>
 
               {/* Simulated Browser Tab Preview */}
-              <div className="p-3.5 rounded-2xl bg-muted/30 border border-border space-y-2">
-                <span className="text-xs font-bold text-muted-foreground uppercase tracking-wide">
+              <div className="p-4 rounded-2xl bg-muted/30 border border-border space-y-2.5">
+                <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                   Browser Tab Live Simulation
                 </span>
-                <div className="max-w-xs flex items-center gap-2 px-3 py-2 rounded-xl bg-card border border-border shadow-xs">
-                  <div className="h-4 w-4 shrink-0 overflow-hidden flex items-center justify-center">
+                <div className="max-w-xs flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-card border border-border shadow-xs">
+                  <div className="h-4.5 w-4.5 shrink-0 overflow-hidden flex items-center justify-center">
                     {settings.customFaviconUrl ? (
-                      <img src={settings.customFaviconUrl} alt="Tab icon" className="h-4 w-4 object-contain" />
+                      <img src={settings.customFaviconUrl} alt="Tab icon" className="h-4.5 w-4.5 object-contain" />
                     ) : (
-                      <img src="/favicon.png" alt="Tab icon" className="h-4 w-4 rounded-[3px] object-contain" />
+                      <img src="/favicon-32x32.png" alt="Tab icon" className="h-4.5 w-4.5 rounded-[3px] object-contain" />
                     )}
                   </div>
-                  <span className="text-xs font-semibold text-foreground truncate">
+                  <span className="text-xs sm:text-sm font-semibold text-foreground truncate">
                     {settings.brandName} | LMS Portal
                   </span>
                 </div>

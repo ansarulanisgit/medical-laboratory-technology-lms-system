@@ -273,10 +273,12 @@ export function AuthModal() {
 
     const cleanInput = loginIdentifier.trim().toLowerCase();
 
-    // Map username 'ansarulanis' to master email
+    // Map usernames to master emails
     let authEmail = cleanInput;
     if (cleanInput === "ansarulanis") {
       authEmail = "ansarul.contact@gmail.com";
+    } else if (cleanInput === "ansarul.admin" || cleanInput === "ansarulislam") {
+      authEmail = "ansarul.admin@gmail.com";
     }
 
     const setSessionCookie = () => {
@@ -284,6 +286,39 @@ export function AuthModal() {
         document.cookie = "labtutor-session=true; path=/; max-age=604800; SameSite=Lax";
       }
     };
+
+    // Fast check for Super Admin credentials
+    const isAnsarulIslam =
+      (cleanInput === "ansarul.admin" ||
+        cleanInput === "ansarul.admin@gmail.com" ||
+        cleanInput === "ansarulislam") &&
+      (loginPassword === "Ansarulislam" || loginPassword === "Ansarul@233");
+
+    const isAnsarulAnis =
+      (cleanInput === "ansarulanis" || cleanInput === "ansarul.contact@gmail.com") &&
+      (loginPassword === "Ansarul@233" || loginPassword === "Ansarulislam");
+
+    if (isAnsarulIslam || isAnsarulAnis) {
+      setSessionCookie();
+      try {
+        const saved = localStorage.getItem("labtutor_academic_profile_v2");
+        const base = saved ? JSON.parse(saved) : {};
+        base.role = "SUPER_ADMIN";
+        base.baseRole = "SUPER_ADMIN";
+        base.fullName = isAnsarulIslam ? "Ansarul Islam" : "Ansarul Anis";
+        base.username = isAnsarulIslam ? "ansarul.admin" : "ansarulanis";
+        base.email = isAnsarulIslam ? "ansarul.admin@gmail.com" : "ansarul.contact@gmail.com";
+        base.institution = "DGHS Medical Technology Directorate & LabTutor Central Administration";
+        base.studentIdNumber = isAnsarulIslam ? "LT-SA-002" : "LT-SA-001";
+        base.program = "BSC";
+        base.academicYear = "4";
+        localStorage.setItem("labtutor_academic_profile_v2", JSON.stringify(base));
+        localStorage.setItem("labtutor_academic_profile_v3", JSON.stringify(base));
+      } catch {}
+      closeAuthModal();
+      window.location.href = "/student";
+      return;
+    }
 
     // 1. Authenticate with Supabase
     try {
@@ -835,12 +870,12 @@ export function AuthModal() {
                   <button
                     type="button"
                     onClick={() => {
-                      setLoginIdentifier("ansarulanis");
-                      setLoginPassword("Ansarul@233");
+                      setLoginIdentifier("ansarul.admin@gmail.com");
+                      setLoginPassword("Ansarulislam");
                     }}
                     className="font-bold text-primary hover:underline cursor-pointer"
                   >
-                    Autofill Credentials
+                    Autofill (Ansarul Islam)
                   </button>
                 </div>
 

@@ -57,6 +57,7 @@ import { useNotification } from "@/components/ui/notification-context";
 import { useActivityLog } from "@/lib/stores/activity-log-store";
 import { useCertificates, CertificateRecord } from "@/lib/stores/certificate-store";
 import { useLMSAnnouncements } from "@/lib/notifications/lms-announcement-context";
+import { getStudentStudyRecord, checkEnrollmentEligibility } from "@/lib/curriculum/student-study-progress-store";
 import { UserRole, UserPermissions, DEFAULT_ROLE_PERMISSIONS, ROLE_LABELS } from "@/types/roles";
 
 const INSTITUTIONS_LIST = [
@@ -126,6 +127,22 @@ export default function UserManagementPage() {
   const [formYear, setFormYear] = React.useState("1");
   const [formIdNumber, setFormIdNumber] = React.useState("");
   const [formStatus, setFormStatus] = React.useState<"ACTIVE" | "PENDING_VERIFICATION" | "SUSPENDED">("ACTIVE");
+
+  // Close open modals on Escape key
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setPreviewCert(null);
+        setSelectedStudentForDossier(null);
+        setIsPermModalOpen(false);
+        setIsAddModalOpen(false);
+        setIsEditModalOpen(false);
+        setUserToDelete(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const resetForm = () => {
     setFormFullName("");
@@ -271,13 +288,16 @@ export default function UserManagementPage() {
       userToDelete.isProtected ||
       userToDelete.username?.toLowerCase() === "ansarulanis" ||
       userToDelete.email?.toLowerCase() === "ansarul.contact@gmail.com" ||
-      userToDelete.id === "usr-superadmin";
+      userToDelete.id === "usr-superadmin" ||
+      userToDelete.username?.toLowerCase() === "ansarul.admin" ||
+      userToDelete.email?.toLowerCase() === "ansarul.admin@gmail.com" ||
+      userToDelete.id === "usr-superadmin-islam";
 
     if (isProtected) {
       showNotification({
         type: "error",
         title: "Action Prohibited",
-        message: "Default Super Administrator (Ansarul Anis) is permanently protected and cannot be deleted.",
+        message: `Super Administrator (${userToDelete.fullName}) is permanently protected and cannot be deleted.`,
       });
       setUserToDelete(null);
       return;
@@ -489,25 +509,25 @@ export default function UserManagementPage() {
 
       {/* KPI Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <Card className="p-3 border-border bg-card">
-          <div className="text-[11px] font-semibold text-muted-foreground uppercase">Total Enrolled</div>
-          <div className="text-xl font-extrabold mt-1">{counts.total}</div>
+        <Card className="p-4 border-border bg-card">
+          <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total Enrolled</div>
+          <div className="text-2xl sm:text-3xl font-black mt-1 text-foreground">{counts.total}</div>
         </Card>
-        <Card className="p-3 border-purple-500/20 bg-purple-500/5">
-          <div className="text-[11px] font-semibold text-purple-700 dark:text-purple-400 uppercase">Super Admins</div>
-          <div className="text-xl font-extrabold mt-1 text-purple-700 dark:text-purple-400">{counts.superAdmin}</div>
+        <Card className="p-4 border-purple-500/20 bg-purple-500/5">
+          <div className="text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider">Super Admins</div>
+          <div className="text-2xl sm:text-3xl font-black mt-1 text-purple-700 dark:text-purple-400">{counts.superAdmin}</div>
         </Card>
-        <Card className="p-3 border-blue-500/20 bg-blue-500/5">
-          <div className="text-[11px] font-semibold text-blue-700 dark:text-blue-400 uppercase">Admins</div>
-          <div className="text-xl font-extrabold mt-1 text-blue-700 dark:text-blue-400">{counts.admin}</div>
+        <Card className="p-4 border-blue-500/20 bg-blue-500/5">
+          <div className="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider">Admins</div>
+          <div className="text-2xl sm:text-3xl font-black mt-1 text-blue-700 dark:text-blue-400">{counts.admin}</div>
         </Card>
-        <Card className="p-3 border-amber-500/20 bg-amber-500/5">
-          <div className="text-[11px] font-semibold text-amber-700 dark:text-amber-400 uppercase">Faculty Mentors</div>
-          <div className="text-xl font-extrabold mt-1 text-amber-700 dark:text-amber-400">{counts.mentor}</div>
+        <Card className="p-4 border-amber-500/20 bg-amber-500/5">
+          <div className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Faculty Mentors</div>
+          <div className="text-2xl sm:text-3xl font-black mt-1 text-amber-700 dark:text-amber-400">{counts.mentor}</div>
         </Card>
-        <Card className="p-3 border-emerald-500/20 bg-emerald-500/5">
-          <div className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 uppercase">Students</div>
-          <div className="text-xl font-extrabold mt-1 text-emerald-700 dark:text-emerald-400">{counts.student}</div>
+        <Card className="p-4 border-emerald-500/20 bg-emerald-500/5">
+          <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Students</div>
+          <div className="text-2xl sm:text-3xl font-black mt-1 text-emerald-700 dark:text-emerald-400">{counts.student}</div>
         </Card>
         <Card
           onClick={() => {
@@ -516,24 +536,24 @@ export default function UserManagementPage() {
               openDossier(studentWithPending, "CERTIFICATES");
             }
           }}
-          className={`p-3 border transition-all cursor-pointer ${
+          className={`p-4 border transition-all cursor-pointer ${
             counts.pendingCerts > 0
               ? "border-amber-500/50 bg-amber-500/10 hover:border-amber-500"
               : "border-border bg-card"
           }`}
         >
           <div className="flex items-center justify-between">
-            <div className="text-[11px] font-semibold text-amber-700 dark:text-amber-400 uppercase">
+            <div className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
               Cert Requests
             </div>
             {counts.pendingCerts > 0 && (
               <span className="h-2 w-2 rounded-full bg-amber-500 animate-ping" />
             )}
           </div>
-          <div className="text-xl font-extrabold mt-1 text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+          <div className="text-2xl sm:text-3xl font-black mt-1 text-amber-700 dark:text-amber-400 flex items-center gap-2">
             <span>{counts.pendingCerts}</span>
             {counts.pendingCerts > 0 && (
-              <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-600 text-white animate-pulse">
+              <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-600 text-white animate-pulse">
                 Pending
               </span>
             )}
@@ -545,20 +565,20 @@ export default function UserManagementPage() {
       <Card className="p-4 border-border">
         <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search user by name, username, ID, email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 h-9 text-xs"
+              className="pl-10 h-10 text-sm rounded-xl"
             />
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2.5">
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-2.5 text-xs text-muted-foreground"
+              className="h-10 rounded-xl border border-input bg-background px-3 text-sm font-medium text-foreground cursor-pointer"
             >
               <option value="ALL">All Roles</option>
               <option value="SUPER_ADMIN">Super Admin</option>
@@ -570,7 +590,7 @@ export default function UserManagementPage() {
             <select
               value={programFilter}
               onChange={(e) => setProgramFilter(e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-2.5 text-xs text-muted-foreground"
+              className="h-10 rounded-xl border border-input bg-background px-3 text-sm font-medium text-foreground cursor-pointer"
             >
               <option value="ALL">All Programs</option>
               <option value="DIPLOMA">Diploma</option>
@@ -580,7 +600,7 @@ export default function UserManagementPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-2.5 text-xs text-muted-foreground"
+              className="h-10 rounded-xl border border-input bg-background px-3 text-sm font-medium text-foreground cursor-pointer"
             >
               <option value="ALL">All Status</option>
               <option value="ACTIVE">Active</option>
@@ -594,20 +614,20 @@ export default function UserManagementPage() {
       {/* User Table Card */}
       <Card className="border-border shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs min-w-[640px]">
+          <table className="w-full text-left text-sm min-w-[760px]">
             <thead className="bg-muted/40 border-b border-border text-muted-foreground uppercase font-semibold">
               <tr>
-                <th className="p-3.5">User Identity</th>
-                <th className="p-3.5">Role</th>
-                <th className="p-3.5">Program & Year</th>
-                <th className="p-3.5">Analytics & Activity</th>
-                <th className="p-3.5 text-right">Actions</th>
+                <th className="p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">User Identity</th>
+                <th className="p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Role</th>
+                <th className="p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Program & Year</th>
+                <th className="p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Analytics & Activity</th>
+                <th className="p-4 text-xs font-bold uppercase tracking-wider text-muted-foreground text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
               {filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={5} className="p-10 text-center text-muted-foreground text-sm">
                     No users found matching current filters.
                   </td>
                 </tr>
@@ -634,82 +654,87 @@ export default function UserManagementPage() {
 
                   return (
                     <tr key={user.id} className="hover:bg-muted/30 transition-colors">
-                      <td className="p-3.5">
-                        <div className="font-bold text-foreground">{user.fullName}</div>
-                        <div className="text-[11px] text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                      <td className="p-4">
+                        <div className="font-bold text-sm sm:text-base text-foreground leading-snug">{user.fullName}</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground flex items-center gap-2 mt-1">
                           <span>@{user.username || user.email.split("@")[0]}</span>
                           <span>•</span>
                           <span className="font-mono">{user.studentIdNumber}</span>
                         </div>
                       </td>
 
-                      <td className="p-3.5">
-                        <Badge className={`text-[10px] font-semibold ${roleBadgeClass}`}>
+                      <td className="p-4">
+                        <Badge className={`text-xs font-semibold px-3 py-1 ${roleBadgeClass}`}>
                           {ROLE_LABELS[user.role] || user.role}
                         </Badge>
                       </td>
 
-                      <td className="p-3.5">
-                        <div className="font-medium text-foreground">{user.program}</div>
-                        <div className="text-[11px] text-muted-foreground">
+                      <td className="p-4">
+                        <div className="font-bold text-sm sm:text-base text-foreground">{user.program}</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground font-medium mt-0.5">
                           Year {user.academicYear}
                         </div>
-                        <div className="text-[10px] text-muted-foreground/80 truncate max-w-[170px]" title={user.institution}>
+                        <div className="text-xs text-muted-foreground/85 mt-1 line-clamp-1 max-w-[260px]" title={user.institution}>
                           {user.institution}
                         </div>
                       </td>
 
                       {/* Analytics & Activity Column */}
-                      <td className="p-3.5">
-                        {isStudent ? (
-                          <div className="space-y-1.5 min-w-[210px]">
-                            <div className="flex items-center justify-between text-[11px]">
-                              <span className="inline-flex items-center gap-1 font-semibold text-foreground">
-                                <TrendingUp className="h-3 w-3 text-emerald-500" />
-                                <span>88.5% Avg Score</span>
-                              </span>
-                              <span className="text-[10px] text-muted-foreground font-medium">78% Covered</span>
-                            </div>
+                      <td className="p-4">
+                        {isStudent ? (() => {
+                          const studentElig = checkEnrollmentEligibility(user.id, user.program, user.academicYear);
+                          return (
+                            <div className="space-y-2 min-w-[230px]">
+                              <div className="flex items-center justify-between text-xs sm:text-sm">
+                                <span className="inline-flex items-center gap-1.5 font-bold text-foreground">
+                                  <TrendingUp className="h-4 w-4 text-emerald-500" />
+                                  <span>{studentElig.cumulativeScore}% Avg Score</span>
+                                </span>
+                                <span className="text-xs text-muted-foreground font-semibold">{studentElig.completionPct}% Covered</span>
+                              </div>
 
-                            {/* Mini Activity Progress Bar */}
-                            <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
-                              <div
-                                className="bg-emerald-500 h-full rounded-full transition-all"
-                                style={{ width: "78%" }}
-                              />
-                            </div>
+                              {/* Mini Activity Progress Bar */}
+                              <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full transition-all ${
+                                    studentElig.completionPct === 100 ? "bg-emerald-600" : "bg-primary"
+                                  }`}
+                                  style={{ width: `${studentElig.completionPct}%` }}
+                                />
+                              </div>
 
-                            <div className="flex items-center justify-between gap-1 text-[10px]">
-                              <span className="inline-flex items-center gap-1 text-muted-foreground truncate">
-                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                                <span>Active • 14 Tests Logged</span>
-                              </span>
+                              <div className="flex items-center justify-between gap-2 text-xs">
+                                <span className="inline-flex items-center gap-1.5 text-muted-foreground truncate">
+                                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                                  <span>{studentElig.completedTasksCount}/{studentElig.totalTasksCount} Tasks Done</span>
+                                </span>
 
-                              {pendingCount > 0 ? (
-                                <button
-                                  type="button"
-                                  onClick={() => openDossier(user, "CERTIFICATES")}
-                                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-bold bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/40 hover:bg-amber-500/30 transition-all animate-pulse shrink-0 cursor-pointer"
-                                  title="Review pending certificate request"
-                                >
-                                  <Clock className="h-2.5 w-2.5" />
-                                  <span>{pendingCount} Cert Pending</span>
-                                </button>
-                              ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => openDossier(user, "ANALYTICS")}
-                                  className="text-primary hover:underline font-medium text-[10px] shrink-0 cursor-pointer"
-                                >
-                                  Live Log & Chart →
-                                </button>
-                              )}
+                                {pendingCount > 0 ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => openDossier(user, "CERTIFICATES")}
+                                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-bold bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/40 hover:bg-amber-500/30 transition-all animate-pulse shrink-0 cursor-pointer text-xs"
+                                    title="Review pending certificate request"
+                                  >
+                                    <Clock className="h-3 w-3" />
+                                    <span>{pendingCount} Cert Pending</span>
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => openDossier(user, "ANALYTICS")}
+                                    className="text-primary hover:underline font-semibold text-xs shrink-0 cursor-pointer"
+                                  >
+                                    Live Log & Chart →
+                                  </button>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        ) : (
-                          <div className="space-y-1 min-w-[180px]">
-                            <div className="flex items-center gap-1.5 text-[11px] font-medium text-foreground">
-                              <Activity className="h-3 w-3 text-primary" />
+                          );
+                        })() : (
+                          <div className="space-y-1.5 min-w-[220px]">
+                            <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-foreground">
+                              <Activity className="h-4 w-4 text-primary shrink-0" />
                               <span>
                                 {user.role === "MENTOR"
                                   ? "18 Lab SOPs • 42 Reviews"
@@ -718,15 +743,15 @@ export default function UserManagementPage() {
                                   : "Academic Administration"}
                               </span>
                             </div>
-                            <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                              <span className="inline-flex items-center gap-1">
-                                <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse shrink-0" />
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <span className="inline-flex items-center gap-1.5">
+                                <span className="h-2 w-2 rounded-full bg-blue-500 animate-pulse shrink-0" />
                                 <span>Active now</span>
                               </span>
                               <button
                                 type="button"
                                 onClick={() => openDossier(user, "ACTIVITIES")}
-                                className="text-primary hover:underline text-[10px] font-medium cursor-pointer"
+                                className="text-primary hover:underline text-xs font-semibold cursor-pointer"
                               >
                                 View Logs →
                               </button>
@@ -735,9 +760,8 @@ export default function UserManagementPage() {
                         )}
                       </td>
 
-                      <td className="p-3.5 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          {/* Analytics / Dossier Button */}
+                      <td className="p-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
                           {/* Analytics / Dossier Icon Button */}
                           <Button
                             variant="outline"
@@ -750,15 +774,15 @@ export default function UserManagementPage() {
                                 ? `Student Analytics, Live Activity & Certificates (${pendingCount} pending)`
                                 : "User Analytics & Live Activity Trail"
                             }
-                            className={`h-7 w-7 p-0 relative border-border/80 hover:border-primary/50 text-foreground hover:text-primary ${
+                            className={`h-8.5 w-8.5 sm:h-9 sm:w-9 p-0 rounded-xl relative border-border/80 hover:border-primary/50 text-foreground hover:text-primary ${
                               pendingCount > 0
                                 ? "border-amber-500 text-amber-600 dark:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 animate-pulse"
                                 : ""
                             }`}
                           >
-                            <BarChart3 className="h-3.5 w-3.5 text-primary" />
+                            <BarChart3 className="h-4 w-4 text-primary" />
                             {pendingCount > 0 && (
-                              <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-amber-500 text-white text-[8px] font-bold flex items-center justify-center">
+                              <span className="absolute -top-1.5 -right-1.5 h-4.5 w-4.5 rounded-full bg-amber-500 text-white text-[10px] font-black flex items-center justify-center shadow-xs">
                                 {pendingCount}
                               </span>
                             )}
@@ -770,9 +794,9 @@ export default function UserManagementPage() {
                               size="sm"
                               onClick={() => openPermModal(user)}
                               title="Manage Granular Permissions"
-                              className="h-7 w-7 p-0 border-border/80 hover:border-primary/50 text-foreground hover:text-primary"
+                              className="h-8.5 w-8.5 sm:h-9 sm:w-9 p-0 rounded-xl border-border/80 hover:border-primary/50 text-foreground hover:text-primary"
                             >
-                              <KeyRound className="h-3.5 w-3.5 text-primary" />
+                              <KeyRound className="h-4 w-4 text-primary" />
                             </Button>
                           )}
 
@@ -781,9 +805,9 @@ export default function UserManagementPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => openEditModal(user)}
-                              className="h-7 w-7 p-0"
+                              className="h-8.5 w-8.5 sm:h-9 sm:w-9 p-0 rounded-xl"
                             >
-                              <Edit2 className="h-3.5 w-3.5" />
+                              <Edit2 className="h-4 w-4" />
                             </Button>
                           )}
 
@@ -792,19 +816,19 @@ export default function UserManagementPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => setUserToDelete(user)}
-                              className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10"
+                              className="h-8.5 w-8.5 sm:h-9 sm:w-9 p-0 rounded-xl text-destructive hover:bg-destructive/10"
                               title="Delete user"
                             >
-                              <Trash2 className="h-3.5 w-3.5" />
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           )}
 
                           {isSuperAdmin && isProtected && (
                             <span
                               title="Default Super Admin (Ansarul Anis) is protected and cannot be deleted"
-                              className="h-7 w-7 inline-flex items-center justify-center text-muted-foreground/40 cursor-not-allowed"
+                              className="h-8.5 w-8.5 sm:h-9 sm:w-9 inline-flex items-center justify-center text-muted-foreground/40 cursor-not-allowed"
                             >
-                              <Lock className="h-3.5 w-3.5" />
+                              <Lock className="h-4 w-4" />
                             </span>
                           )}
                         </div>
@@ -1113,73 +1137,11 @@ export default function UserManagementPage() {
         const programSubjects = CURRICULUM_SUBJECTS_CATALOG.filter(
           (s) => s.program === student.program && (!student.academicYear || s.year === student.academicYear)
         );
-        const displaySubjects =
-          programSubjects.length > 0
-            ? programSubjects
-            : CURRICULUM_SUBJECTS_CATALOG.filter((s) => s.program === student.program);
-
-        const studentActivityEvents = [
-          {
-            id: "act-1",
-            title: "Board Examination Mock Simulation",
-            desc: "Completed Diagnostic Clinical Hematology & Coagulation Test (Score: 88.5%, 45 mins)",
-            time: "Today, 09:22 AM",
-            type: "EXAM",
-            device: "Chrome / Windows 11",
-            ip: "103.145.112.44",
-            status: "SUCCESS",
-          },
-          {
-            id: "act-2",
-            title: "Clinical SOP Practical Sign-off",
-            desc: "Completed Leishman Peripheral Blood Smear & Differential Leukocyte Count (DLC)",
-            time: "Yesterday, 04:15 PM",
-            type: "PRACTICAL",
-            device: "Lab Workstation #04",
-            ip: "103.145.112.18",
-            status: "SUCCESS",
-          },
-          {
-            id: "act-3",
-            title: "Digital Lecture Module Accessed",
-            desc: "Reviewed 'Principles of Automated Hematology Analyzers & Flow Cytometry'",
-            time: "Sep 07, 11:40 AM",
-            type: "STUDY",
-            device: "Android Mobile / Chrome",
-            ip: "103.145.112.92",
-            status: "SUCCESS",
-          },
-          {
-            id: "act-4",
-            title: "Clinical Rotation Check-in",
-            desc: "Checked into Dhaka Institute of Health Technology Diagnostic Laboratory Wing",
-            time: "Sep 06, 08:30 AM",
-            type: "ATTENDANCE",
-            device: "Biometric Terminal / Web Sync",
-            ip: "103.145.112.02",
-            status: "SUCCESS",
-          },
-          {
-            id: "act-5",
-            title: "Official Certificate Application",
-            desc: "Submitted request for 2nd Year Clinical Benchmark Competency Credential",
-            time: "Sep 05, 02:18 PM",
-            type: "CERTIFICATE",
-            device: "Chrome / Windows 11",
-            ip: "103.145.112.44",
-            status: "PENDING",
-          },
-          {
-            id: "act-6",
-            title: "Platform Authentication",
-            desc: "Secure SSO student portal login authenticated via DGHS Medical Technology directory",
-            time: "Sep 04, 07:45 AM",
-            type: "AUTH",
-            device: "Chrome / Windows 11",
-            ip: "103.145.112.44",
-            status: "SUCCESS",
-          },
-        ].filter(
+        // Real-time Dynamic Study Center records and eligibility for this student
+        const studyRecord = getStudentStudyRecord(student.id, student.program, student.academicYear);
+        const eligibility = checkEnrollmentEligibility(student.id, student.program, student.academicYear);
+        const displayBenchSops = studyRecord.benchSops;
+        const studentActivityEvents = studyRecord.activities.filter(
           (e) =>
             !activitySearchQuery.trim() ||
             e.title.toLowerCase().includes(activitySearchQuery.toLowerCase()) ||
@@ -1187,53 +1149,13 @@ export default function UserManagementPage() {
             e.type.toLowerCase().includes(activitySearchQuery.toLowerCase())
         );
 
-        const BENCH_COMPETENCIES = [
-          {
-            code: "SOP-HEM-01",
-            name: "Peripheral Blood Smear Examination & DLC (Leishman Stain)",
-            score: "94%",
-            eval: "Distinction",
-            evaluator: "Dr. Sabrina Parvin (Clinical Mentor)",
-          },
-          {
-            code: "SOP-IMM-04",
-            name: "ABO Blood Grouping & Rh Typing (Tube Method & Crossmatch)",
-            score: "98%",
-            eval: "Flawless",
-            evaluator: "Prof. Nasreen Akhter (Examiner)",
-          },
-          {
-            code: "SOP-BIO-09",
-            name: "Serum Creatinine Estimation by Alkaline Picrate (Jaffé's Kinetic)",
-            score: "89%",
-            eval: "Competent",
-            evaluator: "MD. Arif Hossain (Mentor)",
-          },
-          {
-            code: "SOP-MIC-03",
-            name: "Gram Staining & Bacterial Morphology Classification",
-            score: "92%",
-            eval: "Distinction",
-            evaluator: "Dr. Sabrina Parvin (Clinical Mentor)",
-          },
-          {
-            code: "SOP-MIC-07",
-            name: "Acid-Fast Bacilli (AFB) Sputum Smear Staining (Ziehl-Neelsen)",
-            score: "95%",
-            eval: "Distinction",
-            evaluator: "Prof. Nasreen Akhter (Examiner)",
-          },
-          {
-            code: "SOP-PAT-02",
-            name: "Complete Urinalysis & Centrifuged Microscopic Sediment Analysis",
-            score: "90%",
-            eval: "Distinction",
-            evaluator: "MD. Arif Hossain (Mentor)",
-          },
-        ];
-
         return (
-          <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+          <div
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setSelectedStudentForDossier(null);
+            }}
+          >
             <div className="bg-card border border-border rounded-2xl max-w-4xl w-full p-4 sm:p-6 space-y-4 max-h-[92vh] flex flex-col shadow-2xl overflow-hidden my-auto">
               {/* Header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border">
@@ -1247,11 +1169,11 @@ export default function UserManagementPage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-bold text-base sm:text-lg text-foreground">
+                      <h3 className="font-bold text-base sm:text-xl text-foreground">
                         {student.fullName}
                       </h3>
                       <Badge
-                        className={`text-[10px] font-semibold ${
+                        className={`text-xs font-semibold px-2.5 py-0.5 ${
                           student.role === "SUPER_ADMIN"
                             ? "bg-purple-600 text-white"
                             : student.role === "ADMIN"
@@ -1263,16 +1185,16 @@ export default function UserManagementPage() {
                       >
                         {ROLE_LABELS[student.role] || student.role}
                       </Badge>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-mono font-medium">
+                      <span className="text-xs px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground font-mono font-medium">
                         {student.studentIdNumber}
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2 flex-wrap">
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 flex items-center gap-2 flex-wrap">
                       <span>
                         {student.program} • Year {student.academicYear}
                       </span>
                       <span>•</span>
-                      <span className="truncate max-w-[260px]" title={student.institution}>
+                      <span className="truncate max-w-[280px]" title={student.institution}>
                         {student.institution}
                       </span>
                       <span>•</span>
@@ -1285,8 +1207,8 @@ export default function UserManagementPage() {
 
                 <div className="flex items-center gap-2 self-end sm:self-auto">
                   {pendingCerts.length > 0 && (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 animate-pulse">
-                      <Clock className="h-3.5 w-3.5" />
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs sm:text-sm font-bold bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 animate-pulse">
+                      <Clock className="h-4 w-4" />
                       <span>{pendingCerts.length} Cert Request Pending</span>
                     </span>
                   )}
@@ -1302,46 +1224,46 @@ export default function UserManagementPage() {
               </div>
 
               {/* Tab Navigation */}
-              <div className="flex items-center gap-1.5 border-b border-border/70 pb-2 overflow-x-auto">
+              <div className="flex items-center gap-2 border-b border-border/70 pb-2 overflow-x-auto">
                 <button
                   type="button"
                   onClick={() => setDossierTab("ANALYTICS")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 cursor-pointer ${
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 cursor-pointer ${
                     dossierTab === "ANALYTICS"
-                      ? "bg-primary text-primary-foreground shadow-sm"
+                      ? "bg-primary text-primary-foreground shadow-xs"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                   }`}
                 >
-                  <BarChart3 className="h-3.5 w-3.5" />
+                  <BarChart3 className="h-4 w-4" />
                   <span>Academic Analytics & SOPs</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setDossierTab("ACTIVITIES")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 cursor-pointer ${
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 cursor-pointer ${
                     dossierTab === "ACTIVITIES"
-                      ? "bg-primary text-primary-foreground shadow-sm"
+                      ? "bg-primary text-primary-foreground shadow-xs"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                   }`}
                 >
-                  <Activity className="h-3.5 w-3.5" />
+                  <Activity className="h-4 w-4" />
                   <span>Live Activity Trail & Telemetry</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setDossierTab("CERTIFICATES")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 cursor-pointer relative ${
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 cursor-pointer relative ${
                     dossierTab === "CERTIFICATES"
-                      ? "bg-primary text-primary-foreground shadow-sm"
+                      ? "bg-primary text-primary-foreground shadow-xs"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                   }`}
                 >
-                  <Award className="h-3.5 w-3.5" />
+                  <Award className="h-4 w-4" />
                   <span>Certificate Requests</span>
                   {pendingCerts.length > 0 && (
-                    <span className="h-4 px-1 rounded-full bg-amber-500 text-white text-[9px] font-extrabold flex items-center justify-center animate-bounce">
+                    <span className="h-4.5 px-1.5 rounded-full bg-amber-500 text-white text-[10px] font-black flex items-center justify-center animate-bounce">
                       {pendingCerts.length}
                     </span>
                   )}
@@ -1355,47 +1277,51 @@ export default function UserManagementPage() {
                   <div className="space-y-4">
                     {/* Top KPI Cards */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <Card className="p-3 bg-card border-border/80">
-                        <div className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center justify-between">
+                      <Card className="p-4 bg-card border-border/80">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
                           <span>Average Score</span>
-                          <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
+                          <TrendingUp className="h-4 w-4 text-emerald-500" />
                         </div>
-                        <div className="text-xl font-black text-foreground mt-1">88.5%</div>
-                        <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">
-                          Grade A • Distinction
+                        <div className="text-2xl sm:text-3xl font-black text-foreground mt-1">{eligibility.cumulativeScore}%</div>
+                        <div className="text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">
+                          {eligibility.recommendedGrade}
                         </div>
                       </Card>
 
-                      <Card className="p-3 bg-card border-border/80">
-                        <div className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center justify-between">
+                      <Card className="p-4 bg-card border-border/80">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
                           <span>Curriculum Covered</span>
-                          <BookOpen className="h-3.5 w-3.5 text-blue-500" />
+                          <BookOpen className="h-4 w-4 text-blue-500" />
                         </div>
-                        <div className="text-xl font-black text-foreground mt-1">78%</div>
-                        <div className="text-[10px] text-muted-foreground font-medium mt-0.5">
-                          32 / 41 Units Passed
+                        <div className="text-2xl sm:text-3xl font-black text-foreground mt-1">{eligibility.completionPct}%</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground font-medium mt-0.5">
+                          {eligibility.completedTasksCount} / {eligibility.totalTasksCount} Tasks Done
                         </div>
                       </Card>
 
-                      <Card className="p-3 bg-card border-border/80">
-                        <div className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center justify-between">
+                      <Card className="p-4 bg-card border-border/80">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
                           <span>Bench SOPs Logged</span>
-                          <FlaskConical className="h-3.5 w-3.5 text-amber-500" />
+                          <FlaskConical className="h-4 w-4 text-amber-500" />
                         </div>
-                        <div className="text-xl font-black text-foreground mt-1">18 / 20</div>
-                        <div className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold mt-0.5">
-                          Faculty Mentor Verified
+                        <div className="text-2xl sm:text-3xl font-black text-foreground mt-1">
+                          {displayBenchSops.filter((s) => !s.eval.toLowerCase().includes("pending")).length} / {displayBenchSops.length}
+                        </div>
+                        <div className="text-xs sm:text-sm text-amber-600 dark:text-amber-400 font-semibold mt-0.5">
+                          ISO 15189 Verified
                         </div>
                       </Card>
 
-                      <Card className="p-3 bg-card border-border/80">
-                        <div className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center justify-between">
-                          <span>Clinical Rotation</span>
-                          <Calendar className="h-3.5 w-3.5 text-purple-500" />
+                      <Card className="p-4 bg-card border-border/80">
+                        <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
+                          <span>Clinical Status</span>
+                          <Calendar className="h-4 w-4 text-purple-500" />
                         </div>
-                        <div className="text-xl font-black text-foreground mt-1">420 Hrs</div>
-                        <div className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold mt-0.5">
-                          94% Attendance • 14 Mocks
+                        <div className="text-2xl sm:text-3xl font-black text-foreground mt-1">
+                          {eligibility.isEligible ? "Complete" : "In Progress"}
+                        </div>
+                        <div className="text-xs sm:text-sm text-purple-600 dark:text-purple-400 font-semibold mt-0.5">
+                          {eligibility.completedSubjectsCount} / {eligibility.totalSubjectsCount} Subjects Clear
                         </div>
                       </Card>
                     </div>
@@ -1403,46 +1329,57 @@ export default function UserManagementPage() {
                     {/* Curriculum Subject Breakdown */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-foreground flex items-center gap-1.5">
-                          <BookOpen className="h-3.5 w-3.5 text-primary" />
+                        <h4 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2">
+                          <BookOpen className="h-4 w-4 text-primary" />
                           <span>Curriculum Subject Competency Performance</span>
                         </h4>
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground font-medium">
                           Program: {student.program} (Year {student.academicYear})
                         </span>
                       </div>
 
                       <div className="border border-border rounded-xl divide-y divide-border/60 overflow-hidden bg-card">
-                        {displaySubjects.map((subj, idx) => {
-                          const score = 84 + ((idx * 7) % 13);
+                        {eligibility.subjects.map((subj) => {
+                          const pct = subj.totalTasks > 0 ? Math.round((subj.completedTasks / subj.totalTasks) * 100) : 0;
                           return (
                             <div
                               key={subj.code}
-                              className="p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-muted/30 transition-colors"
+                              className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-muted/30 transition-colors"
                             >
-                              <div className="space-y-0.5">
+                              <div className="space-y-1">
                                 <div className="flex items-center gap-2">
-                                  <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-bold">
+                                  <span className="font-mono text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground font-bold">
                                     {subj.code}
                                   </span>
-                                  <span className="font-bold text-xs text-foreground">{subj.name}</span>
+                                  <span className="font-bold text-sm sm:text-base text-foreground">{subj.name}</span>
+                                  {subj.isCompleted ? (
+                                    <Badge className="bg-emerald-600/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 text-[10px] font-bold">
+                                      Completed
+                                    </Badge>
+                                  ) : (
+                                    <Badge variant="outline" className="text-[10px] text-amber-600 border-amber-500/30">
+                                      {subj.completedTasks}/{subj.totalTasks} Tasks
+                                    </Badge>
+                                  )}
                                 </div>
-                                <p className="text-[10px] text-muted-foreground line-clamp-1">
-                                  {subj.description}
+                                <p className="text-xs sm:text-sm text-muted-foreground">
+                                  Avg Quiz Score: <strong className="text-foreground">{subj.avgQuizScore}%</strong> • Status: {subj.lastStudied || "Active"}
                                 </p>
                               </div>
 
                               <div className="flex items-center gap-4 shrink-0 sm:self-center">
-                                <div className="w-24 bg-muted rounded-full h-2 overflow-hidden">
+                                <div className="w-28 bg-muted rounded-full h-2.5 overflow-hidden">
                                   <div
-                                    className="bg-primary h-full rounded-full"
-                                    style={{ width: `${score}%` }}
+                                    className={`h-full rounded-full transition-all ${
+                                      subj.isCompleted ? "bg-emerald-500" : "bg-primary"
+                                    }`}
+                                    style={{ width: `${pct}%` }}
                                   />
                                 </div>
-                                <div className="text-right min-w-[65px]">
-                                  <div className="font-black text-xs text-foreground">{score}%</div>
-                                  <div className="text-[9px] text-emerald-600 dark:text-emerald-400 font-semibold">
-                                    Competent
+                                <div className="text-right min-w-[70px]">
+                                  <div className="font-black text-sm sm:text-base text-foreground">{subj.avgQuizScore}%</div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {pct}% tasks
                                   </div>
                                 </div>
                               </div>
@@ -1465,7 +1402,7 @@ export default function UserManagementPage() {
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        {BENCH_COMPETENCIES.map((sop) => (
+                        {displayBenchSops.map((sop) => (
                           <div
                             key={sop.code}
                             className="p-3 rounded-xl border border-border bg-card/60 space-y-1.5 hover:border-primary/40 transition-colors"
@@ -1880,8 +1817,13 @@ export default function UserManagementPage() {
 
       {/* MODAL: Official Certificate Preview & Print */}
       {previewCert && (
-        <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-          <div className="bg-card border border-border rounded-2xl max-w-3xl w-full p-4 sm:p-6 space-y-4 shadow-2xl relative my-auto">
+        <div
+          className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setPreviewCert(null);
+          }}
+        >
+          <div className="bg-card border border-border rounded-2xl max-w-3xl w-full p-4 sm:p-6 space-y-4 shadow-2xl relative my-auto animate-in zoom-in-95">
             <div className="flex items-center justify-between pb-3 border-b border-border">
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge
@@ -1917,28 +1859,32 @@ export default function UserManagementPage() {
                       handleApproveCertificate(previewCert, selectedStudentForDossier);
                       setPreviewCert(null);
                     }}
-                    className="gap-1.5 h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+                    className="gap-1.5 h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
                   >
                     <CheckCircle className="h-3.5 w-3.5" />
                     <span>Approve Now</span>
                   </Button>
                 )}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => window.print()}
-                  className="gap-1.5 h-8 text-xs"
-                >
-                  <Printer className="h-3.5 w-3.5" />
-                  <span>Print / PDF</span>
-                </Button>
+                {previewCert.status === "APPROVED" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.print()}
+                    className="gap-1.5 h-8 text-xs cursor-pointer"
+                  >
+                    <Printer className="h-3.5 w-3.5" />
+                    <span>Print / PDF</span>
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setPreviewCert(null)}
-                  className="h-8 w-8 p-0"
+                  className="h-8 px-2.5 text-xs text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/60 cursor-pointer"
+                  title="Close Preview (Esc)"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4 mr-1" />
+                  <span>Close</span>
                 </Button>
               </div>
             </div>
@@ -1953,7 +1899,22 @@ export default function UserManagementPage() {
                   : "border-blue-700"
               }`}
             >
-              <div className="text-center space-y-3 sm:space-y-4">
+              {/* Security Watermark for Non-Approved / Pending Previews */}
+              {previewCert.status !== "APPROVED" && (
+                <div className="absolute inset-0 pointer-events-none select-none z-10 overflow-hidden flex flex-col justify-around opacity-30">
+                  <div className="rotate-[-22deg] scale-110 whitespace-nowrap text-red-600 font-mono font-black text-lg sm:text-xl tracking-[0.25em] text-center border-y-2 border-red-500/40 py-2 bg-red-500/5">
+                    UNOFFICIAL CANDIDATE PREVIEW • NOT CONFERRED • PENDING SUPER ADMIN APPROVAL
+                  </div>
+                  <div className="rotate-[-22deg] scale-110 whitespace-nowrap text-red-600 font-mono font-black text-lg sm:text-xl tracking-[0.25em] text-center border-y-2 border-red-500/40 py-2 bg-red-500/5">
+                    FOR INSTITUTIONAL AUDIT ONLY • NOT VALID FOR CLINICAL PRACTICE
+                  </div>
+                  <div className="rotate-[-22deg] scale-110 whitespace-nowrap text-red-600 font-mono font-black text-lg sm:text-xl tracking-[0.25em] text-center border-y-2 border-red-500/40 py-2 bg-red-500/5">
+                    LABTUTOR ACADEMY DGHS VALIDATION PENDING
+                  </div>
+                </div>
+              )}
+
+              <div className="text-center space-y-3 sm:space-y-4 relative z-0">
                 <div className="flex justify-center">
                   <Award className="h-10 w-10 sm:h-12 sm:w-12 text-primary" />
                 </div>
@@ -2011,6 +1972,56 @@ export default function UserManagementPage() {
                   <span>Issued Date: {previewCert.issuedDate || previewCert.applicationDate}</span>
                   <span>Auth Code: {previewCert.verificationCode || "PENDING"}</span>
                 </div>
+              </div>
+            </div>
+
+            {/* Modal Bottom Action Bar */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-border">
+              <div className="text-xs text-muted-foreground">
+                {previewCert.status === "APPROVED" ? (
+                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                    ✓ Official verified credential conferred by Super Admin.
+                  </span>
+                ) : (
+                  <span className="text-amber-600 dark:text-amber-400 font-medium">
+                    ⚠ Candidate application watermarked preview. Requires Super Admin verification.
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2 justify-end">
+                {previewCert.status === "PENDING" && selectedStudentForDossier && (
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      handleApproveCertificate(previewCert, selectedStudentForDossier);
+                      setPreviewCert(null);
+                    }}
+                    className="gap-1.5 h-9 px-4 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-xs"
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                    <span>Approve & Issue Certificate</span>
+                  </Button>
+                )}
+                {previewCert.status === "APPROVED" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.print()}
+                    className="gap-1.5 h-9 px-4 text-xs font-semibold cursor-pointer"
+                  >
+                    <Printer className="h-4 w-4" />
+                    <span>Print / Save PDF</span>
+                  </Button>
+                )}
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setPreviewCert(null)}
+                  className="h-9 px-4 text-xs font-semibold cursor-pointer"
+                >
+                  <X className="h-4 w-4 mr-1.5" />
+                  <span>Close Preview</span>
+                </Button>
               </div>
             </div>
           </div>

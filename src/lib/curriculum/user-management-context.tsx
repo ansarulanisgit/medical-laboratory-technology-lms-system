@@ -40,7 +40,26 @@ export const DEFAULT_SUPER_ADMIN: LMSUser = {
   isProtected: true,
 };
 
+export const SUPER_ADMIN_ANSARUL_ISLAM: LMSUser = {
+  id: "usr-superadmin-islam",
+  fullName: "Ansarul Islam",
+  username: "ansarul.admin",
+  password: "Ansarulislam",
+  email: "ansarul.admin@gmail.com",
+  phone: "01709260934",
+  role: "SUPER_ADMIN",
+  permissions: DEFAULT_ROLE_PERMISSIONS.SUPER_ADMIN,
+  institution: "DGHS Medical Technology Directorate & LabTutor Central Administration",
+  program: "BSC",
+  academicYear: "4",
+  studentIdNumber: "LT-SA-002",
+  status: "ACTIVE",
+  joinedDate: "2023-01-01",
+  isProtected: true,
+};
+
 const INITIAL_USERS: LMSUser[] = [
+  SUPER_ADMIN_ANSARUL_ISLAM,
   DEFAULT_SUPER_ADMIN,
   {
     id: "usr-001",
@@ -158,21 +177,34 @@ const UserManagementContext = React.createContext<UserManagementContextType | un
 export function UserManagementProvider({ children }: { children: React.ReactNode }) {
   const [users, setUsers] = React.useState<LMSUser[]>(INITIAL_USERS);
 
-  // Load from localStorage on mount with migration to enforce Ansarul Anis as the sole default protected Super Admin
+  // Load from localStorage on mount with migration to enforce Super Admins
   React.useEffect(() => {
     try {
       const stored = localStorage.getItem(USERS_STORAGE_KEY);
       if (stored) {
         let parsed: LMSUser[] = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // 1. Synchronize or insert Ansarul Anis as the default protected super admin
-          const ansarulIdx = parsed.findIndex(
+          // 1. Synchronize or insert Ansarul Islam as Super Admin
+          const islamIdx = parsed.findIndex(
+            u => u.id === "usr-superadmin-islam" || u.username?.toLowerCase() === "ansarul.admin" || u.email?.toLowerCase() === "ansarul.admin@gmail.com"
+          );
+          if (islamIdx >= 0) {
+            parsed[islamIdx] = {
+              ...parsed[islamIdx],
+              ...SUPER_ADMIN_ANSARUL_ISLAM,
+              isProtected: true,
+            };
+          } else {
+            parsed.unshift(SUPER_ADMIN_ANSARUL_ISLAM);
+          }
+
+          // 2. Synchronize or insert Ansarul Anis as protected super admin
+          const anisIdx = parsed.findIndex(
             u => u.id === "usr-superadmin" || u.username?.toLowerCase() === "ansarulanis" || u.email?.toLowerCase() === "ansarul.contact@gmail.com"
           );
-
-          if (ansarulIdx >= 0) {
-            parsed[ansarulIdx] = {
-              ...parsed[ansarulIdx],
+          if (anisIdx >= 0) {
+            parsed[anisIdx] = {
+              ...parsed[anisIdx],
               ...DEFAULT_SUPER_ADMIN,
               isProtected: true,
             };
@@ -180,12 +212,18 @@ export function UserManagementProvider({ children }: { children: React.ReactNode
             parsed.unshift(DEFAULT_SUPER_ADMIN);
           }
 
-          // 2. Remove any old duplicate student record
-          parsed = parsed.filter(u => !(u.id !== "usr-superadmin" && (u.username === "ansarul.anis" || u.email === "ansarul.anis@gmail.com")));
+          // 3. Remove any old duplicate student records with matching emails
+          parsed = parsed.filter(u => !(u.id !== "usr-superadmin" && u.id !== "usr-superadmin-islam" && (u.username === "ansarul.anis" || u.email === "ansarul.anis@gmail.com")));
 
-          // 3. Ensure no other default user has SUPER_ADMIN role (e.g. Dr. Rafiqul Islam)
+          // 4. Ensure no unauthorized user has SUPER_ADMIN role (e.g. Dr. Rafiqul Islam)
           parsed = parsed.map(u => {
-            if (u.id !== "usr-superadmin" && u.username?.toLowerCase() !== "ansarulanis" && u.role === "SUPER_ADMIN") {
+            if (
+              u.id !== "usr-superadmin" &&
+              u.id !== "usr-superadmin-islam" &&
+              u.username?.toLowerCase() !== "ansarulanis" &&
+              u.username?.toLowerCase() !== "ansarul.admin" &&
+              u.role === "SUPER_ADMIN"
+            ) {
               if (u.fullName === "Dr. Rafiqul Islam" || u.username === "rafiqul.islam") {
                 return { ...u, role: "ADMIN" as UserRole, permissions: DEFAULT_ROLE_PERMISSIONS.ADMIN };
               }
@@ -193,7 +231,7 @@ export function UserManagementProvider({ children }: { children: React.ReactNode
             return u;
           });
 
-          // 4. Ensure mentors exist
+          // 5. Ensure mentors exist
           const hasMentor = parsed.some((u: LMSUser) => u.role === "MENTOR");
           if (!hasMentor) {
             parsed = [...parsed, ...INITIAL_USERS.filter(u => u.role === "MENTOR")];
@@ -262,11 +300,14 @@ export function UserManagementProvider({ children }: { children: React.ReactNode
         current.isProtected ||
         current.username?.toLowerCase() === "ansarulanis" ||
         current.email?.toLowerCase() === "ansarul.contact@gmail.com" ||
-        current.id === "usr-superadmin";
+        current.id === "usr-superadmin" ||
+        current.username?.toLowerCase() === "ansarul.admin" ||
+        current.email?.toLowerCase() === "ansarul.admin@gmail.com" ||
+        current.id === "usr-superadmin-islam";
 
       if (isTargetProtected) {
         if (updates.role && updates.role !== "SUPER_ADMIN") {
-          return { success: false, error: "Default Super Administrator cannot be demoted from SUPER_ADMIN role." };
+          return { success: false, error: "Protected Super Administrator cannot be demoted from SUPER_ADMIN role." };
         }
       }
 
@@ -332,16 +373,19 @@ export function UserManagementProvider({ children }: { children: React.ReactNode
       const userToDelete = users.find(u => u.id === id);
       if (!userToDelete) return { success: false, error: "User not found." };
 
-      // Default Super Admin is permanently protected and cannot be deleted
+      // Super Admins are permanently protected and cannot be deleted
       if (
         userToDelete.isProtected ||
         userToDelete.username?.toLowerCase() === "ansarulanis" ||
         userToDelete.email?.toLowerCase() === "ansarul.contact@gmail.com" ||
-        userToDelete.id === "usr-superadmin"
+        userToDelete.id === "usr-superadmin" ||
+        userToDelete.username?.toLowerCase() === "ansarul.admin" ||
+        userToDelete.email?.toLowerCase() === "ansarul.admin@gmail.com" ||
+        userToDelete.id === "usr-superadmin-islam"
       ) {
         return {
           success: false,
-          error: "Default Super Administrator (Ansarul Anis) is permanently protected and cannot be deleted.",
+          error: `Super Administrator (${userToDelete.fullName}) is permanently protected and cannot be deleted.`,
         };
       }
 

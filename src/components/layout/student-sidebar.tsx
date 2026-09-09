@@ -380,13 +380,13 @@ export function StudentSidebar() {
       {/* Floating Tooltip when Collapsed */}
       {isCollapsed && tooltip && (
         <div
-          className="fixed left-[76px] z-50 pointer-events-none -translate-y-1/2 px-3 py-1.5 rounded-xl bg-popover text-popover-foreground text-xs font-semibold shadow-lg border border-border whitespace-nowrap animate-in fade-in-0 zoom-in-95 duration-150 flex items-center gap-2 ring-1 ring-black/5"
+          className="fixed left-[76px] z-50 pointer-events-none -translate-y-1/2 px-3.5 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs sm:text-sm font-bold shadow-xl border border-primary/30 whitespace-nowrap animate-in fade-in-0 zoom-in-95 duration-150 flex items-center gap-2 ring-1 ring-black/10"
           style={{ top: tooltip.top + 'px' }}
         >
-          <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 bg-popover border-l border-b border-border" />
-          <span className="relative z-10 text-foreground">{tooltip.label}</span>
+          <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 rotate-45 bg-primary" />
+          <span className="relative z-10 font-bold tracking-wide text-primary-foreground">{tooltip.label}</span>
           {tooltip.isActive && (
-            <span className="relative z-10 text-[9px] font-bold px-1.5 py-0.5 rounded bg-primary/15 text-primary">
+            <span className="relative z-10 text-[10px] font-black px-1.5 py-0.5 rounded-md bg-white/25 text-white tracking-wider uppercase">
               Active
             </span>
           )}

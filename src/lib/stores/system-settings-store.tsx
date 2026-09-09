@@ -389,18 +389,20 @@ export function SystemSettingsProvider({ children }: { children: React.ReactNode
     root.style.setProperty("--app-heading-weight", settings.headingWeight);
 
     // 5. Dynamic Favicon Update
-    if (settings.customFaviconUrl) {
-      const links = document.querySelectorAll<HTMLLinkElement>("link[rel*='icon']");
-      if (links.length > 0) {
-        links.forEach((link) => {
-          link.href = settings.customFaviconUrl!;
-        });
-      } else {
-        const link = document.createElement("link");
-        link.rel = "icon";
-        link.href = settings.customFaviconUrl;
-        document.head.appendChild(link);
-      }
+    const defaultFavicon = "/favicon-32x32.png?v=2";
+    const targetFavicon = settings.customFaviconUrl || defaultFavicon;
+    const links = document.querySelectorAll<HTMLLinkElement>("link[rel*='icon']");
+    if (links.length > 0) {
+      links.forEach((link) => {
+        if (link.getAttribute("href") !== targetFavicon) {
+          link.href = targetFavicon;
+        }
+      });
+    } else {
+      const link = document.createElement("link");
+      link.rel = "icon";
+      link.href = targetFavicon;
+      document.head.appendChild(link);
     }
   }, [settings, isHydrated]);
 

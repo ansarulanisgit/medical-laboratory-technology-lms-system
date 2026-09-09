@@ -14,7 +14,9 @@ import {
   X,
   ExternalLink,
   Sparkles,
+  ArrowRight,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   useLMSAnnouncements,
   LMSAnnouncement,
@@ -46,6 +48,7 @@ function getRelativeTime(isoString: string): string {
 }
 
 export function NotificationBell() {
+  const router = useRouter();
   const {
     announcements,
     unreadCount,
@@ -211,16 +214,18 @@ export function NotificationBell() {
             </div>
 
             <div className="flex items-center space-x-1.5 shrink-0">
-              {unreadCount > 0 && (
-                <button
-                  onClick={markAllAsRead}
-                  title="Mark all as read"
-                  className="px-2 py-1 text-xs text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/60 transition-colors flex items-center gap-1 font-semibold cursor-pointer"
-                >
-                  <CheckCheck className="h-3.5 w-3.5 text-primary" />
-                  <span className="hidden sm:inline">Read All</span>
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOpen(false);
+                  router.push("/student/updates");
+                }}
+                title="Go to full Updates & Announcements page"
+                className="px-2.5 py-1 text-xs text-primary hover:text-primary-foreground hover:bg-primary rounded-lg transition-colors flex items-center gap-1 font-bold border border-primary/30 cursor-pointer shadow-2xs"
+              >
+                <ExternalLink className="h-3 w-3" />
+                <span>View All</span>
+              </button>
 
               {isManagementRole && (
                 <Button
@@ -229,7 +234,7 @@ export function NotificationBell() {
                     setIsOpen(false);
                     setIsCreateModalOpen(true);
                   }}
-                  className="h-8 text-xs px-2.5 rounded-xl bg-primary text-primary-foreground font-semibold shadow-2xs"
+                  className="h-8 text-xs px-2.5 rounded-xl bg-primary text-primary-foreground font-semibold shadow-2xs cursor-pointer"
                   title="Broadcast new announcement"
                 >
                   <PlusCircle className="h-3.5 w-3.5 mr-1" />
@@ -336,10 +341,21 @@ export function NotificationBell() {
           </div>
 
           {/* Footer */}
-          <div className="p-3 border-t border-border/80 bg-muted/20 text-center shrink-0">
-            <span className="text-[11px] sm:text-xs text-muted-foreground font-normal">
-              State Medical Faculty & DGHS Clinical LMS Announcements
+          <div className="p-3 border-t border-border/80 bg-muted/20 flex items-center justify-between text-xs shrink-0">
+            <span className="text-[11px] sm:text-xs text-muted-foreground font-normal truncate">
+              State Medical Faculty & DGHS LMS
             </span>
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                router.push("/student/updates");
+              }}
+              className="text-primary hover:underline font-bold text-xs flex items-center gap-1 cursor-pointer shrink-0 ml-2"
+            >
+              <span>View All Updates</span>
+              <ArrowRight className="h-3 w-3" />
+            </button>
           </div>
         </div>
       )}
