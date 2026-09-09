@@ -90,7 +90,7 @@ export function StudentSidebar() {
         { href: "/student/admin/strings", label: "String Management", icon: Type, exact: false },
         { href: "/student/admin/logs", label: "Real-time Data Log", icon: Activity, exact: false },
         ...sharedModules.slice(1), // All remaining modules
-        { href: "/student/admin/settings", label: "System Settings", icon: Sliders, exact: false },
+        { href: "/student/admin/settings", label: "Settings", icon: Sliders, exact: false },
       ];
     }
 
@@ -218,41 +218,6 @@ export function StudentSidebar() {
         })}
       </div>
 
-      {/* Super Admin Persistent Bottom Settings Link */}
-      {currentRole === "SUPER_ADMIN" && (
-        <div className={cn("px-3 pt-2 pb-1 border-t border-border/70", isCollapsed ? "px-2" : "")}>
-          <Link
-            href="/student/admin/settings"
-            title={isCollapsed ? "System Settings (Super Admin)" : undefined}
-            onMouseEnter={(e) => {
-              if (isCollapsed) {
-                const rect = e.currentTarget.getBoundingClientRect();
-                setTooltip({
-                  label: "System Settings",
-                  top: rect.top + rect.height / 2,
-                  isActive: pathname.startsWith("/student/admin/settings"),
-                });
-              }
-            }}
-            onMouseLeave={() => setTooltip(null)}
-            className={cn(
-              "flex items-center rounded-xl text-xs font-semibold transition-all duration-150 group cursor-pointer",
-              isCollapsed ? "h-10 w-10 justify-center mx-auto" : "w-full gap-2.5 px-3 py-2",
-              pathname.startsWith("/student/admin/settings")
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "text-foreground bg-primary/5 hover:bg-primary/10 border border-primary/20"
-            )}
-          >
-            <Sliders className={cn("shrink-0 text-primary", pathname.startsWith("/student/admin/settings") ? "text-primary-foreground" : "")} />
-            {!isCollapsed && <span className="truncate">System Settings</span>}
-            {!isCollapsed && (
-              <span className="ml-auto text-[10px] font-bold px-1.5 py-0.2 rounded bg-primary/15 text-primary">
-                Super Admin
-              </span>
-            )}
-          </Link>
-        </div>
-      )}
 
       {/* Footer Controls with Collapsible Toggle Button */}
       <div className={cn("p-3 border-t border-border", isCollapsed ? "px-2 py-3 space-y-2 flex flex-col items-center" : "")}>
