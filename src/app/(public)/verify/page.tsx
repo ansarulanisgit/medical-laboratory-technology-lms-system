@@ -853,7 +853,7 @@ function CertificateVerificationContent() {
                               {verifiedCert.studentName}
                             </h3>
 
-                            <p className="text-xs sm:text-sm text-slate-700 max-w-3xl sm:max-w-4xl mx-auto leading-relaxed px-2">
+                            <p className="text-xs sm:text-sm text-slate-700 max-w-2xl mx-auto leading-relaxed px-2">
                               having completed clinical laboratory training at <strong>{verifiedCert.institution}</strong>, has fulfilled all diagnostic benchmark requirements for{" "}
                               <strong>{verifiedCert.title}</strong> in the curriculum of{" "}
                               <strong>{verifiedCert.program} (Year {verifiedCert.year})</strong> with an assessment grade of{" "}

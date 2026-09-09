@@ -2404,7 +2404,7 @@ export default function StudentCertificatesPage() {
                       Md. Ansarul Islam
                     </h2>
 
-                    <p className="text-xs sm:text-sm text-slate-700 max-w-3xl sm:max-w-4xl mx-auto leading-relaxed px-2">
+                    <p className="text-xs sm:text-sm text-slate-700 max-w-2xl mx-auto leading-relaxed px-2">
                       having studied at <strong>Dhaka Institute of Health Technology (DIHT)</strong>, has successfully fulfilled all clinical benchmark requirements and verified laboratory SOP standards for{" "}
                       <strong>Clinical Pathology, Routine Hematology & Microbiology</strong> in the curriculum of{" "}
                       <strong>Diploma in Medical Laboratory Technology (Year 2)</strong> with an official assessment grade of{" "}
@@ -2612,7 +2612,7 @@ export default function StudentCertificatesPage() {
                     {candidateWatermarkPreview.studentName}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-slate-700 max-w-3xl sm:max-w-4xl mx-auto leading-relaxed px-2">
+                  <p className="text-xs sm:text-sm text-slate-700 max-w-2xl mx-auto leading-relaxed px-2">
                     affiliated with <strong>{candidateWatermarkPreview.institution}</strong>, having completed all prescribed syllabus modules and verified clinical bench SOPs, has fulfilled competency criteria for{" "}
                     <strong>{candidateWatermarkPreview.title}</strong> in the curriculum of{" "}
                     <strong>{candidateWatermarkPreview.program} (Year {candidateWatermarkPreview.year})</strong> with an assessment grade of{" "}
@@ -2881,7 +2881,7 @@ export default function StudentCertificatesPage() {
                     {selectedCertForPreview.studentName}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-slate-700 max-w-3xl sm:max-w-4xl mx-auto leading-relaxed px-2">
+                  <p className="text-xs sm:text-sm text-slate-700 max-w-2xl mx-auto leading-relaxed px-2">
                     having studied at <strong>{selectedCertForPreview.institution}</strong>, has successfully fulfilled all clinical benchmark requirements and verified laboratory SOP standards for{" "}
                     <strong>{selectedCertForPreview.title}</strong> in the curriculum of{" "}
                     <strong>{selectedCertForPreview.program} (Year {selectedCertForPreview.year})</strong> with an official assessment grade of{" "}
