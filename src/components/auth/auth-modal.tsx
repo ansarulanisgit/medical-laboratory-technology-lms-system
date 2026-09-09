@@ -596,7 +596,7 @@ export function AuthModal() {
       />
 
       {/* Modal Dialog Card (Desktop Dual-Pane, Mobile Single-Pane) */}
-      <div className="relative w-full max-w-md md:max-w-4xl lg:max-w-5xl bg-card border border-border/80 rounded-3xl shadow-2xl overflow-hidden z-10 flex flex-col md:flex-row max-h-[92vh] animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-md md:max-w-4xl lg:max-w-5xl bg-card border border-border/80 rounded-3xl shadow-2xl overflow-hidden z-10 flex flex-col md:flex-row max-h-[94vh] md:max-h-[90vh] animate-in zoom-in-95 duration-200">
         
         {/* ============================================================== */}
         {/* LEFT BRAND PANEL (DESKTOP ONLY)                                */}
@@ -731,7 +731,7 @@ export function AuthModal() {
           </div>
 
           {/* Form Scrollable Area with balanced padding */}
-          <div className="px-6 sm:px-8 py-5 sm:py-6 overflow-y-auto flex-1 flex flex-col">
+          <div className="px-4 sm:px-8 py-4 sm:py-6 overflow-y-auto flex-1 flex flex-col overscroll-contain">
             
             {/* ========================================================== */}
             {/* TAB 1: SIGN IN FORM                                        */}

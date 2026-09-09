@@ -11,8 +11,8 @@ import { useAuthModal } from "@/components/auth/auth-modal-context";
 import { useSystemSettings } from "@/lib/stores/system-settings-store";
 
 const navLinks = [
-  { href: "/student/curriculum", label: "Curriculum" },
-  { href: "/student/study-center", label: "Study Center" },
+  { href: "/#curriculum", label: "Curriculum" },
+  { href: "/#study-center", label: "Study Center" },
   { href: "/student/resume", label: "Resume Maker" },
   { href: "/student/jobs", label: "Jobs" },
   { href: "/about", label: "About" },

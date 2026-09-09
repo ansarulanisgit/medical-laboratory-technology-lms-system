@@ -2009,7 +2009,7 @@ export default function UserManagementPage() {
 
                     <div className="text-center border-t border-border pt-2">
                       <p className="font-semibold text-foreground">{templateConfig.signatoryName2}</p>
-                      <p className="text-[10px]">{templateConfig.signatoryTitle2}</p>
+                      <p className="text-[8.5px] text-slate-500 leading-tight font-medium mt-0.5">{templateConfig.signatoryTitle2}</p>
                     </div>
                   </div>
 

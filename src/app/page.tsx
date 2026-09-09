@@ -515,7 +515,7 @@ export default function HomePage() {
             {/* ------------------------------------------------------------- */}
             {/* FEATURE 1: Curriculum & Marks                                  */}
             {/* ------------------------------------------------------------- */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center py-10 border-b border-border/80">
+            <div id="curriculum" className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center py-10 border-b border-border/80 scroll-mt-24">
               <div className="lg:col-span-7 space-y-5">
                 <div className="inline-flex items-center gap-2 text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
                   <BookOpen className="h-5 w-5" />
@@ -597,7 +597,7 @@ export default function HomePage() {
             {/* ------------------------------------------------------------- */}
             {/* FEATURE 2: Study Center & Notes                                */}
             {/* ------------------------------------------------------------- */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center py-10 border-b border-border/80">
+            <div id="study-center" className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center py-10 border-b border-border/80 scroll-mt-24">
               {/* Graphic 2: 4-Year Academic Grid Preview */}
               <div className="lg:col-span-5 order-2 lg:order-1 p-7 sm:p-8 rounded-3xl bg-card border border-border shadow-xs space-y-5">
                 <div className="flex items-center justify-between border-b border-border/80 pb-3.5">

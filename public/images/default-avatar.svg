@@ -1,185 +1,247 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
   <defs>
     <!-- Background Circle Clip -->
-    <clipPath id="avatarDiscClip">
-      <circle cx="200" cy="200" r="190" />
+    <clipPath id="avatarDisc">
+      <circle cx="250" cy="250" r="236" />
     </clipPath>
 
-    <!-- 3D Theme Backdrop: LabTutor Emerald Gradient -->
-    <radialGradient id="themeBg3D" cx="28%" cy="22%" r="85%">
-      <stop offset="0%" stop-color="#E6FFFA" />
-      <stop offset="30%" stop-color="#A7F3D0" />
-      <stop offset="65%" stop-color="#34D399" />
-      <stop offset="100%" stop-color="#059669" />
+    <!-- Studio Backdrop with Soft Emerald Theme Glow -->
+    <radialGradient id="bgStudio" cx="50%" cy="40%" r="68%">
+      <stop offset="0%" stop-color="#F0FDF4" />
+      <stop offset="45%" stop-color="#DCFCE7" />
+      <stop offset="80%" stop-color="#A7F3D0" />
+      <stop offset="100%" stop-color="#6EE7B7" />
     </radialGradient>
 
-    <!-- 3D Face Skin Gradient (Soft cinematic 3D studio light) -->
-    <radialGradient id="skin3D" cx="32%" cy="28%" r="75%">
-      <stop offset="0%" stop-color="#FFEADE" />
-      <stop offset="40%" stop-color="#FCD2BD" />
-      <stop offset="80%" stop-color="#F2B397" />
-      <stop offset="100%" stop-color="#DE9678" />
+    <!-- 3D Pixar Soft Skin -->
+    <radialGradient id="pixarSkin" cx="42%" cy="32%" r="65%">
+      <stop offset="0%" stop-color="#FFF3EB" />
+      <stop offset="35%" stop-color="#FEDBC8" />
+      <stop offset="72%" stop-color="#F9BA9C" />
+      <stop offset="92%" stop-color="#EAA182" />
+      <stop offset="100%" stop-color="#D58665" />
     </radialGradient>
 
-    <!-- 3D Neck Shadow -->
-    <linearGradient id="neckGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#C5775B" />
-      <stop offset="35%" stop-color="#D98A6C" />
-      <stop offset="100%" stop-color="#F2B397" />
-    </linearGradient>
-
-    <!-- 3D Hair Volumetric Gradient -->
-    <radialGradient id="hairVol" cx="35%" cy="25%" r="75%">
-      <stop offset="0%" stop-color="#4A3425" />
-      <stop offset="45%" stop-color="#2E1E14" />
-      <stop offset="85%" stop-color="#1A1009" />
-      <stop offset="100%" stop-color="#0D0704" />
+    <!-- 3D Cute Button Nose Sphere -->
+    <radialGradient id="buttonNose" cx="38%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#FFEBE1" />
+      <stop offset="28%" stop-color="#FDA888" />
+      <stop offset="70%" stop-color="#F46E4E" />
+      <stop offset="95%" stop-color="#D64120" />
+      <stop offset="100%" stop-color="#B02C10" />
     </radialGradient>
-    <linearGradient id="hairSheen" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#8C6246" stop-opacity="0.8" />
-      <stop offset="60%" stop-color="#4A3425" stop-opacity="0.2" />
-      <stop offset="100%" stop-color="#1A1009" stop-opacity="0" />
-    </linearGradient>
-
-    <!-- 3D Attire: LabTutor Medical Emerald Smart Casual Knit -->
-    <radialGradient id="knit3D" cx="30%" cy="18%" r="85%">
-      <stop offset="0%" stop-color="#34D399" />
-      <stop offset="25%" stop-color="#10B981" />
-      <stop offset="65%" stop-color="#059669" />
-      <stop offset="90%" stop-color="#047857" />
-      <stop offset="100%" stop-color="#064E3B" />
-    </radialGradient>
-
-    <!-- Collar Trim Highlight -->
-    <linearGradient id="collarEdge" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#A7F3D0" />
-      <stop offset="50%" stop-color="#34D399" />
-      <stop offset="100%" stop-color="#047857" />
-    </linearGradient>
-
-    <!-- Soft 3D Drop Shadow -->
-    <filter id="bustShadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#064E3B" flood-opacity="0.3" />
-    </filter>
-
-    <!-- Nose 3D Soft Shadow -->
     <radialGradient id="noseShadow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#B8664A" stop-opacity="0.5" />
-      <stop offset="100%" stop-color="#B8664A" stop-opacity="0" />
+      <stop offset="0%" stop-color="#9C3A1E" stop-opacity="0.45" />
+      <stop offset="100%" stop-color="#9C3A1E" stop-opacity="0" />
     </radialGradient>
-    
-    <!-- Eye Iris Gradient -->
-    <radialGradient id="irisGrad" cx="35%" cy="35%" r="65%">
-      <stop offset="0%" stop-color="#4B3621" />
-      <stop offset="70%" stop-color="#2A1B0E" />
-      <stop offset="100%" stop-color="#120A05" />
+
+    <!-- 3D Pixar Iris (Warm Amber Chestnut) -->
+    <radialGradient id="pixarIris" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#784423" />
+      <stop offset="45%" stop-color="#4E2710" />
+      <stop offset="85%" stop-color="#281206" />
+      <stop offset="100%" stop-color="#0E0502" />
     </radialGradient>
+
+    <!-- 3D Volumetric Sculpted Hair Gradients -->
+    <radialGradient id="hairBase" cx="38%" cy="22%" r="78%">
+      <stop offset="0%" stop-color="#5A3A24" />
+      <stop offset="35%" stop-color="#402515" />
+      <stop offset="75%" stop-color="#28150B" />
+      <stop offset="100%" stop-color="#140803" />
+    </radialGradient>
+    <linearGradient id="hairLight1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#946444" />
+      <stop offset="50%" stop-color="#5A3A24" />
+      <stop offset="100%" stop-color="#28150B" />
+    </linearGradient>
+    <linearGradient id="hairLight2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#A57655" stop-opacity="0.9" />
+      <stop offset="70%" stop-color="#5A3A24" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#28150B" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- 3D Smart Casual Attire: Charcoal Blazer with Emerald Trim -->
+    <radialGradient id="blazer3D" cx="35%" cy="20%" r="80%">
+      <stop offset="0%" stop-color="#334155" />
+      <stop offset="40%" stop-color="#1E293B" />
+      <stop offset="85%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#020617" />
+    </radialGradient>
+    <linearGradient id="emeraldTrim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="50%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#064E3B" />
+    </linearGradient>
+
+    <!-- Lens Specular Glare -->
+    <linearGradient id="lensGlare" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.35" />
+      <stop offset="35%" stop-color="#FFFFFF" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- 3D Drop Shadows -->
+    <filter id="softDepth" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0F172A" flood-opacity="0.25" />
+    </filter>
+    <filter id="glassesDrop" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="7" stdDeviation="7" flood-color="#7C3B24" flood-opacity="0.35" />
+    </filter>
+    <filter id="hairShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#3C2213" flood-opacity="0.35" />
+    </filter>
   </defs>
 
-  <!-- Ambient Outer Glow -->
-  <circle cx="200" cy="200" r="193" fill="none" stroke="#34D399" stroke-width="4" opacity="0.6" />
+  <!-- Outer Double Ring Frame in LabTutor Emerald (#10B981) -->
+  <circle cx="250" cy="250" r="240" fill="none" stroke="#10B981" stroke-width="4" opacity="0.85" />
+  <circle cx="250" cy="250" r="236" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.6" />
 
-  <!-- Clipped Disc Body -->
-  <g clip-path="url(#avatarDiscClip)">
-    <!-- 3D Theme Backdrop -->
-    <rect width="400" height="400" fill="url(#themeBg3D)" />
+  <!-- Main Clipped Disc Body -->
+  <g clip-path="url(#avatarDisc)">
+    <!-- Studio 3D Backdrop -->
+    <rect width="500" height="500" fill="url(#bgStudio)" />
 
-    <!-- Ambient Sphere Light Source -->
-    <circle cx="110" cy="100" r="130" fill="#FFFFFF" opacity="0.25" />
+    <!-- 3D Back Hair Behind Shoulders & Ears -->
+    <path d="M125 250 C110 120 145 45 250 40 C355 45 390 120 375 250 C365 160 330 95 250 95 C170 95 135 160 125 250 Z" fill="#1C0E06" />
 
-    <!-- 3D Shoulders & Torso -->
-    <g filter="url(#bustShadow)">
-      <path d="M60 385 C60 292 120 252 200 252 C280 252 340 292 340 385 C340 405 315 410 290 410 L110 410 C85 410 60 405 60 385 Z" fill="url(#knit3D)" />
-      
-      <!-- Shoulder Volume Highlights & Folds -->
-      <path d="M65 385 C65 315 110 270 170 256 C140 275 105 320 90 385 Z" fill="#6EE7B7" opacity="0.3" />
-      <path d="M335 385 C335 315 290 270 230 256 C260 275 295 320 310 385 Z" fill="#022C22" opacity="0.35" />
+    <!-- 3D Torso: Gender-Neutral Professional Blazer & Smart Collared Shirt -->
+    <g filter="url(#softDepth)">
+      <!-- Charcoal Blazer -->
+      <path d="M65 485 C65 375 140 330 250 330 C360 330 435 375 435 485 C435 505 405 510 370 510 L130 510 C95 510 65 505 65 485 Z" fill="url(#blazer3D)" />
+      <!-- Shoulder Highlights -->
+      <path d="M68 485 C68 390 125 345 195 334 C160 355 115 410 95 490 Z" fill="#475569" opacity="0.35" />
     </g>
 
-    <!-- Smart V-Collar & Inner Shirt (Theme Mint) -->
-    <path d="M174 252 L200 286 L226 252 Z" fill="#ECFDF5" />
-    <!-- Collar Fold Left -->
-    <path d="M162 250 L196 288 L200 284 L170 248 Z" fill="#059669" />
-    <path d="M162 250 L196 288 L194 290 L160 251 Z" fill="url(#collarEdge)" opacity="0.8" />
-    <!-- Collar Fold Right -->
-    <path d="M238 250 L204 288 L200 284 L230 248 Z" fill="#047857" />
+    <!-- White Inner Shirt with Emerald Smart Tie/Accent (Gender-Neutral) -->
+    <path d="M214 330 L250 378 L286 330 Z" fill="#FFFFFF" />
+    <!-- Emerald Accent Tie Placket -->
+    <path d="M243 350 L257 350 L261 422 L250 436 L239 422 Z" fill="url(#emeraldTrim)" />
+    <polygon points="241,338 259,338 256,352 244,352" fill="#047857" />
+
+    <!-- Blazer Lapels -->
+    <path d="M185 330 L236 385 L214 445 L158 355 Z" fill="#1E293B" />
+    <path d="M185 330 L236 385 L230 388 L180 332 Z" fill="#334155" opacity="0.55" />
+    <path d="M315 330 L264 385 L286 445 L342 355 Z" fill="#0F172A" />
+
+    <!-- Shirt Collar Points -->
+    <polygon points="204,328 244,342 228,358 200,340" fill="#F8FAFC" />
+    <polygon points="296,328 256,342 272,358 300,340" fill="#E2E8F0" />
 
     <!-- 3D Neck -->
-    <path d="M176 195 L176 264 C176 272 186 278 200 278 C214 278 224 272 224 264 L224 195 Z" fill="url(#neckGrad)" />
+    <path d="M218 260 L218 340 C218 350 230 358 250 358 C270 358 282 350 282 340 L282 260 Z" fill="url(#pixarSkin)" />
+    <!-- Neck Drop Shadow -->
+    <ellipse cx="250" cy="285" rx="36" ry="15" fill="#C5775B" opacity="0.35" />
 
-    <!-- 3D Ears with Inner Depth -->
+    <!-- 3D Big Round Pixar Ears -->
     <g id="ears">
       <!-- Left Ear -->
-      <ellipse cx="124" cy="186" rx="14" ry="19" fill="url(#skin3D)" />
-      <ellipse cx="126" cy="186" rx="8" ry="11" fill="#DE9678" />
+      <ellipse cx="138" cy="235" rx="24" ry="32" fill="url(#pixarSkin)" />
+      <ellipse cx="142" cy="235" rx="14" ry="20" fill="#EAA182" />
+      <path d="M136 224 C146 227 146 245 138 250" stroke="#D58665" stroke-width="3.5" fill="none" stroke-linecap="round" />
       <!-- Right Ear -->
-      <ellipse cx="276" cy="186" rx="14" ry="19" fill="url(#skin3D)" />
-      <ellipse cx="274" cy="186" rx="8" ry="11" fill="#C5775B" />
+      <ellipse cx="362" cy="235" rx="24" ry="32" fill="url(#pixarSkin)" />
+      <ellipse cx="358" cy="235" rx="14" ry="20" fill="#D58665" />
+      <path d="M364 224 C354 227 354 245 362 250" stroke="#C5775B" stroke-width="3.5" fill="none" stroke-linecap="round" />
     </g>
 
-    <!-- 3D Head Base -->
-    <g id="head3D">
-      <ellipse cx="200" cy="176" rx="72" ry="80" fill="url(#skin3D)" />
+    <!-- 3D Pixar Solid Head (Continuous skin, no gaps) -->
+    <g id="head">
+      <!-- Continuous Solid Head Base from top to bottom -->
+      <ellipse cx="250" cy="225" rx="102" ry="115" fill="url(#pixarSkin)" />
 
-      <!-- 3D Forehead Specular Glow -->
-      <ellipse cx="178" cy="138" rx="36" ry="22" fill="#FFFFFF" opacity="0.18" />
+      <!-- Cheeks Healthy Soft Glow -->
+      <ellipse cx="178" cy="254" rx="28" ry="17" fill="#FB7185" opacity="0.22" />
+      <ellipse cx="322" cy="254" rx="28" ry="17" fill="#FB7185" opacity="0.22" />
 
-      <!-- Cheeks Healthy Soft 3D Blush -->
-      <ellipse cx="152" cy="196" rx="18" ry="11" fill="#FB7185" opacity="0.16" />
-      <ellipse cx="248" cy="196" rx="18" ry="11" fill="#FB7185" opacity="0.16" />
+      <!-- Gentle Friendly Smile -->
+      <path d="M214 286 Q250 306 286 286" stroke="#782715" stroke-width="4.8" stroke-linecap="round" fill="none" />
+      <circle cx="213" cy="286" r="1.5" fill="#782715" />
+      <circle cx="287" cy="286" r="1.5" fill="#782715" />
+      <path d="M222 288 Q250 298 278 288" stroke="#EAA182" stroke-width="2.2" fill="none" stroke-linecap="round" />
 
-      <!-- Eyebrows (Sculpted modern arches) -->
-      <path d="M148 155 Q164 148 180 152" stroke="#2A1B0E" stroke-width="4.2" stroke-linecap="round" fill="none" />
-      <path d="M220 152 Q236 148 252 155" stroke="#2A1B0E" stroke-width="4.2" stroke-linecap="round" fill="none" />
-
-      <!-- 3D Expressive Eyes -->
+      <!-- 3D Pixar Eyes (Big, Round, Friendly) -->
       <g id="eyes">
-        <!-- Left Eye Socket & Sclera -->
-        <ellipse cx="164" cy="174" rx="12" ry="11" fill="#FFFFFF" />
-        <ellipse cx="164" cy="174" rx="8" ry="9" fill="url(#irisGrad)" />
-        <circle cx="164" cy="174" r="4.5" fill="#000000" />
-        <circle cx="161.5" cy="171" r="2.8" fill="#FFFFFF" />
-        <circle cx="166" cy="176" r="1.2" fill="#FFFFFF" opacity="0.8" />
-        <!-- Upper Eyelid curve -->
-        <path d="M152 172 Q164 163 176 172" stroke="#2A1B0E" stroke-width="2.5" fill="none" stroke-linecap="round" />
+        <!-- Left Eye -->
+        <ellipse cx="196" cy="216" rx="28" ry="32" fill="#FFFFFF" />
+        <ellipse cx="196" cy="216" rx="18" ry="21" fill="url(#pixarIris)" />
+        <circle cx="196" cy="216" r="10.5" fill="#0A0402" />
+        <!-- Highlights -->
+        <circle cx="190" cy="209" r="6.5" fill="#FFFFFF" />
+        <circle cx="202" cy="223" r="3" fill="#FFFFFF" opacity="0.85" />
 
-        <!-- Right Eye Socket & Sclera -->
-        <ellipse cx="236" cy="174" rx="12" ry="11" fill="#FFFFFF" />
-        <ellipse cx="236" cy="174" rx="8" ry="9" fill="url(#irisGrad)" />
-        <circle cx="236" cy="174" r="4.5" fill="#000000" />
-        <circle cx="233.5" cy="171" r="2.8" fill="#FFFFFF" />
-        <circle cx="238" cy="176" r="1.2" fill="#FFFFFF" opacity="0.8" />
-        <!-- Upper Eyelid curve -->
-        <path d="M224 172 Q236 163 248 172" stroke="#2A1B0E" stroke-width="2.5" fill="none" stroke-linecap="round" />
+        <!-- Right Eye -->
+        <ellipse cx="304" cy="216" rx="28" ry="32" fill="#FFFFFF" />
+        <ellipse cx="304" cy="216" rx="18" ry="21" fill="url(#pixarIris)" />
+        <circle cx="304" cy="216" r="10.5" fill="#0A0402" />
+        <!-- Highlights -->
+        <circle cx="298" cy="209" r="6.5" fill="#FFFFFF" />
+        <circle cx="310" cy="223" r="3" fill="#FFFFFF" opacity="0.85" />
       </g>
 
-      <!-- 3D Soft Shaded Nose (No harsh strokes, realistic 3D depth) -->
-      <ellipse cx="200" cy="198" rx="8" ry="4" fill="url(#noseShadow)" />
-      <path d="M198 165 Q196 190 193 195 Q200 198 207 195" stroke="#C5775B" stroke-width="2.4" stroke-linecap="round" fill="none" opacity="0.6" />
-      <circle cx="199" cy="193" r="2" fill="#FFFFFF" opacity="0.3" />
-
-      <!-- Warm Friendly 3D Smile -->
-      <path d="M178 214 Q200 232 222 214" stroke="#881337" stroke-width="3.5" stroke-linecap="round" fill="none" />
-      <path d="M182 215 Q200 227 218 215 Z" fill="#FFFFFF" />
-      <path d="M184 218 Q200 230 216 218" stroke="#FB7185" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.4" />
+      <!-- Iconic 3D Button Nose (Overlapping Glasses Bridge) -->
+      <g id="nose">
+        <!-- Drop Shadow -->
+        <ellipse cx="250" cy="265" rx="25" ry="11" fill="url(#noseShadow)" />
+        <!-- Button Nose -->
+        <ellipse cx="250" cy="252" rx="22" ry="18" fill="url(#buttonNose)" />
+        <!-- Specular Highlight -->
+        <ellipse cx="243" cy="246" rx="9" ry="6.5" fill="#FFFFFF" opacity="0.5" />
+      </g>
     </g>
 
-    <!-- 3D Volumetric Hair (Layered, textured, handsome modern professional cut) -->
-    <g id="hairLayer">
-      <!-- Back hair base -->
-      <path d="M125 175 C120 115 145 88 200 88 C255 88 280 115 275 175 C268 135 250 108 200 108 C150 108 132 135 125 175 Z" fill="#1A1009" />
+    <!-- Thick Black Round Glasses (Iconic Pixar Glasses from Reference) -->
+    <g id="glasses" filter="url(#glassesDrop)">
+      <!-- Left Glass Glare & Rim -->
+      <ellipse cx="196" cy="216" rx="42" ry="42" fill="url(#lensGlare)" />
+      <circle cx="196" cy="216" r="44" fill="none" stroke="#18181B" stroke-width="10.5" />
 
-      <!-- Main Volume -->
-      <path d="M124 168 C122 118 152 82 208 80 C268 78 282 115 276 168 C274 148 260 134 250 132 C236 104 190 100 152 118 C138 126 130 144 124 168 Z" fill="url(#hairVol)" />
+      <!-- Right Glass Glare & Rim -->
+      <ellipse cx="304" cy="216" rx="42" ry="42" fill="url(#lensGlare)" />
+      <circle cx="304" cy="216" r="44" fill="none" stroke="#18181B" stroke-width="10.5" />
 
-      <!-- 3D Hair Strands & Highlights -->
-      <path d="M140 128 C165 98 228 92 264 125 C246 110 198 108 162 128 Z" fill="url(#hairSheen)" />
-      <path d="M172 90 Q215 88 248 114 C232 104 198 98 172 90 Z" fill="#8C6246" opacity="0.6" />
-      <path d="M136 142 C148 126 172 118 190 116 C168 122 150 132 142 148 Z" fill="#8C6246" opacity="0.4" />
+      <!-- Bridge Across Nose -->
+      <path d="M239 208 Q250 200 261 208" stroke="#18181B" stroke-width="9" stroke-linecap="round" fill="none" />
+
+      <!-- Frame Temples -->
+      <path d="M152 216 L124 222" stroke="#18181B" stroke-width="8.5" stroke-linecap="round" fill="none" />
+      <path d="M348 216 L376 222" stroke="#18181B" stroke-width="8.5" stroke-linecap="round" fill="none" />
+
+      <!-- 3D Specular Rims -->
+      <path d="M168 178 Q196 172 224 178" stroke="#52525B" stroke-width="2.8" stroke-linecap="round" fill="none" />
+      <path d="M276 178 Q304 172 332 178" stroke="#52525B" stroke-width="2.8" stroke-linecap="round" fill="none" />
+    </g>
+
+    <!-- Thick 3D Rounded Eyebrows (Slightly tilted, expressive) -->
+    <g id="eyebrows">
+      <path d="M164 160 Q196 145 226 158" stroke="#382114" stroke-width="9.5" stroke-linecap="round" fill="none" />
+      <path d="M274 158 Q304 145 336 160" stroke="#382114" stroke-width="9.5" stroke-linecap="round" fill="none" />
+      <path d="M168 159 Q196 147 222 158" stroke="#71452B" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.7" />
+      <path d="M278 158 Q304 147 332 159" stroke="#71452B" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.7" />
+    </g>
+
+    <!-- 3D Volumetric Pixar Hair (Solid cap & sculpted waves) -->
+    <g id="hair" filter="url(#hairShadow)">
+      <!-- Main Solid Hair Cap covering top of head -->
+      <path d="M142 205 C136 110 168 50 250 46 C332 50 364 110 358 205 C350 160 326 138 290 135 C250 128 200 132 165 148 C148 156 142 180 142 205 Z" fill="url(#hairBase)" />
+
+      <!-- Volumetric 3D Curls on Top & Left -->
+      <path d="M142 165 C135 92 180 40 245 38 C218 52 188 80 185 125 C166 116 152 136 142 165 Z" fill="url(#hairLight1)" />
+      
+      <!-- Top Swept Curls (Iconic Pixar Quiff from Reference) -->
+      <path d="M198 48 C226 20 286 18 318 48 C284 36 242 44 216 68 Z" fill="url(#hairLight1)" />
+      <path d="M204 46 C228 24 280 22 312 46 C282 38 244 44 222 66 Z" fill="url(#hairLight2)" />
+
+      <!-- Right Swept Wave Strands -->
+      <path d="M285 42 C345 42 376 85 368 170 C360 132 344 114 318 108 C335 84 318 60 285 42 Z" fill="url(#hairLight1)" />
+
+      <!-- Front Wavy Hair Strands Sitting Naturally on Forehead Above Eyebrows -->
+      <path d="M146 148 C182 128 242 122 284 135 C248 132 195 136 162 160 Z" fill="url(#hairLight2)" />
+      <path d="M225 130 C265 126 315 134 345 154 C328 142 295 136 260 134 Z" fill="#946444" opacity="0.65" />
+
+      <!-- Sideburn Curls Framing Face -->
+      <path d="M136 195 C138 168 150 152 160 148 C154 172 152 195 158 215 C148 208 140 204 136 195 Z" fill="#24130A" />
+      <path d="M364 195 C362 168 350 152 340 148 C346 172 348 195 342 215 C352 208 360 204 364 195 Z" fill="#24130A" />
     </g>
   </g>
-
-  <!-- Polished Double Ring Frame in Brand Emerald (#10B981 & #34D399) -->
-  <circle cx="200" cy="200" r="190" fill="none" stroke="#10B981" stroke-width="3.5" />
-  <circle cx="200" cy="200" r="187" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4" />
 </svg>

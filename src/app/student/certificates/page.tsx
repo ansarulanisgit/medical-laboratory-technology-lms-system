@@ -2430,7 +2430,7 @@ export default function StudentCertificatesPage() {
                           </span>
                         )}
                         <p className="font-bold text-slate-900 text-[11px]">{customizerState.signatoryName1}</p>
-                        <p className="text-[9.5px] text-slate-500 leading-tight">{customizerState.signatoryTitle1}</p>
+                        <p className="text-[8px] sm:text-[8.5px] text-slate-500 leading-tight font-medium mt-0.5 max-w-[150px]">{customizerState.signatoryTitle1}</p>
                       </div>
 
                       {/* QR Code and Scan to Verify */}
@@ -2463,7 +2463,7 @@ export default function StudentCertificatesPage() {
                           </span>
                         )}
                         <p className="font-bold text-slate-900 text-[11px]">{customizerState.signatoryName2}</p>
-                        <p className="text-[9.5px] text-slate-500 leading-tight">{customizerState.signatoryTitle2}</p>
+                        <p className="text-[8px] sm:text-[8.5px] text-slate-500 leading-tight font-medium mt-0.5 max-w-[150px]">{customizerState.signatoryTitle2}</p>
                       </div>
                     </div>
 
@@ -2636,7 +2636,7 @@ export default function StudentCertificatesPage() {
                         </span>
                       )}
                       <p className="font-bold text-slate-900 text-[11px] sm:text-xs">{templateConfig.signatoryName1}</p>
-                      <p className="text-[9.5px] text-slate-600 leading-tight">{templateConfig.signatoryTitle1}</p>
+                      <p className="text-[8px] sm:text-[8.5px] text-slate-500 leading-tight font-medium mt-0.5 max-w-[150px]">{templateConfig.signatoryTitle1}</p>
                     </div>
 
                     <div className="flex flex-col items-center justify-center">
@@ -2667,7 +2667,7 @@ export default function StudentCertificatesPage() {
                         </span>
                       )}
                       <p className="font-bold text-slate-900 text-[11px] sm:text-xs">{templateConfig.signatoryName2}</p>
-                      <p className="text-[9.5px] text-slate-600 leading-tight">{templateConfig.signatoryTitle2}</p>
+                      <p className="text-[8px] sm:text-[8.5px] text-slate-500 leading-tight font-medium mt-0.5 max-w-[150px]">{templateConfig.signatoryTitle2}</p>
                     </div>
                   </div>
 
@@ -2905,7 +2905,7 @@ export default function StudentCertificatesPage() {
                         </span>
                       )}
                       <p className="font-bold text-slate-900 text-[11px] sm:text-xs">{templateConfig.signatoryName1}</p>
-                      <p className="text-[9.5px] text-slate-600 leading-tight">{templateConfig.signatoryTitle1}</p>
+                      <p className="text-[8px] sm:text-[8.5px] text-slate-500 leading-tight font-medium mt-0.5 max-w-[150px]">{templateConfig.signatoryTitle1}</p>
                     </div>
 
                     <div className="flex flex-col items-center justify-center">
@@ -2936,7 +2936,7 @@ export default function StudentCertificatesPage() {
                         </span>
                       )}
                       <p className="font-bold text-slate-900 text-[11px] sm:text-xs">{templateConfig.signatoryName2}</p>
-                      <p className="text-[9.5px] text-slate-600 leading-tight">{templateConfig.signatoryTitle2}</p>
+                      <p className="text-[8px] sm:text-[8.5px] text-slate-500 leading-tight font-medium mt-0.5 max-w-[150px]">{templateConfig.signatoryTitle2}</p>
                     </div>
                   </div>
 

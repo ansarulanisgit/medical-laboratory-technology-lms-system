@@ -17,11 +17,14 @@ import {
   Upload,
   Image as ImageIcon,
   AlertCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import {
   useContributors,
   Contributor,
@@ -55,7 +58,7 @@ function formatWhatsappUrl(numOrUrl?: string): string | null {
 export function DefaultUserAvatar({ className = "h-full w-full" }: { className?: string }) {
   return (
     <img
-      src="/images/default-user-avatar.png?v=4"
+      src="/images/default-user-avatar.png?v=5"
       alt="Default user avatar"
       className={`rounded-full object-cover ${className}`}
     />
@@ -93,6 +96,85 @@ function ContributorAvatar({
   );
 }
 
+const ITEMS_PER_PAGE = 15;
+
+function PaginationControls({
+  currentPage,
+  totalPages,
+  totalItems,
+  pageSize,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+}) {
+  if (totalPages <= 1) return null;
+
+  const startIdx = (currentPage - 1) * pageSize + 1;
+  const endIdx = Math.min(currentPage * pageSize, totalItems);
+
+  const pages: number[] = [];
+  for (let i = 1; i <= totalPages; i++) {
+    pages.push(i);
+  }
+
+  return (
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border/70 text-xs sm:text-sm">
+      <span className="text-muted-foreground font-medium">
+        Showing <strong className="text-foreground">{startIdx}</strong>–<strong className="text-foreground">{endIdx}</strong> of{" "}
+        <strong className="text-foreground">{totalItems}</strong> contributors
+      </span>
+
+      <div className="flex items-center gap-1.5">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={currentPage <= 1}
+          onClick={() => onPageChange(currentPage - 1)}
+          className="h-8.5 px-2.5 rounded-xl gap-1 text-xs font-semibold cursor-pointer disabled:opacity-40"
+        >
+          <ChevronLeft className="h-3.5 w-3.5" />
+          <span>Prev</span>
+        </Button>
+
+        <div className="flex items-center gap-1">
+          {pages.map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => onPageChange(p)}
+              className={cn(
+                "h-8.5 min-w-[34px] px-2 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                p === currentPage
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted"
+              )}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={currentPage >= totalPages}
+          onClick={() => onPageChange(currentPage + 1)}
+          className="h-8.5 px-2.5 rounded-xl gap-1 text-xs font-semibold cursor-pointer disabled:opacity-40"
+        >
+          <span>Next</span>
+          <ChevronRight className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectionProps) {
   const {
     activeContributors,
@@ -103,6 +185,31 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
     toggleStatus,
     isLoaded,
   } = useContributors();
+
+  // Pagination states (max 15 items per page)
+  const [activePage, setActivePage] = React.useState(1);
+  const [pastPage, setPastPage] = React.useState(1);
+
+  const totalActivePages = Math.ceil(activeContributors.length / ITEMS_PER_PAGE) || 1;
+  const totalPastPages = Math.ceil(pastContributors.length / ITEMS_PER_PAGE) || 1;
+
+  React.useEffect(() => {
+    if (activePage > totalActivePages) setActivePage(totalActivePages);
+  }, [activeContributors.length, totalActivePages, activePage]);
+
+  React.useEffect(() => {
+    if (pastPage > totalPastPages) setPastPage(totalPastPages);
+  }, [pastContributors.length, totalPastPages, pastPage]);
+
+  const displayedActive = activeContributors.slice(
+    (activePage - 1) * ITEMS_PER_PAGE,
+    activePage * ITEMS_PER_PAGE
+  );
+
+  const displayedPast = pastContributors.slice(
+    (pastPage - 1) * ITEMS_PER_PAGE,
+    pastPage * ITEMS_PER_PAGE
+  );
 
   // Dynamic admin detection for public & protected pages
   const [isAdmin, setIsAdmin] = React.useState(propIsAdmin ?? false);
@@ -400,18 +507,30 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
             )}
           </Card>
         ) : (
-          /* Archive 3-row responsive grid (3 columns) */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-            {activeContributors.map((contributor) => (
-              <ContributorCard
-                key={contributor.id}
-                contributor={contributor}
-                isAdmin={isAdmin}
-                onEdit={() => handleOpenEditModal(contributor)}
-                onDelete={() => setDeletingContributor(contributor)}
-                onToggleStatus={() => toggleStatus(contributor.id)}
+          /* Archive 3-row responsive grid (3 columns, max 15 per page) */
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+              {displayedActive.map((contributor) => (
+                <ContributorCard
+                  key={contributor.id}
+                  contributor={contributor}
+                  isAdmin={isAdmin}
+                  onEdit={() => handleOpenEditModal(contributor)}
+                  onDelete={() => setDeletingContributor(contributor)}
+                  onToggleStatus={() => toggleStatus(contributor.id)}
+                />
+              ))}
+            </div>
+
+            {activeContributors.length > ITEMS_PER_PAGE && (
+              <PaginationControls
+                currentPage={activePage}
+                totalPages={totalActivePages}
+                totalItems={activeContributors.length}
+                pageSize={ITEMS_PER_PAGE}
+                onPageChange={setActivePage}
               />
-            ))}
+            )}
           </div>
         )}
       </div>
@@ -441,18 +560,30 @@ export function ContributorsSection({ isAdmin: propIsAdmin }: ContributorsSectio
             </p>
           </Card>
         ) : (
-          /* Archive 3-row responsive grid (3 columns) */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-            {pastContributors.map((contributor) => (
-              <ContributorCard
-                key={contributor.id}
-                contributor={contributor}
-                isAdmin={isAdmin}
-                onEdit={() => handleOpenEditModal(contributor)}
-                onDelete={() => setDeletingContributor(contributor)}
-                onToggleStatus={() => toggleStatus(contributor.id)}
+          /* Archive 3-row responsive grid (3 columns, max 15 per page) */
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+              {displayedPast.map((contributor) => (
+                <ContributorCard
+                  key={contributor.id}
+                  contributor={contributor}
+                  isAdmin={isAdmin}
+                  onEdit={() => handleOpenEditModal(contributor)}
+                  onDelete={() => setDeletingContributor(contributor)}
+                  onToggleStatus={() => toggleStatus(contributor.id)}
+                />
+              ))}
+            </div>
+
+            {pastContributors.length > ITEMS_PER_PAGE && (
+              <PaginationControls
+                currentPage={pastPage}
+                totalPages={totalPastPages}
+                totalItems={pastContributors.length}
+                pageSize={ITEMS_PER_PAGE}
+                onPageChange={setPastPage}
               />
-            ))}
+            )}
           </div>
         )}
       </div>

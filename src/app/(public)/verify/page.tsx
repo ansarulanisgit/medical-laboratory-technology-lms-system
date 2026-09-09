@@ -47,6 +47,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 import { QRCodeView } from "@/components/ui/qr-code-view";
 
 function CertificateVerificationContent() {
@@ -74,21 +75,40 @@ function CertificateVerificationContent() {
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const verifyCode = React.useCallback(
-    (codeToVerify: string) => {
+    async (codeToVerify: string) => {
       const trimmed = codeToVerify.trim();
       if (!trimmed) return;
 
       setStatus("loading");
       setVerifiedCert(null);
 
-      setTimeout(() => {
-        let found = findCertificate ? findCertificate(trimmed) : undefined;
-        if (!found) {
-          found = findCertificateByQuery(trimmed, certificates || INITIAL_CERTIFICATES);
-        }
+      // 1. Check local store first
+      let found = findCertificate ? findCertificate(trimmed) : undefined;
+      if (!found) {
+        found = findCertificateByQuery(trimmed, certificates || INITIAL_CERTIFICATES);
+      }
 
-        if (found) {
-          setVerifiedCert(found);
+      if (found) {
+        setVerifiedCert(found);
+        setStatus("valid");
+        setVerifiedAt(
+          new Date().toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            timeZoneName: "short",
+          })
+        );
+      }
+
+      // 2. Query central database live in real time
+      try {
+        const res = await fetch(`/api/certificates?query=${encodeURIComponent(trimmed)}`);
+        const json = await res.json();
+        if (json.success && json.certificate) {
+          setVerifiedCert(json.certificate);
           setStatus("valid");
           setVerifiedAt(
             new Date().toLocaleDateString("en-US", {
@@ -100,13 +120,52 @@ function CertificateVerificationContent() {
               timeZoneName: "short",
             })
           );
-        } else {
-          setStatus("not_found");
+          return;
         }
-      }, 350);
+      } catch (err) {
+        console.warn("Central database live query error:", err);
+      }
+
+      if (!found) {
+        setStatus("not_found");
+      }
     },
     [findCertificate, certificates]
   );
+
+  // Real-time live synchronization for public verification view
+  React.useEffect(() => {
+    let channel: any = null;
+    try {
+      const supabase = createClient();
+      channel = supabase.channel("verify_page_realtime");
+      channel
+        .on("broadcast", { event: "CERTIFICATES_SYNCED" }, ({ payload }: any) => {
+          if (payload?.certificates && Array.isArray(payload.certificates) && certCode) {
+            const currentCode = certCode.trim().toUpperCase();
+            const updated = payload.certificates.find((c: CertificateRecord) => {
+              const cNum = (c.certificateNumber || "").toUpperCase();
+              const cCode = (c.code || "").toUpperCase();
+              const cVer = (c.verificationCode || "").toUpperCase();
+              return cNum === currentCode || cCode === currentCode || cVer === currentCode;
+            });
+            if (updated) {
+              setVerifiedCert(updated);
+              setStatus("valid");
+            }
+          }
+        })
+        .subscribe();
+    } catch {}
+
+    return () => {
+      if (channel) {
+        try {
+          channel.unsubscribe();
+        } catch {}
+      }
+    };
+  }, [certCode]);
 
   // Auto-verify if query parameter is in the URL on mount
   React.useEffect(() => {
@@ -382,7 +441,7 @@ function CertificateVerificationContent() {
                     placeholder="e.g. LTA-DIP-2025-48201 or VER-9201-ENG101"
                     value={certCode}
                     onChange={(e) => setCertCode(e.target.value)}
-                    className="pl-9.5 font-mono uppercase text-sm h-11 rounded-xl"
+                    className="pl-11 font-mono uppercase text-sm h-11 rounded-xl"
                     required
                   />
                   {certCode && (
@@ -878,8 +937,8 @@ function CertificateVerificationContent() {
                                     {templateConfig.signatoryName1.split(",")[0]}
                                   </span>
                                 )}
-                                <p className="font-bold text-slate-900 text-xs">{templateConfig.signatoryName1}</p>
-                                <p className="text-[10px] text-slate-600">{templateConfig.signatoryTitle1}</p>
+                                <p className="font-bold text-slate-900 text-[11px] sm:text-xs">{templateConfig.signatoryName1}</p>
+                                <p className="text-[8px] sm:text-[8.5px] text-slate-500 leading-tight font-medium mt-0.5 max-w-[150px]">{templateConfig.signatoryTitle1}</p>
                               </div>
 
                               <div className="flex flex-col items-center">
@@ -909,8 +968,8 @@ function CertificateVerificationContent() {
                                     {templateConfig.signatoryName2.split(",")[0]}
                                   </span>
                                 )}
-                                <p className="font-bold text-slate-900 text-xs">{templateConfig.signatoryName2}</p>
-                                <p className="text-[10px] text-slate-600">{templateConfig.signatoryTitle2}</p>
+                                <p className="font-bold text-slate-900 text-[11px] sm:text-xs">{templateConfig.signatoryName2}</p>
+                                <p className="text-[8px] sm:text-[8.5px] text-slate-500 leading-tight font-medium mt-0.5 max-w-[150px]">{templateConfig.signatoryTitle2}</p>
                               </div>
                             </div>
 

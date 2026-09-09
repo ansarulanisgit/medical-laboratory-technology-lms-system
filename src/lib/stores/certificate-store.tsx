@@ -1,27 +1,13 @@
 "use client";
 
 import * as React from "react";
+import { createClient } from "@/lib/supabase/client";
+import { CertificateRecord, INITIAL_CERTIFICATES } from "@/lib/types/certificate-types";
+export type { CertificateRecord };
+export { INITIAL_CERTIFICATES };
 import { ProgramLevel } from "@/lib/curriculum/academic-context";
 
-export interface CertificateRecord {
-  id: string;
-  code: string;
-  certificateNumber: string; // Auto-generated official certificate serial number
-  studentId: string;
-  studentName: string;
-  institution: string;
-  program: ProgramLevel;
-  year: string; // "1" | "2" | "3" | "4"
-  title: string;
-  grade: string;
-  status: "PENDING" | "APPROVED" | "REJECTED";
-  applicationDate: string;
-  issuedDate?: string;
-  reviewedBy?: string;
-  reviewedRole?: string;
-  feedback?: string;
-  verificationCode: string;
-}
+// (CertificateRecord imported and re-exported from @/lib/types/certificate-types)
 
 export type ColorPreset =
   | "EMERALD_CLINICAL"
@@ -146,59 +132,7 @@ const DEFAULT_TEMPLATE: CertificateTemplateConfig = {
   showCenterLogoWatermark: true,
 };
 
-export const INITIAL_CERTIFICATES: CertificateRecord[] = [
-  {
-    id: "cert-001",
-    code: "LT-CERT-2025-0482",
-    certificateNumber: "LTA-DIP-2025-48201",
-    studentId: "usr-005",
-    studentName: "Md. Ansarul Islam",
-    institution: "Dhaka Institute of Health Technology (DIHT)",
-    program: "DIPLOMA",
-    year: "1",
-    title: "1st Year Foundation Competency: Diagnostic Pre-Analytical SOPs & Basic Sciences",
-    grade: "Distinction (92%)",
-    status: "APPROVED",
-    applicationDate: "2025-01-10",
-    issuedDate: "2025-01-15",
-    reviewedBy: "Prof. Nasreen Akhter",
-    reviewedRole: "ADMIN",
-    verificationCode: "VER-9201-ENG101",
-  },
-  {
-    id: "cert-002",
-    code: "LT-CERT-2025-0199",
-    certificateNumber: "LTA-BSC-2025-19934",
-    studentId: "usr-006",
-    studentName: "Nusrat Jahan",
-    institution: "Institute of Health Technology (IHT), Rajshahi",
-    program: "BSC",
-    year: "1",
-    title: "B.Sc. 1st Year Core Competency: Cell Biology, Biophysics & Histological Protocols",
-    grade: "Superior Competency (88%)",
-    status: "APPROVED",
-    applicationDate: "2025-01-20",
-    issuedDate: "2025-01-25",
-    reviewedBy: "Dr. Rafiqul Islam",
-    reviewedRole: "SUPER_ADMIN",
-    verificationCode: "VER-8812-BIO101",
-  },
-  {
-    id: "cert-003",
-    code: "LT-REQ-2026-003",
-    certificateNumber: "LTA-DIP-2026-88412",
-    studentId: "usr-005",
-    studentName: "Md. Ansarul Islam",
-    institution: "Dhaka Institute of Health Technology (DIHT)",
-    program: "DIPLOMA",
-    year: "2",
-    title: "2nd Year Clinical Benchmark: Clinical Pathology, Routine Hematology & Microbiology",
-    grade: "Expected: First Class (85%+)",
-    status: "PENDING",
-    applicationDate: "2026-09-01",
-    verificationCode: "VER-PENDING-0482",
-  },
-];
+// (INITIAL_CERTIFICATES imported and re-exported from @/lib/types/certificate-types)
 
 export const CERTIFICATES_STORAGE_KEY = "labtutor_certificates_registry_v1";
 const STORAGE_KEY = CERTIFICATES_STORAGE_KEY;
@@ -263,6 +197,10 @@ export function findCertificateByQuery(
       return cNum === cleanAlphaNum || cCode === cleanAlphaNum || cVer === cleanAlphaNum;
     });
     if (loose) return loose;
+  }
+
+  if (records && records.length > 0 && records !== INITIAL_CERTIFICATES) {
+    return findCertificateByQuery(query, INITIAL_CERTIFICATES);
   }
 
   return undefined;
@@ -384,22 +322,45 @@ export function CertificateProvider({ children }: { children: React.ReactNode })
   const [templateConfig, setTemplateConfig] = React.useState<CertificateTemplateConfig>(DEFAULT_TEMPLATE);
   const [adminTemplates, setAdminTemplates] = React.useState<AdminCertificateTemplate[]>(DEFAULT_ADMIN_TEMPLATES);
 
+  // 1. Fetch latest certificates from central database on mount and fallback to localStorage
   React.useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          // Ensure all certificates have certificateNumber
-          const sanitized = parsed.map((c: any) => ({
-            ...c,
-            certificateNumber:
-              c.certificateNumber ||
-              `LTA-${c.program || "DIP"}-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`,
-          }));
-          setCertificates(sanitized);
+    const syncFromCentralDb = async () => {
+      try {
+        const res = await fetch("/api/certificates");
+        const json = await res.json();
+        if (json.success && Array.isArray(json.certificates) && json.certificates.length > 0) {
+          setCertificates(json.certificates);
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(json.certificates));
+          } catch {}
+          return;
         }
+      } catch (err) {
+        console.warn("Central database initial sync:", err);
       }
+
+      // Offline / network fallback to localStorage
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const sanitized = parsed.map((c: any) => ({
+              ...c,
+              certificateNumber:
+                c.certificateNumber ||
+                `LTA-${c.program || "DIP"}-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`,
+            }));
+            setCertificates(sanitized);
+          }
+        }
+      } catch {}
+    };
+
+    syncFromCentralDb();
+
+    // Template config loading
+    try {
       const storedTemplate = localStorage.getItem(TEMPLATE_STORAGE_KEY);
       if (storedTemplate) {
         const parsedTemplate = JSON.parse(storedTemplate);
@@ -416,6 +377,53 @@ export function CertificateProvider({ children }: { children: React.ReactNode })
         }
       }
     } catch {}
+
+    // 2. Real-time Supabase subscription for instant cross-client updates
+    let channel: any = null;
+    try {
+      const supabase = createClient();
+      channel = supabase.channel("certificates_realtime_provider");
+      channel
+        .on("broadcast", { event: "CERTIFICATES_SYNCED" }, ({ payload }: any) => {
+          if (payload?.certificates && Array.isArray(payload.certificates)) {
+            setCertificates((prev) => {
+              const incoming: CertificateRecord[] = payload.certificates;
+              const map = new Map<string, CertificateRecord>();
+              incoming.forEach((c) => {
+                const key = (c.certificateNumber || c.code || c.id).toUpperCase();
+                map.set(key, c);
+              });
+              prev.forEach((c) => {
+                const key = (c.certificateNumber || c.code || c.id).toUpperCase();
+                if (!map.has(key)) map.set(key, c);
+              });
+              const merged = Array.from(map.values());
+              try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+              } catch {}
+              return merged;
+            });
+          }
+        })
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "certificates" },
+          () => {
+            syncFromCentralDb();
+          }
+        )
+        .subscribe();
+    } catch (e) {
+      console.warn("Realtime certificates channel setup:", e);
+    }
+
+    return () => {
+      if (channel) {
+        try {
+          channel.unsubscribe();
+        } catch {}
+      }
+    };
   }, []);
 
   const persistCertificates = (newCerts: CertificateRecord[]) => {
@@ -448,6 +456,13 @@ export function CertificateProvider({ children }: { children: React.ReactNode })
 
       const updated = [newCert, ...certificates];
       persistCertificates(updated);
+
+      // Real-time central database sync
+      fetch("/api/certificates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCert),
+      }).catch((e) => console.warn("Central DB apply sync error:", e));
 
       // Record study activity
       try {
@@ -502,6 +517,15 @@ export function CertificateProvider({ children }: { children: React.ReactNode })
         return cert;
       });
       persistCertificates(updated);
+
+      // Real-time central database sync
+      if (targetCert) {
+        fetch("/api/certificates", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(targetCert),
+        }).catch((e) => console.warn("Central DB review sync error:", e));
+      }
 
       // Record student activity event and dispatch in-app notification
       if (targetCert) {
