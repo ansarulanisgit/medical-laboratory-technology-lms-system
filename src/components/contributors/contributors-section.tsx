@@ -24,13 +24,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import {
   useContributors,
   Contributor,
   ContributorStatus,
   DEFAULT_CONTRIBUTOR_AVATAR,
 } from "@/lib/stores/contributor-store";
+import { cn } from "@/lib/utils";
 
 interface ContributorsSectionProps {
   isAdmin?: boolean;

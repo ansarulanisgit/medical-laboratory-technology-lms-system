@@ -694,7 +694,7 @@ export function AuthModal() {
                   type="button"
                   onClick={() => setActiveTab("LOGIN")}
                   className={cn(
-                    "py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-xl transition-all text-center cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-base font-bold",
+                    "py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-xl transition-all text-center cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 text-sm sm:text-base font-bold",
                     activeTab === "LOGIN"
                       ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
                       : "text-muted-foreground hover:text-foreground font-semibold"
@@ -707,7 +707,7 @@ export function AuthModal() {
                   type="button"
                   onClick={() => setActiveTab("REGISTER")}
                   className={cn(
-                    "py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-xl transition-all text-center cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-base font-bold",
+                    "py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-xl transition-all text-center cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2 text-sm sm:text-base font-bold",
                     activeTab === "REGISTER"
                       ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
                       : "text-muted-foreground hover:text-foreground font-semibold"
@@ -800,7 +800,7 @@ export function AuthModal() {
 
                 <div className="space-y-4 pt-1">
                   <div className="space-y-2">
-                    <label className="text-sm sm:text-base font-bold text-foreground">Email or Username</label>
+                    <label className="text-[15px] sm:text-base font-bold text-foreground">Email or Username</label>
                     <div className="relative">
                       <Mail className="absolute left-4 top-3.5 h-5 w-5 text-muted-foreground" />
                       <Input
@@ -809,22 +809,13 @@ export function AuthModal() {
                         placeholder="student@labtutor.edu or username"
                         value={loginIdentifier}
                         onChange={(e) => setLoginIdentifier(e.target.value)}
-                        className="pl-12 h-12 text-sm sm:text-base rounded-2xl border-border/80 focus:ring-2 focus:ring-primary"
+                        className="pl-12 h-12 text-base rounded-2xl border-border/80 focus:ring-2 focus:ring-primary"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <label className="text-sm sm:text-base font-bold text-foreground">Password</label>
-                      <button
-                        type="button"
-                        onClick={handleForgotPassword}
-                        className="text-xs sm:text-sm text-primary hover:underline font-bold cursor-pointer"
-                      >
-                        Forgot password?
-                      </button>
-                    </div>
+                    <label className="text-[15px] sm:text-base font-bold text-foreground">Password</label>
                     <div className="relative">
                       <Lock className="absolute left-4 top-3.5 h-5 w-5 text-muted-foreground" />
                       <Input
@@ -833,7 +824,7 @@ export function AuthModal() {
                         placeholder="Enter your password"
                         value={loginPassword}
                         onChange={(e) => setLoginPassword(e.target.value)}
-                        className="pl-12 pr-12 h-12 text-sm sm:text-base rounded-2xl border-border/80 focus:ring-2 focus:ring-primary"
+                        className="pl-12 pr-12 h-12 text-base rounded-2xl border-border/80 focus:ring-2 focus:ring-primary"
                       />
                       <button
                         type="button"
@@ -864,8 +855,19 @@ export function AuthModal() {
                   )}
                 </Button>
 
+                {/* Forgot Password Link Below Sign In Button */}
+                <div className="flex justify-end -mt-2">
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="text-sm sm:text-[15px] text-primary hover:underline font-bold cursor-pointer"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+
                 {/* Developer / Demo Quick Fill */}
-                <div className="pt-3 border-t border-border/70 flex items-center justify-between text-xs sm:text-sm">
+                <div className="pt-3 border-t border-border/70 flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Testing as Super Admin?</span>
                   <button
                     type="button"
@@ -879,7 +881,7 @@ export function AuthModal() {
                   </button>
                 </div>
 
-                <div className="text-center pt-1 text-xs sm:text-sm text-muted-foreground">
+                <div className="text-center pt-1 text-sm sm:text-base text-muted-foreground">
                   Don&apos;t have an account yet?{" "}
                   <button
                     type="button"
@@ -991,7 +993,7 @@ export function AuthModal() {
                   <>
                     {/* Step Indicator Header */}
                     <div className="flex items-center justify-between pb-2.5 border-b border-border/60">
-                      <span className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                      <span className="text-sm sm:text-base font-bold text-muted-foreground uppercase tracking-wider">
                         {regStep === 1
                           ? "Step 1 of 2: Basic Account Details"
                           : "Step 2 of 2: Tailor your syllabus and practicals"}
@@ -1025,7 +1027,7 @@ export function AuthModal() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                           {/* Full Name */}
                           <div className="space-y-1.5">
-                            <label className="text-sm sm:text-base font-bold text-foreground">Full Name *</label>
+                            <label className="text-[15px] sm:text-base font-bold text-foreground">Full Name *</label>
                             <div className="relative">
                               <User className="absolute left-3.5 top-3.5 h-5 w-5 text-muted-foreground" />
                               <Input
@@ -1034,7 +1036,7 @@ export function AuthModal() {
                                 placeholder="e.g. Md. Ansarul Islam"
                                 value={regFullName}
                                 onChange={(e) => setRegFullName(e.target.value)}
-                                className="pl-11 h-12 text-sm sm:text-base rounded-2xl border-border/80"
+                                className="pl-11 h-12 text-base rounded-2xl border-border/80"
                               />
                             </div>
                           </div>
@@ -1052,7 +1054,7 @@ export function AuthModal() {
                                 placeholder="01XXXXXXXXX"
                                 value={regPhone}
                                 onChange={(e) => setRegPhone(e.target.value)}
-                                className="pl-11 h-12 text-sm sm:text-base rounded-2xl border-border/80"
+                                className="pl-11 h-12 text-base rounded-2xl border-border/80"
                               />
                             </div>
                           </div>
@@ -1061,7 +1063,7 @@ export function AuthModal() {
                         {/* Email Address */}
                         <div className="space-y-1.5">
                           <div className="flex items-center justify-between">
-                            <label className="text-sm sm:text-base font-bold text-foreground">Email Address *</label>
+                            <label className="text-[15px] sm:text-base font-bold text-foreground">Email Address *</label>
                             <span className="text-xs text-muted-foreground">Verification link will be sent here</span>
                           </div>
                           <div className="relative">
@@ -1072,7 +1074,7 @@ export function AuthModal() {
                               placeholder="student@example.com"
                               value={regEmail}
                               onChange={(e) => setRegEmail(e.target.value)}
-                              className="pl-11 h-12 text-sm sm:text-base rounded-2xl border-border/80"
+                              className="pl-11 h-12 text-base rounded-2xl border-border/80"
                             />
                           </div>
                         </div>
@@ -1080,7 +1082,7 @@ export function AuthModal() {
                         {/* Password & Confirm Password side-by-side */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                           <div className="space-y-1.5">
-                            <label className="text-sm sm:text-base font-bold text-foreground">Password *</label>
+                            <label className="text-[15px] sm:text-base font-bold text-foreground">Password *</label>
                             <div className="relative">
                               <Input
                                 type={showRegPassword ? "text" : "password"}
@@ -1088,7 +1090,7 @@ export function AuthModal() {
                                 placeholder="Min. 6 characters"
                                 value={regPassword}
                                 onChange={(e) => setRegPassword(e.target.value)}
-                                className="h-12 pr-11 text-sm sm:text-base rounded-2xl border-border/80"
+                                className="h-12 pr-11 text-base rounded-2xl border-border/80"
                               />
                               <button
                                 type="button"
@@ -1101,14 +1103,14 @@ export function AuthModal() {
                           </div>
 
                           <div className="space-y-1.5">
-                            <label className="text-sm sm:text-base font-bold text-foreground">Confirm *</label>
+                            <label className="text-[15px] sm:text-base font-bold text-foreground">Confirm *</label>
                             <Input
                               type={showRegPassword ? "text" : "password"}
                               required
                               placeholder="Repeat password"
                               value={regConfirmPassword}
                               onChange={(e) => setRegConfirmPassword(e.target.value)}
-                              className="h-12 text-sm sm:text-base rounded-2xl border-border/80"
+                              className="h-12 text-base rounded-2xl border-border/80"
                             />
                           </div>
                         </div>
@@ -1123,7 +1125,7 @@ export function AuthModal() {
                           </Button>
                         </div>
 
-                        <div className="text-center pt-2 text-xs sm:text-sm text-muted-foreground">
+                        <div className="text-center pt-2 text-sm sm:text-base text-muted-foreground">
                           Already registered?{" "}
                           <button
                             type="button"
@@ -1141,7 +1143,7 @@ export function AuthModal() {
                       <form onSubmit={handleRegisterSubmit} className="space-y-4">
                         {/* Program Level Switcher */}
                         <div className="space-y-2">
-                          <label className="text-sm sm:text-base font-bold text-foreground">Academic Program *</label>
+                          <label className="text-[15px] sm:text-base font-bold text-foreground">Academic Program *</label>
                           <div className="grid grid-cols-2 gap-3">
                             <button
                               type="button"
@@ -1154,7 +1156,7 @@ export function AuthModal() {
                               )}
                             >
                               <div className="text-sm sm:text-base font-bold text-foreground">Diploma in MT</div>
-                              <div className="text-xs text-muted-foreground font-medium">4-Year IHT Track</div>
+                              <div className="text-xs sm:text-sm text-muted-foreground font-medium">4-Year IHT Track</div>
                             </button>
 
                             <button
@@ -1168,14 +1170,14 @@ export function AuthModal() {
                               )}
                             >
                               <div className="text-sm sm:text-base font-bold text-foreground">B.Sc. in Health Tech</div>
-                              <div className="text-xs text-muted-foreground font-medium">4-Year Degree Track</div>
+                              <div className="text-xs sm:text-sm text-muted-foreground font-medium">4-Year Degree Track</div>
                             </button>
                           </div>
                         </div>
 
                         {/* Academic Year Selection */}
                         <div className="space-y-2">
-                          <label className="text-sm sm:text-base font-bold text-foreground">Current Academic Year *</label>
+                          <label className="text-[15px] sm:text-base font-bold text-foreground">Current Academic Year *</label>
                           <div className="grid grid-cols-4 gap-2">
                             {["1", "2", "3", "4"].map((yr) => (
                               <button
@@ -1197,11 +1199,11 @@ export function AuthModal() {
 
                         {/* Institution Selection */}
                         <div className="space-y-2">
-                          <label className="text-sm sm:text-base font-bold text-foreground">Institution / IHT *</label>
+                          <label className="text-[15px] sm:text-base font-bold text-foreground">Institution / IHT *</label>
                           <select
                             value={regInstitution}
                             onChange={(e) => setRegInstitution(e.target.value)}
-                            className="w-full h-12 px-4 rounded-2xl border border-border bg-background text-sm sm:text-base font-medium text-foreground cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-primary"
+                            className="w-full h-12 px-4 rounded-2xl border border-border bg-background text-base font-medium text-foreground cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-primary"
                           >
                             {STANDARD_INSTITUTIONS.map((inst) => (
                               <option key={inst} value={inst}>
@@ -1213,26 +1215,26 @@ export function AuthModal() {
 
                         {regInstitution === "Others" && (
                           <div className="space-y-2">
-                            <label className="text-sm sm:text-base font-bold text-foreground">Institute Name *</label>
+                            <label className="text-[15px] sm:text-base font-bold text-foreground">Institute Name *</label>
                             <Input
                               type="text"
                               required
                               placeholder="Enter your institute name"
                               value={regCustomInstitution}
                               onChange={(e) => setRegCustomInstitution(e.target.value)}
-                              className="h-12 px-4 text-sm sm:text-base rounded-2xl border-border"
+                              className="h-12 px-4 text-base rounded-2xl border-border"
                             />
                           </div>
                         )}
 
                         <div className="space-y-2">
-                          <label className="text-sm sm:text-base font-bold text-foreground">Roll / Student ID (Optional)</label>
+                          <label className="text-[15px] sm:text-base font-bold text-foreground">Roll / Student ID (Optional)</label>
                           <Input
                             type="text"
                             placeholder="e.g. 2022-DMT-104"
                             value={regRoll}
                             onChange={(e) => setRegRoll(e.target.value)}
-                            className="h-12 px-4 text-sm sm:text-base rounded-2xl border-border"
+                            className="h-12 px-4 text-base rounded-2xl border-border"
                           />
                         </div>
 

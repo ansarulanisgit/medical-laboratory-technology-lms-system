@@ -866,7 +866,10 @@ function CertificateVerificationContent() {
                       {/* Render realistic parchment certificate view */}
                       <div
                         className={cn(
-                          "rounded-2xl p-6 sm:p-9 pb-8 sm:pb-9 relative overflow-hidden shadow-xl transition-all flex flex-col justify-between mx-auto border-8 border-emerald-700 ring-4 ring-emerald-500/20 bg-[#fdfbf7] text-slate-900 font-serif w-full max-w-[880px] min-h-[580px]"
+                          "rounded-2xl p-5 sm:p-7 md:p-8 relative overflow-visible shadow-md transition-all flex flex-col justify-between mx-auto border-8 border-emerald-700 ring-4 ring-emerald-500/20 bg-[#fdfbf7] text-slate-900 font-serif",
+                          templateConfig.orientation === "PORTRAIT"
+                            ? "aspect-[8.5/11] max-w-[620px] min-h-[660px]"
+                            : "aspect-[11/8.5] max-w-[920px] min-h-[520px]"
                         )}
                       >
                         {/* Watermark Logo */}
@@ -880,7 +883,7 @@ function CertificateVerificationContent() {
                           />
                         </div>
 
-                        <div className="text-center relative z-10 flex-1 flex flex-col justify-between h-full space-y-5 sm:space-y-6">
+                        <div className="text-center relative z-10 flex-1 flex flex-col justify-between h-full space-y-4">
                           {/* Upper Body */}
                           <div className="space-y-2 sm:space-y-2.5">
                             <div className="flex justify-center">
@@ -917,64 +920,60 @@ function CertificateVerificationContent() {
                             </p>
                           </div>
 
-                          {/* Lower Body: Signatories and Footer (Generous breathing room and zero clipping) */}
-                          <div className="space-y-3 pt-2 sm:pt-4">
+                          {/* Lower Body: Signatories and Footer */}
+                          <div className="space-y-3 pt-2">
                             {/* Signatories and Seal */}
-                            <div className="grid grid-cols-3 items-end gap-3 sm:gap-6 text-slate-700">
-                              <div className="text-center flex flex-col items-center">
-                                <div className="w-full border-t border-slate-400/80 pt-1.5 flex flex-col items-center">
-                                  {templateConfig.signatorySignature1 ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img
-                                      src={templateConfig.signatorySignature1}
-                                      alt="Signature 1"
-                                      className="h-7 max-w-[100px] object-contain mb-1"
-                                    />
-                                  ) : (
-                                    <span className="font-serif italic text-xs text-slate-800 mb-1">
-                                      {templateConfig.signatoryName1.split(",")[0]}
-                                    </span>
-                                  )}
-                                  <p className="font-bold text-slate-900 text-xs sm:text-[13px]">{templateConfig.signatoryName1}</p>
-                                  <p className="text-[9px] sm:text-[10px] text-slate-600 leading-snug font-medium mt-0.5">{templateConfig.signatoryTitle1}</p>
-                                </div>
+                            <div className="grid grid-cols-3 items-end gap-2 text-xs text-slate-700">
+                              <div className="text-center border-t border-slate-300 pt-1 flex flex-col items-center">
+                                {templateConfig.signatorySignature1 ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={templateConfig.signatorySignature1}
+                                    alt="Signature 1"
+                                    className="h-8 max-w-[100px] object-contain mb-1"
+                                  />
+                                ) : (
+                                  <span className="font-serif italic text-xs text-slate-800 mb-1">
+                                    {templateConfig.signatoryName1.split(",")[0]}
+                                  </span>
+                                )}
+                                <p className="font-bold text-slate-900 text-xs">{templateConfig.signatoryName1}</p>
+                                <p className="text-[10px] text-slate-600">{templateConfig.signatoryTitle1}</p>
                               </div>
 
-                              <div className="flex flex-col items-center justify-center pb-0.5">
+                              <div className="flex flex-col items-center">
                                 <QRCodeView
                                   value={
                                     typeof window !== "undefined"
                                       ? `${window.location.origin}/verify?code=${encodeURIComponent(verifiedCert.certificateNumber)}`
                                       : `https://labtutor.academy/verify?code=${encodeURIComponent(verifiedCert.certificateNumber)}`
                                   }
-                                  size={52}
+                                  size={56}
                                 />
-                                <span className="text-[8px] sm:text-[8.5px] font-bold tracking-wider text-slate-700 uppercase mt-1">
+                                <span className="text-[9px] font-bold tracking-wider text-slate-700 uppercase mt-1">
                                   Scan to Verify
                                 </span>
                               </div>
 
-                              <div className="text-center flex flex-col items-center">
-                                <div className="w-full border-t border-slate-400/80 pt-1.5 flex flex-col items-center">
-                                  {templateConfig.signatorySignature2 ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img
-                                      src={templateConfig.signatorySignature2}
-                                      alt="Signature 2"
-                                      className="h-7 max-w-[100px] object-contain mb-1"
-                                    />
-                                  ) : (
-                                    <span className="font-serif italic text-xs text-slate-800 mb-1">
-                                      {templateConfig.signatoryName2.split(",")[0]}
-                                    </span>
-                                  )}
-                                  <p className="font-bold text-slate-900 text-xs sm:text-[13px]">{templateConfig.signatoryName2}</p>
-                                  <p className="text-[9px] sm:text-[10px] text-slate-600 leading-snug font-medium mt-0.5">{templateConfig.signatoryTitle2}</p>
-                                </div>
+                              <div className="text-center border-t border-slate-300 pt-1 flex flex-col items-center">
+                                {templateConfig.signatorySignature2 ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={templateConfig.signatorySignature2}
+                                    alt="Signature 2"
+                                    className="h-8 max-w-[100px] object-contain mb-1"
+                                  />
+                                ) : (
+                                  <span className="font-serif italic text-xs text-slate-800 mb-1">
+                                    {templateConfig.signatoryName2.split(",")[0]}
+                                  </span>
+                                )}
+                                <p className="font-bold text-slate-900 text-xs">{templateConfig.signatoryName2}</p>
+                                <p className="text-[10px] text-slate-600">{templateConfig.signatoryTitle2}</p>
                               </div>
                             </div>
 
-                            <div className="pt-3 border-t border-slate-300 flex items-center justify-between text-[10px] sm:text-[11px] text-slate-500 font-mono flex-wrap gap-2">
+                            <div className="pt-2 text-xs text-slate-500 flex items-center justify-between border-t border-slate-200 font-mono flex-wrap gap-1">
                               <span>Issued: {verifiedCert.issuedDate || verifiedCert.applicationDate}</span>
                               <span>Certificate ID: {verifiedCert.certificateNumber}</span>
                             </div>
