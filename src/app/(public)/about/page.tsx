@@ -3,6 +3,7 @@ import { PublicFooter } from "@/components/layout/public-footer";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ContributorsSection } from "@/components/contributors/contributors-section";
 import {
   ShieldCheck,
   Microscope,
@@ -54,7 +55,7 @@ export default function AboutPage() {
                       <div className="relative h-28 w-28 sm:h-32 sm:w-32 rounded-full overflow-hidden ring-2 ring-card bg-card">
                         <img
                           src="/developer.jpg"
-                          alt="Ansarul Anis"
+                          alt="Md. Ansarul Islam"
                           className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                         />
                       </div>
@@ -83,10 +84,18 @@ export default function AboutPage() {
                 {/* Developer Narrative & Bio */}
                 <div className="space-y-4 text-center md:text-left flex-1 min-w-0">
                   <div>
-                    <h3 className="text-2xl font-extrabold text-foreground tracking-tight">
-                      Ansarul Anis
-                    </h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 sm:gap-3">
+                      <h3 className="text-2xl font-extrabold text-foreground tracking-tight">
+                        Md. Ansarul Islam
+                      </h3>
+                      <Badge
+                        variant="outline"
+                        className="text-xs sm:text-[13px] font-semibold px-3 py-1 rounded-full border-primary/30 bg-primary/10 text-primary shadow-2xs"
+                      >
+                        Founder &amp; Lead Developer of LabTutor Academy
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
                       Medical Technologist (Lab) under DGHS &amp; Creator of LabTutor Academy
                     </p>
                   </div>
@@ -139,6 +148,9 @@ export default function AboutPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Contributors Section (Current & Past) */}
+          <ContributorsSection />
         </div>
 
         {/* 3. Purpose & Accreditation Cards */}

@@ -1,65 +1,24 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import {
   Code2,
   ExternalLink,
-  Microscope,
-  Cpu,
-  Sparkles,
-  BookOpen,
-  FlaskConical,
-  Award,
-  Globe,
   MessageSquare,
   CheckCircle2,
 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { ContributorsSection } from "@/components/contributors/contributors-section";
+import { useAcademicProfile } from "@/lib/curriculum/academic-context";
 
 export default function AboutDeveloperPage() {
+  const { profile } = useAcademicProfile();
+  const isSuperOrAdmin = profile?.role === "SUPER_ADMIN" || profile?.role === "ADMIN";
+
   return (
-    <div className="space-y-6 pb-12 animate-in fade-in duration-300">
-      {/* 1. Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/80 pb-5">
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-              <span className="p-2.5 rounded-xl bg-primary/10 text-primary inline-flex ring-1 ring-primary/20 shadow-2xs">
-                <Code2 className="h-6 w-6" />
-              </span>
-              <span>About Developer</span>
-            </h1>
-          </div>
-          <p className="text-sm sm:text-base text-muted-foreground font-normal">
-            Medical Technologist (Lab) under DGHS & developer of LabTutor Academy.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          <Link href="/student/profile">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs sm:text-sm h-9 sm:h-10 px-4 rounded-xl border-border/80 hover:bg-muted font-medium transition-all"
-            >
-              My Profile
-            </Button>
-          </Link>
-          <Link href="/student">
-            <Button
-              size="sm"
-              className="text-xs sm:text-sm h-9 sm:h-10 px-4 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-medium shadow-xs transition-all"
-            >
-              Back to Dashboard
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* 2. Main Developer Profile Card */}
+    <div className="space-y-8 pb-12 animate-in fade-in duration-300">
+      {/* 1. Main Developer Profile Card */}
       <Card className="rounded-3xl border-border/80 shadow-sm overflow-hidden bg-card">
         <CardContent className="p-6 sm:p-8 lg:p-10">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8 lg:gap-10">
@@ -71,7 +30,7 @@ export default function AboutDeveloperPage() {
                   <div className="relative h-32 w-32 sm:h-36 sm:w-36 lg:h-40 lg:w-40 rounded-full overflow-hidden ring-2 ring-card bg-card">
                     <img
                       src="/developer.jpg"
-                      alt="Ansarul Anis"
+                      alt="Md. Ansarul Islam"
                       className="h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
@@ -98,13 +57,19 @@ export default function AboutDeveloperPage() {
               </div>
             </div>
 
-            {/* Right Column: Name + Narrative */}
+            {/* Right Column: Name + Badge + Narrative */}
             <div className="space-y-5 text-center md:text-left flex-1 min-w-0">
               <div>
-                <div className="flex items-center justify-center md:justify-start gap-3">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 sm:gap-3">
                   <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight">
-                    Ansarul Anis
+                    Md. Ansarul Islam
                   </h2>
+                  <Badge
+                    variant="outline"
+                    className="text-xs sm:text-[13px] font-semibold px-3 py-1 rounded-full border-primary/30 bg-primary/10 text-primary shadow-2xs"
+                  >
+                    Founder &amp; Lead Developer of LabTutor Academy
+                  </Badge>
                 </div>
 
                 {/* Detailed Professional Narrative Card */}
@@ -165,160 +130,8 @@ export default function AboutDeveloperPage() {
         </CardContent>
       </Card>
 
-      {/* 3. Platform Architecture & Competencies Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Core Vision & Mission */}
-        <Card className="rounded-3xl border-border/80 shadow-xs flex flex-col justify-between overflow-hidden">
-          <CardHeader className="p-6 pb-3">
-            <CardTitle className="text-lg sm:text-xl font-bold flex items-center gap-2.5">
-              <span className="p-2 rounded-xl bg-primary/10 text-primary inline-flex">
-                <Sparkles className="h-5 w-5" />
-              </span>
-              <span>Vision Behind LabTutor Academy</span>
-            </CardTitle>
-            <CardDescription className="text-xs sm:text-sm font-normal text-muted-foreground mt-1">
-              Transforming Medical Laboratory Technology education into an interactive, clinically grounded digital experience.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-6 pt-2 space-y-3.5">
-            <div className="space-y-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-muted/30 border border-border/60 transition-all hover:bg-muted/40">
-                <BookOpen className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-foreground block text-xs sm:text-sm font-semibold">National Curriculum Alignment (SMFB & DGHS)</strong>
-                  <span className="text-xs sm:text-[13px] text-muted-foreground leading-relaxed">
-                    Comprehensive 4-Year Diploma & B.Sc. syllabus digitized into structured units, high-yield lecture notes, and official exam weightings.
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-muted/30 border border-border/60 transition-all hover:bg-muted/40">
-                <FlaskConical className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-foreground block text-xs sm:text-sm font-semibold">Standard Operating Procedures (SOPs) & Bench Protocols</strong>
-                  <span className="text-xs sm:text-[13px] text-muted-foreground leading-relaxed">
-                    Bridging textbook theory with clinical reality—specimen criteria, diagnostic test principles, and biohazard safety standards.
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-muted/30 border border-border/60 transition-all hover:bg-muted/40">
-                <Award className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-foreground block text-xs sm:text-sm font-semibold">Structured OSPE & Board Viva Preparation</strong>
-                  <span className="text-xs sm:text-[13px] text-muted-foreground leading-relaxed">
-                    Active diagnostic station guides, faculty oral viva defense Q&A with model answers, and authentic previous board questions.
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-muted/30 border border-border/60 transition-all hover:bg-muted/40">
-                <Microscope className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-foreground block text-xs sm:text-sm font-semibold">Clinical Competency & Practical Excellence</strong>
-                  <span className="text-xs sm:text-[13px] text-muted-foreground leading-relaxed">
-                    Empowering medical laboratory students across Bangladesh to master routine and emergency diagnostic pathology with digital confidence.
-                  </span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Technical Stack & Expertise */}
-        <Card className="rounded-3xl border-border/80 shadow-xs overflow-hidden">
-          <CardHeader className="p-6 pb-3">
-            <CardTitle className="text-lg sm:text-xl font-bold flex items-center gap-2.5">
-              <span className="p-2 rounded-xl bg-primary/10 text-primary inline-flex">
-                <Cpu className="h-5 w-5" />
-              </span>
-              <span>Technical & Clinical Expertise</span>
-            </CardTitle>
-            <CardDescription className="text-xs sm:text-sm font-normal text-muted-foreground mt-1">
-              Combining full-stack software development, CMS & eCommerce solutions with clinical diagnostic science.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-6 pt-2 space-y-5">
-            <div className="space-y-4">
-              {/* Web & Software Development */}
-              <div>
-                <div className="flex items-center justify-between mb-2.5">
-                  <span className="text-xs sm:text-sm font-semibold text-foreground flex items-center gap-1.5">
-                    <Globe className="h-4 w-4 text-primary" />
-                    <span>Web & Software Development</span>
-                  </span>
-                  <span className="text-xs text-muted-foreground font-mono">Full-Stack & CMS</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    "WordPress",
-                    "WooCommerce",
-                    "Shopify",
-                    "PHP",
-                    "HTML5",
-                    "CSS3",
-                    "JavaScript (JS)",
-                    "TypeScript",
-                    "React 19",
-                    "Next.js 15",
-                    "Tailwind CSS",
-                    "Node.js",
-                    "Supabase",
-                    "PostgreSQL",
-                    "REST & GraphQL APIs",
-                    "Full-Stack Web Apps",
-                    "Custom Theme Development",
-                    "Responsive UI/UX Design",
-                    "eCommerce Solutions",
-                    "Web Performance Optimization",
-                  ].map((tech) => (
-                    <Badge
-                      key={tech}
-                      variant="outline"
-                      className="text-xs sm:text-[13px] font-normal px-2.5 py-1 border-border/80 bg-muted/40 hover:bg-muted/70 transition-colors"
-                    >
-                      {tech}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              {/* Clinical & Laboratory Science */}
-              <div className="pt-3 border-t border-border/60">
-                <div className="flex items-center justify-between mb-2.5">
-                  <span className="text-xs sm:text-sm font-semibold text-foreground flex items-center gap-1.5">
-                    <Microscope className="h-4 w-4 text-primary" />
-                    <span>Clinical & Laboratory Science</span>
-                  </span>
-                  <span className="text-xs text-primary font-mono font-medium">Diagnostic Medicine</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    "Clinical Pathology",
-                    "Diagnostic Hematology",
-                    "Clinical Chemistry",
-                    "Medical Microbiology",
-                    "Histopathology & Cytology",
-                    "Blood Transfusion Medicine",
-                    "Quality Control (Westgard Multirules)",
-                    "OSPE & Lab Station Design",
-                    "Clinical Phlebotomy SOPs",
-                    "Laboratory Biosafety (BSL 1-3)",
-                  ].map((sci) => (
-                    <Badge
-                      key={sci}
-                      variant="outline"
-                      className="text-xs sm:text-[13px] font-normal px-2.5 py-1 border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 transition-colors"
-                    >
-                      {sci}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* 2. Contributors Section (Current & Past) */}
+      <ContributorsSection isAdmin={isSuperOrAdmin} />
     </div>
   );
 }
