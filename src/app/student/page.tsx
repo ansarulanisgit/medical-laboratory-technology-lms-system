@@ -205,7 +205,9 @@ export default function StudentDashboardPage() {
         {/* Header Right Actions */}
         <div className="flex items-center gap-2 shrink-0 self-start sm:self-center">
           <RoleSwitcherModal />
-          <ThemeToggle />
+          <div className="hidden md:block">
+            <ThemeToggle />
+          </div>
           <div className="hidden md:block">
             <NotificationBell />
           </div>
