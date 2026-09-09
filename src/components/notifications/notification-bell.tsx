@@ -179,10 +179,10 @@ export function NotificationBell() {
                 <Bell className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="text-xs sm:text-sm font-semibold text-foreground tracking-tight flex items-center gap-1.5">
+                <h3 className="text-sm font-semibold text-foreground tracking-tight flex items-center gap-1.5">
                   <span>Announcements & Notices</span>
                   {unreadCount > 0 && (
-                    <Badge variant="filled" className="text-[9.5px] px-1.5 py-0">
+                    <Badge variant="filled" className="text-xs px-2 py-0.5 font-semibold">
                       {unreadCount} New
                     </Badge>
                   )}
@@ -198,7 +198,7 @@ export function NotificationBell() {
                   className="p-1.5 text-xs text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted/60 transition-colors flex items-center gap-1"
                 >
                   <CheckCheck className="h-3.5 w-3.5 text-primary" />
-                  <span className="text-[11px] hidden sm:inline font-medium">Read All</span>
+                  <span className="text-xs hidden sm:inline font-medium">Read All</span>
                 </button>
               )}
 
@@ -209,10 +209,10 @@ export function NotificationBell() {
                     setIsOpen(false);
                     setIsCreateModalOpen(true);
                   }}
-                  className="h-7 text-[11px] px-2.5 rounded-lg bg-primary text-primary-foreground font-semibold shadow-2xs"
+                  className="h-8 text-xs px-2.5 rounded-lg bg-primary text-primary-foreground font-semibold shadow-2xs"
                   title="Broadcast new announcement"
                 >
-                  <PlusCircle className="h-3 w-3 mr-1" />
+                  <PlusCircle className="h-3.5 w-3.5 mr-1" />
                   Broadcast
                 </Button>
               )}
@@ -224,8 +224,8 @@ export function NotificationBell() {
             {announcements.length === 0 ? (
               <div className="p-8 text-center text-muted-foreground space-y-2">
                 <Bell className="h-8 w-8 mx-auto text-muted-foreground/40" />
-                <p className="text-xs font-medium">No announcements at this time.</p>
-                <p className="text-[11px] text-muted-foreground/80">
+                <p className="text-sm font-medium">No announcements at this time.</p>
+                <p className="text-xs text-muted-foreground/80">
                   New examination notices and academic alerts will appear here in real time.
                 </p>
               </div>
@@ -256,30 +256,30 @@ export function NotificationBell() {
                         <div className="flex items-center gap-1.5 flex-wrap">
                           {getTypeBadge(notice.type)}
                           {notice.priority === "URGENT" && (
-                            <span className="inline-flex items-center text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-rose-500 text-white uppercase tracking-wider">
+                            <span className="inline-flex items-center text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-rose-500 text-white uppercase tracking-wider">
                               Urgent
                             </span>
                           )}
                         </div>
-                        <span className="text-[10px] text-muted-foreground font-mono shrink-0">
+                        <span className="text-xs text-muted-foreground font-mono shrink-0">
                           {getRelativeTime(notice.createdAt)}
                         </span>
                       </div>
 
                       <h4
                         className={cn(
-                          "text-xs leading-snug line-clamp-2",
+                          "text-sm leading-snug line-clamp-2",
                           isUnread ? "font-semibold text-foreground" : "font-medium text-foreground/85"
                         )}
                       >
                         {notice.title}
                       </h4>
 
-                      <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed font-normal">
+                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed font-normal">
                         {notice.message}
                       </p>
 
-                      <div className="flex items-center justify-between pt-0.5 text-[10px] text-muted-foreground">
+                      <div className="flex items-center justify-between pt-0.5 text-xs text-muted-foreground">
                         <span className="truncate">
                           By: <span className="font-medium text-foreground">{notice.authorName}</span>
                         </span>
@@ -294,7 +294,7 @@ export function NotificationBell() {
                             title="Delete notice"
                             className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors"
                           >
-                            <Trash2 className="h-3 w-3" />
+                            <Trash2 className="h-3.5 w-3.5" />
                           </button>
                         )}
                       </div>

@@ -116,8 +116,8 @@ export function StudentBottomNav() {
               </div>
               <span
                 className={cn(
-                  "text-[10px] mt-1 tracking-tight leading-none text-center whitespace-nowrap truncate px-1",
-                  isActive ? "text-primary font-semibold" : "text-muted-foreground font-normal"
+                  "text-[11px] mt-1 tracking-tight leading-none text-center whitespace-nowrap truncate px-1",
+                  isActive ? "text-primary font-bold" : "text-muted-foreground font-medium"
                 )}
               >
                 {tab.label}

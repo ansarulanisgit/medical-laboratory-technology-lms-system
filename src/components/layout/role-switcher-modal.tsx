@@ -134,10 +134,10 @@ export function RoleSwitcherModal() {
           <Shield className="h-3 w-3" />
         </div>
         <div className="flex flex-col items-start leading-none text-left">
-          <span className="text-[9px] uppercase font-bold text-muted-foreground tracking-wider hidden sm:block">
+          <span className="text-[10.5px] uppercase font-bold text-muted-foreground tracking-wider hidden sm:block">
             View
           </span>
-          <span className="text-xs font-bold text-foreground truncate max-w-[80px] sm:max-w-[110px]">
+          <span className="text-xs sm:text-sm font-bold text-foreground truncate max-w-[80px] sm:max-w-[120px]">
             {activeOption.label}
           </span>
         </div>
@@ -159,8 +159,8 @@ export function RoleSwitcherModal() {
             {/* Header */}
             <div className="px-4 py-3 border-b border-border/80 flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-bold text-foreground">Switch View</h3>
-                <p className="text-[11px] text-muted-foreground">Select role perspective</p>
+                <h3 className="text-base font-bold text-foreground">Switch View</h3>
+                <p className="text-xs text-muted-foreground">Select role perspective</p>
               </div>
               <button
                 type="button"
@@ -201,16 +201,16 @@ export function RoleSwitcherModal() {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-1">
-                        <span className="text-xs font-bold text-foreground truncate">
+                        <span className="text-sm font-bold text-foreground truncate">
                           {opt.label}
                         </span>
                         {isCurrent && (
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-primary text-primary-foreground shrink-0">
+                          <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-primary text-primary-foreground shrink-0">
                             Active
                           </span>
                         )}
                       </div>
-                      <p className="text-[11px] text-muted-foreground truncate">
+                      <p className="text-xs text-muted-foreground truncate">
                         {opt.subtitle}
                       </p>
                     </div>

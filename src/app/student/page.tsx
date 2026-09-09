@@ -129,42 +129,42 @@ export default function StudentDashboardPage() {
           {currentRole === "SUPER_ADMIN" ? (
             <>
               <div className="flex items-center space-x-2">
-                <Badge variant="filled" className="text-[10px] font-semibold uppercase tracking-wider">
+                <Badge variant="filled" className="text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5">
                   Super Admin
                 </Badge>
               </div>
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                 Welcome back, {userFullName}!
               </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground font-normal">
+              <p className="text-sm text-muted-foreground font-normal">
                 Real-time platform governance, multi-role analytics, user activity audit and system health.
               </p>
             </>
           ) : currentRole === "ADMIN" ? (
             <>
               <div className="flex items-center space-x-2">
-                <Badge variant="blue" className="text-[10px] font-semibold uppercase tracking-wider">
+                <Badge variant="blue" className="text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5">
                   Admin
                 </Badge>
               </div>
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                 Welcome back, {userFullName}!
               </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground font-normal">
+              <p className="text-sm text-muted-foreground font-normal">
                 Institutional academic oversight, curriculum coverage, practical evaluations and student progress.
               </p>
             </>
           ) : currentRole === "MENTOR" ? (
             <>
               <div className="flex items-center space-x-2">
-                <Badge variant="outline" className="text-[10px] font-semibold uppercase tracking-wider border-emerald-500 text-emerald-700 dark:text-emerald-300">
+                <Badge variant="outline" className="text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 border-emerald-500 text-emerald-700 dark:text-emerald-300">
                   Clinical Mentor
                 </Badge>
               </div>
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                 Welcome back, {userFullName}!
               </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground font-normal">
+              <p className="text-sm text-muted-foreground font-normal">
                 Clinical trainee mentorship, bench practical guidance, viva voce defense preparation and Q&A support.
               </p>
             </>
@@ -174,25 +174,25 @@ export default function StudentDashboardPage() {
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                 Welcome back, {userFullName}!
               </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground font-normal">
+              <p className="text-sm text-muted-foreground font-normal">
                 Real-time study progress, syllabus coverage, competency tracking and more.
               </p>
 
               {/* Below the line: Strictly Course and Year ONLY. (NO Session, NO Semester) */}
-              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 pt-1 text-xs">
+              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 pt-1.5 text-xs sm:text-sm">
                 <span className="inline-flex items-center text-foreground font-normal">
-                  <span className="font-medium text-muted-foreground mr-1">Course:</span>
-                  <span className="font-medium text-primary">{courseTitle}</span>
+                  <span className="font-semibold text-muted-foreground mr-1">Course:</span>
+                  <span className="font-semibold text-primary">{courseTitle}</span>
                 </span>
-                <span className="text-muted-foreground/30 select-none">•</span>
+                <span className="text-muted-foreground/40 select-none">•</span>
                 <span className="inline-flex items-center text-foreground font-normal">
-                  <span className="font-medium text-muted-foreground mr-1">Year:</span>
-                  <span className="font-medium text-foreground">{formattedYear}</span>
+                  <span className="font-semibold text-muted-foreground mr-1">Year:</span>
+                  <span className="font-semibold text-foreground">{formattedYear}</span>
                 </span>
                 <Link href="/student/profile">
                   <Badge
                     variant="filled"
-                    className="ml-1 text-[9.5px] px-2 py-0.5 cursor-pointer font-medium hover:opacity-90 transition-opacity"
+                    className="ml-1 text-xs px-2.5 py-0.5 cursor-pointer font-medium hover:opacity-90 transition-opacity"
                   >
                     Change
                   </Badge>
@@ -211,9 +211,9 @@ export default function StudentDashboardPage() {
             <Button
               size="sm"
               variant="outline"
-              className="text-xs rounded-xl font-medium min-h-[38px] border-border/80 hover:border-primary/50 text-foreground"
+              className="text-xs sm:text-sm rounded-xl font-medium min-h-[38px] border-border/80 hover:border-primary/50 text-foreground"
             >
-              <User className="h-3.5 w-3.5 mr-1.5 text-primary" />
+              <User className="h-4 w-4 mr-1.5 text-primary" />
               Edit Profile
             </Button>
           </Link>
@@ -229,7 +229,7 @@ export default function StudentDashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
               <div className="flex items-center justify-between pb-2">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                   Total Users
                 </span>
                 <div className="h-8 w-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
@@ -237,8 +237,8 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-foreground">{safeUsers.length}</div>
-                <div className="text-[11px] text-muted-foreground flex items-center gap-1.5 flex-wrap">
+                <div className="text-2xl sm:text-3xl font-bold text-foreground">{safeUsers.length}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1.5 flex-wrap">
                   <span className="text-emerald-600 dark:text-emerald-400 font-medium">{studentCount} Students</span> •
                   <span>{mentorCount} Mentors</span> •
                   <span>{adminCount} Admins</span>
@@ -248,7 +248,7 @@ export default function StudentDashboardPage() {
 
             <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
               <div className="flex items-center justify-between pb-2">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                   Curriculum Subjects
                 </span>
                 <div className="h-8 w-8 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
@@ -256,8 +256,8 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-foreground">{safeCoursesCatalog.length}</div>
-                <div className="text-[11px] text-muted-foreground">
+                <div className="text-2xl sm:text-3xl font-bold text-foreground">{safeCoursesCatalog.length}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">
                   Diploma 4-Year & B.Sc. 4-Year Structured
                 </div>
               </div>
@@ -265,7 +265,7 @@ export default function StudentDashboardPage() {
 
             <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
               <div className="flex items-center justify-between pb-2">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                   Question Bank Papers
                 </span>
                 <div className="h-8 w-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
@@ -273,8 +273,8 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-foreground">{safeQuestions.length}</div>
-                <div className="text-[11px] text-muted-foreground">
+                <div className="text-2xl sm:text-3xl font-bold text-foreground">{safeQuestions.length}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">
                   {safeQuestions.reduce((acc, q) => acc + (q?.downloadCount || 0), 0)} Total Student Downloads
                 </div>
               </div>
@@ -282,7 +282,7 @@ export default function StudentDashboardPage() {
 
             <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
               <div className="flex items-center justify-between pb-2">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                   System Health
                 </span>
                 <div className="h-8 w-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
@@ -290,8 +290,8 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">99.9%</div>
-                <div className="text-[11px] text-muted-foreground">
+                <div className="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400">99.9%</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">
                   Zero critical incidents • All services active
                 </div>
               </div>
@@ -307,10 +307,10 @@ export default function StudentDashboardPage() {
                     <Users className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                    <h3 className="text-sm sm:text-base font-semibold text-foreground group-hover:text-primary transition-colors">
                       User Management
                     </h3>
-                    <p className="text-[11px] text-muted-foreground">Permissions, roles & verification</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Permissions, roles & verification</p>
                   </div>
                 </div>
               </Card>
@@ -323,10 +323,10 @@ export default function StudentDashboardPage() {
                     <Settings className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                    <h3 className="text-sm sm:text-base font-semibold text-foreground group-hover:text-primary transition-colors">
                       Module Management
                     </h3>
-                    <p className="text-[11px] text-muted-foreground">Toggle visibility & arrange</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Toggle visibility & arrange</p>
                   </div>
                 </div>
               </Card>
@@ -339,10 +339,10 @@ export default function StudentDashboardPage() {
                     <Type className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                    <h3 className="text-sm sm:text-base font-semibold text-foreground group-hover:text-primary transition-colors">
                       String Management
                     </h3>
-                    <p className="text-[11px] text-muted-foreground">Edit UI texts & banners</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Edit UI texts & banners</p>
                   </div>
                 </div>
               </Card>
@@ -355,10 +355,10 @@ export default function StudentDashboardPage() {
                     <Activity className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                    <h3 className="text-sm sm:text-base font-semibold text-foreground group-hover:text-primary transition-colors">
                       Real-time Data Log
                     </h3>
-                    <p className="text-[11px] text-muted-foreground">Audit trail & user actions</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Audit trail & user actions</p>
                   </div>
                 </div>
               </Card>
@@ -369,33 +369,33 @@ export default function StudentDashboardPage() {
           <Card className="rounded-2xl border-border/80 overflow-hidden shadow-xs">
             <CardHeader className="p-5 pb-3 border-b border-border bg-muted/20 flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
                   <Activity className="h-4 w-4 text-primary" />
                   Real-Time Audit Activity Feed
                 </CardTitle>
-                <CardDescription className="text-xs">
+                <CardDescription className="text-xs sm:text-sm">
                   Live user actions, curriculum edits, and governance updates across the application
                 </CardDescription>
               </div>
               <Link href="/student/admin/logs">
-                <Button size="sm" variant="outline" className="text-xs h-8 rounded-xl font-medium">
+                <Button size="sm" variant="outline" className="text-xs sm:text-sm h-8 rounded-xl font-medium">
                   View Full Logs →
                 </Button>
               </Link>
             </CardHeader>
             <CardContent className="p-4 divide-y divide-border/60">
               {logs.slice(0, 5).map((log) => (
-                <div key={log.id} className="py-2.5 flex items-center justify-between text-xs gap-3">
+                <div key={log.id} className="py-2.5 flex items-center justify-between text-xs sm:text-sm gap-3">
                   <div className="flex items-center space-x-3 min-w-0">
                     <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
                     <div className="truncate">
                       <span className="font-semibold text-foreground">{log.performedBy}</span>
                       <span className="text-muted-foreground ml-1.5 font-normal">({log.action})</span>
-                      <p className="text-[11px] text-muted-foreground truncate">{log.details}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate">{log.details}</p>
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <Badge variant="outline" className="text-[10px] font-mono">
+                    <Badge variant="outline" className="text-xs font-mono">
                       {log.module}
                     </Badge>
                   </div>
@@ -414,16 +414,16 @@ export default function StudentDashboardPage() {
           {/* Admin KPIs */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+              <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                 Pending Certificates
               </span>
-              <div className="text-2xl font-bold text-foreground">{pendingCertificates}</div>
-              <p className="text-[11px] text-muted-foreground mt-1">
+              <div className="text-2xl sm:text-3xl font-bold text-foreground">{pendingCertificates}</div>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                 {pendingCertificates > 0 ? "Awaiting your faculty verification" : "All requests up-to-date"}
               </p>
               {pendingCertificates > 0 && (
                 <Link href="/student/certificates" className="inline-block mt-2">
-                  <Button size="sm" className="h-7 text-xs bg-primary text-primary-foreground rounded-lg px-2.5">
+                  <Button size="sm" className="h-8 text-xs sm:text-sm bg-primary text-primary-foreground rounded-lg px-3">
                     Review Now
                   </Button>
                 </Link>
@@ -431,47 +431,47 @@ export default function StudentDashboardPage() {
             </Card>
 
             <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+              <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                 Total Enrolled Students
               </span>
-              <div className="text-2xl font-bold text-foreground">{studentCount}</div>
-              <p className="text-[11px] text-muted-foreground mt-1">Across 4 Diploma & B.Sc. Years</p>
+              <div className="text-2xl sm:text-3xl font-bold text-foreground">{studentCount}</div>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">Across 4 Diploma & B.Sc. Years</p>
             </Card>
 
             <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+              <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                 Practical SOP Protocols
               </span>
-              <div className="text-2xl font-bold text-foreground">{safePracticals.length}</div>
-              <p className="text-[11px] text-muted-foreground mt-1">All Clinical Laboratory Disciplines</p>
+              <div className="text-2xl sm:text-3xl font-bold text-foreground">{safePracticals.length}</div>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">All Clinical Laboratory Disciplines</p>
             </Card>
 
             <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+              <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                 Active Job Postings
               </span>
-              <div className="text-2xl font-bold text-foreground">{safeJobs.filter((j) => j?.isActive).length}</div>
-              <p className="text-[11px] text-muted-foreground mt-1">Hospital & Diagnostic Opportunities</p>
+              <div className="text-2xl sm:text-3xl font-bold text-foreground">{safeJobs.filter((j) => j?.isActive).length}</div>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">Hospital & Diagnostic Opportunities</p>
             </Card>
           </div>
 
           {/* Action Row */}
           <div className="flex flex-wrap items-center gap-2">
             <Link href="/student/curriculum/manage">
-              <Button className="bg-primary text-primary-foreground text-xs rounded-xl min-h-[38px]">
-                <BookOpen className="h-3.5 w-3.5 mr-1.5" />
+              <Button className="bg-primary text-primary-foreground text-xs sm:text-sm rounded-xl min-h-[40px]">
+                <BookOpen className="h-4 w-4 mr-1.5" />
                 Author Curriculum Subject
               </Button>
             </Link>
             <Link href="/student/certificates">
-              <Button variant="outline" className="text-xs rounded-xl min-h-[38px]">
-                <Award className="h-3.5 w-3.5 mr-1.5 text-primary" />
+              <Button variant="outline" className="text-xs sm:text-sm rounded-xl min-h-[40px]">
+                <Award className="h-4 w-4 mr-1.5 text-primary" />
                 Certificate Registry
               </Button>
             </Link>
             <Link href="/student/updates">
-              <Button variant="outline" className="text-xs rounded-xl min-h-[38px]">
-                <Bell className="h-3.5 w-3.5 mr-1.5 text-primary" />
+              <Button variant="outline" className="text-xs sm:text-sm rounded-xl min-h-[40px]">
+                <Bell className="h-4 w-4 mr-1.5 text-primary" />
                 Post Announcement
               </Button>
             </Link>
@@ -487,55 +487,55 @@ export default function StudentDashboardPage() {
           {/* Mentor KPIs */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+              <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                 Question Bank Papers
               </span>
-              <div className="text-2xl font-bold text-foreground">{safeQuestions.length}</div>
-              <p className="text-[11px] text-muted-foreground mt-1">Official faculty papers with solutions</p>
+              <div className="text-2xl sm:text-3xl font-bold text-foreground">{safeQuestions.length}</div>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">Official faculty papers with solutions</p>
             </Card>
 
             <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+              <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                 Practical SOP Guides
               </span>
-              <div className="text-2xl font-bold text-foreground">{safePracticals.length}</div>
-              <p className="text-[11px] text-muted-foreground mt-1">Step-by-step diagnostic procedures</p>
+              <div className="text-2xl sm:text-3xl font-bold text-foreground">{safePracticals.length}</div>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">Step-by-step diagnostic procedures</p>
             </Card>
 
             <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+              <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                 Clinical Inquiries
               </span>
-              <div className="text-2xl font-bold text-foreground">14</div>
-              <p className="text-[11px] text-muted-foreground mt-1">Study Center & Practical Q&A queries</p>
+              <div className="text-2xl sm:text-3xl font-bold text-foreground">14</div>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">Study Center & Practical Q&A queries</p>
             </Card>
 
             <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+              <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                 Active Job Offers
               </span>
-              <div className="text-2xl font-bold text-foreground">{safeJobs.length}</div>
-              <p className="text-[11px] text-muted-foreground mt-1">Shared with graduating trainees</p>
+              <div className="text-2xl sm:text-3xl font-bold text-foreground">{safeJobs.length}</div>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">Shared with graduating trainees</p>
             </Card>
           </div>
 
           {/* Quick Mentor Actions */}
           <div className="flex flex-wrap items-center gap-2">
             <Link href="/student/questions">
-              <Button className="bg-primary text-primary-foreground text-xs rounded-xl min-h-[38px]">
-                <FileQuestion className="h-3.5 w-3.5 mr-1.5" />
+              <Button className="bg-primary text-primary-foreground text-xs sm:text-sm rounded-xl min-h-[40px]">
+                <FileQuestion className="h-4 w-4 mr-1.5" />
                 Upload Question Paper
               </Button>
             </Link>
             <Link href="/student/practical">
-              <Button variant="outline" className="text-xs rounded-xl min-h-[38px]">
-                <FlaskConical className="h-3.5 w-3.5 mr-1.5 text-primary" />
+              <Button variant="outline" className="text-xs sm:text-sm rounded-xl min-h-[40px]">
+                <FlaskConical className="h-4 w-4 mr-1.5 text-primary" />
                 Add Practical SOP
               </Button>
             </Link>
             <Link href="/student/study-center">
-              <Button variant="outline" className="text-xs rounded-xl min-h-[38px]">
-                <MessageSquare className="h-3.5 w-3.5 mr-1.5 text-primary" />
+              <Button variant="outline" className="text-xs sm:text-sm rounded-xl min-h-[40px]">
+                <MessageSquare className="h-4 w-4 mr-1.5 text-primary" />
                 Answer Trainee Q&A
               </Button>
             </Link>
@@ -552,7 +552,7 @@ export default function StudentDashboardPage() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
               <div className="flex items-center justify-between pb-2">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                   Syllabus Progress
                 </span>
                 <div className="h-8 w-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
@@ -560,7 +560,7 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-foreground">{avgProgress}%</div>
+                <div className="text-2xl sm:text-3xl font-bold text-foreground">{avgProgress}%</div>
                 <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
                   <div
                     className="bg-primary h-full transition-all duration-500 rounded-full"
@@ -572,7 +572,7 @@ export default function StudentDashboardPage() {
 
             <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
               <div className="flex items-center justify-between pb-2">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                   Lessons Covered
                 </span>
                 <div className="h-8 w-8 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
@@ -580,16 +580,16 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-foreground">
+                <div className="text-2xl sm:text-3xl font-bold text-foreground">
                   {completedLessons} / {totalLessons}
                 </div>
-                <p className="text-[11px] text-muted-foreground">Topics completed this academic year</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Topics completed this academic year</p>
               </div>
             </Card>
 
             <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
               <div className="flex items-center justify-between pb-2">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                   Question Bank
                 </span>
                 <div className="h-8 w-8 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
@@ -597,14 +597,14 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-foreground">{safeQuestions.length}</div>
-                <p className="text-[11px] text-muted-foreground">Solved board papers available</p>
+                <div className="text-2xl sm:text-3xl font-bold text-foreground">{safeQuestions.length}</div>
+                <p className="text-xs sm:text-sm text-muted-foreground">Solved board papers available</p>
               </div>
             </Card>
 
             <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
               <div className="flex items-center justify-between pb-2">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                   Practical SOPs
                 </span>
                 <div className="h-8 w-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
@@ -612,8 +612,8 @@ export default function StudentDashboardPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-foreground">{safePracticals.length}</div>
-                <p className="text-[11px] text-muted-foreground">Bench training modules</p>
+                <div className="text-2xl sm:text-3xl font-bold text-foreground">{safePracticals.length}</div>
+                <p className="text-xs sm:text-sm text-muted-foreground">Bench training modules</p>
               </div>
             </Card>
           </div>
@@ -625,7 +625,7 @@ export default function StudentDashboardPage() {
                 <div className="h-8 w-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 shadow-2xs">
                   <BookOpen className="h-4 w-4" />
                 </div>
-                <h2 className="text-sm sm:text-base font-bold tracking-tight text-foreground flex items-center gap-1.5 flex-wrap">
+                <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground flex items-center gap-1.5 flex-wrap">
                   <span className="font-extrabold text-foreground">
                     {safeSubjects.length} {safeSubjects.length === 1 ? "subject" : "subjects"}
                   </span>
@@ -635,7 +635,7 @@ export default function StudentDashboardPage() {
                   </span>
                 </h2>
               </div>
-              <Link href="/student/curriculum" className="text-xs text-primary font-semibold hover:underline shrink-0 flex items-center gap-1">
+              <Link href="/student/curriculum" className="text-xs sm:text-sm text-primary font-semibold hover:underline shrink-0 flex items-center gap-1">
                 View Full Curriculum →
               </Link>
             </div>
@@ -648,27 +648,27 @@ export default function StudentDashboardPage() {
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs font-bold text-primary px-2 py-0.5 rounded-md bg-muted">
+                      <span className="font-mono text-xs sm:text-sm font-bold text-primary px-2.5 py-0.5 rounded-md bg-muted">
                         {subject.code}
                       </span>
-                      <span className="text-xs text-muted-foreground font-medium">
+                      <span className="text-xs sm:text-sm text-muted-foreground font-semibold">
                         {subject.progress}%
                       </span>
                     </div>
-                    <h3 className="text-sm font-semibold text-foreground leading-snug">
+                    <h3 className="text-base font-semibold text-foreground leading-snug">
                       {subject.name}
                     </h3>
-                    <p className="text-xs text-muted-foreground line-clamp-2 font-normal leading-relaxed">
+                    <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 font-normal leading-relaxed">
                       {subject.description}
                     </p>
                   </div>
 
-                  <div className="pt-2 border-t border-border flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">
+                  <div className="pt-2 border-t border-border flex items-center justify-between text-xs sm:text-sm">
+                    <span className="text-muted-foreground font-medium">
                       {subject.units} Modules • {subject.lessons} Lessons
                     </span>
                     <Link href={`/student/study-center?subject=${subject.code}`}>
-                      <Button size="sm" className="h-7 text-xs px-2.5 bg-primary text-primary-foreground rounded-lg">
+                      <Button size="sm" className="h-8 text-xs sm:text-sm px-3 bg-primary text-primary-foreground rounded-lg font-medium">
                         Study →
                       </Button>
                     </Link>
@@ -686,16 +686,16 @@ export default function StudentDashboardPage() {
       <Card className="rounded-2xl border-border/80 overflow-hidden shadow-xs">
         <CardHeader className="p-5 pb-3 border-b border-border bg-muted/20 flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
+            <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
               <Bell className="h-4 w-4 text-primary" />
               Announcements & Notices
             </CardTitle>
-            <CardDescription className="text-xs">
+            <CardDescription className="text-xs sm:text-sm">
               Official faculty notifications, examination routines, and academic circulars
             </CardDescription>
           </div>
           <Link href="/student/updates">
-            <Button size="sm" variant="outline" className="text-xs h-8 rounded-xl font-medium">
+            <Button size="sm" variant="outline" className="text-xs sm:text-sm h-8 rounded-xl font-medium">
               All Updates →
             </Button>
           </Link>
@@ -704,25 +704,25 @@ export default function StudentDashboardPage() {
           {safeUpdates.slice(0, 3).map((notice) => (
             <div
               key={notice.id}
-              className="p-3.5 rounded-xl border border-border/70 bg-card hover:border-primary/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+              className="p-3.5 rounded-xl border border-border/70 bg-card hover:border-primary/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm"
             >
               <div className="space-y-1 min-w-0">
                 <div className="flex items-center space-x-2">
                   <Badge
                     variant={notice.urgency === "CRITICAL" ? "destructive" : notice.urgency === "HIGH" ? "blue" : "outline"}
-                    className="text-[9.5px] py-0 px-1.5"
+                    className="text-xs py-0.5 px-2 font-medium"
                   >
                     {notice.category.replace("_", " ")}
                   </Badge>
-                  <span className="text-muted-foreground text-[11px] font-mono">{notice.createdAt}</span>
+                  <span className="text-muted-foreground text-xs font-mono">{notice.createdAt}</span>
                 </div>
-                <h4 className="font-semibold text-foreground text-xs sm:text-sm">{notice.title}</h4>
-                <p className="text-muted-foreground text-xs line-clamp-1 font-normal">{notice.content.replace(/<[^>]*>/g, "")}</p>
+                <h4 className="font-semibold text-foreground text-sm sm:text-base">{notice.title}</h4>
+                <p className="text-muted-foreground text-xs sm:text-sm line-clamp-1 font-normal">{notice.content.replace(/<[^>]*>/g, "")}</p>
               </div>
 
               {notice.attachmentUrl && (
                 <a href={notice.attachmentUrl} download className="shrink-0 self-end sm:self-center">
-                  <Button size="sm" variant="outline" className="h-7 text-xs rounded-lg px-2 text-primary font-medium">
+                  <Button size="sm" variant="outline" className="h-8 text-xs sm:text-sm rounded-lg px-2.5 text-primary font-medium">
                     Download PDF
                   </Button>
                 </a>

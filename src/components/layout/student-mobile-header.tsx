@@ -37,15 +37,15 @@ export function StudentMobileHeader() {
           <span className="text-[16px] font-extrabold tracking-tight leading-tight whitespace-nowrap text-foreground">
             LabTutor <span className="text-primary font-bold">Academy</span>
           </span>
-          <span className="text-[8.5px] uppercase font-semibold text-muted-foreground tracking-[0.06em] mt-0.5 whitespace-nowrap leading-tight">
+          <span className="text-[10.5px] uppercase font-semibold text-muted-foreground tracking-wide mt-0.5 whitespace-nowrap leading-tight">
             {roleBadgeLabel}
           </span>
         </div>
       </Link>
 
       <div className="flex items-center space-x-2">
-        <div className="inline-flex items-center space-x-1 rounded-lg border border-primary/20 bg-primary/5 px-2 py-1 text-[11px] font-medium text-primary">
-          <ShieldCheck className="h-3 w-3" />
+        <div className="inline-flex items-center space-x-1.5 rounded-lg border border-primary/20 bg-primary/5 px-2.5 py-1 text-xs font-semibold text-primary">
+          <ShieldCheck className="h-3.5 w-3.5" />
           <span>{roleBadgeLabel}</span>
         </div>
         <Link

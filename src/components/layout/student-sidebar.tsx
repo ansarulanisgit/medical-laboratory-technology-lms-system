@@ -152,7 +152,7 @@ export function StudentSidebar() {
               <span className="text-[17px] font-extrabold tracking-tight text-foreground leading-tight whitespace-nowrap">
                 LabTutor <span className="text-primary font-bold">Academy</span>
               </span>
-              <span className="text-[10px] uppercase font-semibold text-muted-foreground tracking-[0.06em] mt-0.5 whitespace-nowrap leading-tight">
+              <span className="text-[11px] uppercase font-semibold text-muted-foreground tracking-[0.06em] mt-0.5 whitespace-nowrap leading-tight">
                 {roleBadgeLabel}
               </span>
             </div>
@@ -192,10 +192,10 @@ export function StudentSidebar() {
               onMouseLeave={() => setTooltip(null)}
               onClick={() => setTooltip(null)}
               className={cn(
-                "flex items-center rounded-xl transition-all text-xs sm:text-sm font-medium",
+                "flex items-center rounded-xl transition-all text-sm font-medium",
                 isCollapsed
                   ? "h-10 w-10 mx-auto justify-center shrink-0"
-                  : "space-x-3 px-3 py-2 min-h-[38px] w-full",
+                  : "space-x-3 px-3 py-2 min-h-[40px] w-full",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-xs font-semibold"
                   : "text-muted-foreground hover:bg-muted/60 hover:text-foreground font-normal"
@@ -215,7 +215,7 @@ export function StudentSidebar() {
             <Button
               variant="outline"
               onClick={handleLogout}
-              className="flex-1 justify-start text-xs min-h-[40px] text-muted-foreground hover:text-destructive hover:border-destructive/30 rounded-xl font-normal overflow-hidden cursor-pointer"
+              className="flex-1 justify-start text-sm min-h-[40px] text-muted-foreground hover:text-destructive hover:border-destructive/30 rounded-xl font-medium overflow-hidden cursor-pointer"
             >
               <LogOut className="h-4 w-4 mr-2 shrink-0" />
               <span className="truncate">Sign Out</span>
