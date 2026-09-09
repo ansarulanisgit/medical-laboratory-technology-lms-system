@@ -57,7 +57,7 @@ const SEED_ANNOUNCEMENTS: LMSAnnouncement[] = [
     priority: "NORMAL",
     targetAudience: "ALL",
     authorRole: "SUPER_ADMIN",
-    authorName: "Ansarul Anis (Lead Developer)",
+    authorName: "Md. Ansarul Islam (Lead Developer)",
     createdAt: "2026-09-06T12:00:00.000Z",
     readBy: [],
   },

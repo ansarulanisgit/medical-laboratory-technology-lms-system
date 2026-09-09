@@ -39,7 +39,7 @@ export function PublicFooter() {
               rel="noopener noreferrer"
               className="font-bold text-primary hover:text-primary/80 transition-colors underline-offset-4 hover:underline"
             >
-              Ansarul Anis
+              Md. Ansarul Islam
             </Link>
           </div>
         </div>
