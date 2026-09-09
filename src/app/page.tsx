@@ -306,11 +306,11 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="w-full sm:w-auto h-13 sm:h-14 px-6 sm:px-7 border-border/90 hover:bg-card text-foreground font-bold text-base rounded-2xl cursor-pointer active:scale-95 transition-all flex items-center justify-center gap-2 group"
+                  className="w-full sm:w-auto h-13 sm:h-14 px-6 sm:px-7 border-border/90 bg-card hover:bg-primary/10 hover:border-primary/60 hover:text-primary text-foreground font-bold text-base rounded-2xl cursor-pointer active:scale-95 transition-all duration-200 shadow-xs hover:shadow-md hover:shadow-primary/10 hover:-translate-y-0.5 flex items-center justify-center gap-2 group"
                 >
-                  <Layers className="h-5 w-5 text-primary" />
+                  <Layers className="h-5 w-5 text-primary transition-transform duration-200 group-hover:scale-110" />
                   <span>Study Center</span>
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                 </Button>
               </Link>
 
@@ -318,11 +318,11 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="w-full sm:w-auto h-13 sm:h-14 px-6 sm:px-7 border-border/90 hover:bg-card text-foreground font-bold text-base rounded-2xl cursor-pointer active:scale-95 transition-all flex items-center justify-center gap-2 group"
+                  className="w-full sm:w-auto h-13 sm:h-14 px-6 sm:px-7 border-border/90 bg-card hover:bg-primary/10 hover:border-primary/60 hover:text-primary text-foreground font-bold text-base rounded-2xl cursor-pointer active:scale-95 transition-all duration-200 shadow-xs hover:shadow-md hover:shadow-primary/10 hover:-translate-y-0.5 flex items-center justify-center gap-2 group"
                 >
-                  <FileText className="h-5 w-5 text-primary" />
+                  <FileText className="h-5 w-5 text-primary transition-transform duration-200 group-hover:scale-110" />
                   <span>Build Resume</span>
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                 </Button>
               </Link>
 
@@ -330,11 +330,11 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="w-full sm:w-auto h-13 sm:h-14 px-6 sm:px-7 border-border/90 hover:bg-card text-foreground font-bold text-base rounded-2xl cursor-pointer active:scale-95 transition-all flex items-center justify-center gap-2 group"
+                  className="w-full sm:w-auto h-13 sm:h-14 px-6 sm:px-7 border-border/90 bg-card hover:bg-primary/10 hover:border-primary/60 hover:text-primary text-foreground font-bold text-base rounded-2xl cursor-pointer active:scale-95 transition-all duration-200 shadow-xs hover:shadow-md hover:shadow-primary/10 hover:-translate-y-0.5 flex items-center justify-center gap-2 group"
                 >
-                  <Briefcase className="h-5 w-5 text-primary" />
+                  <Briefcase className="h-5 w-5 text-primary transition-transform duration-200 group-hover:scale-110" />
                   <span>Get a Job</span>
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                 </Button>
               </Link>
             </div>
