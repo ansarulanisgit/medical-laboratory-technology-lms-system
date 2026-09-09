@@ -171,7 +171,7 @@ export function NotificationBell() {
 
       {/* Dropdown Popover */}
       {isOpen && (
-        <div className="absolute right-0 top-11 z-50 w-[340px] sm:w-[410px] rounded-2xl border border-border/80 bg-card text-card-foreground shadow-2xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
+        <div className="absolute right-0 top-11 z-50 w-[calc(100vw-32px)] max-w-[360px] sm:w-[410px] sm:max-w-[410px] rounded-2xl border border-border/80 bg-card text-card-foreground shadow-2xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
           {/* Header */}
           <div className="p-3.5 border-b border-border/80 bg-muted/20 flex items-center justify-between">
             <div className="flex items-center space-x-2">

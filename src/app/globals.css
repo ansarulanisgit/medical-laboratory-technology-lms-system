@@ -100,6 +100,16 @@
   h1 {
     letter-spacing: -0.028em;
   }
+  p:not(#resume-document *) {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  @media (min-width: 768px) {
+    p:not(#resume-document *) {
+      font-size: 16px;
+      line-height: 1.625;
+    }
+  }
 }
 
 /* Custom DGHS-style utility classes */

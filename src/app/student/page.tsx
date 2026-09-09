@@ -136,7 +136,7 @@ export default function StudentDashboardPage() {
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                 Welcome back, {userFullName}!
               </h1>
-              <p className="text-sm text-muted-foreground font-normal">
+              <p className="text-sm md:text-base text-muted-foreground font-normal">
                 Real-time platform governance, multi-role analytics, user activity audit and system health.
               </p>
             </>
@@ -150,7 +150,7 @@ export default function StudentDashboardPage() {
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                 Welcome back, {userFullName}!
               </h1>
-              <p className="text-sm text-muted-foreground font-normal">
+              <p className="text-sm md:text-base text-muted-foreground font-normal">
                 Institutional academic oversight, curriculum coverage, practical evaluations and student progress.
               </p>
             </>
@@ -164,7 +164,7 @@ export default function StudentDashboardPage() {
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                 Welcome back, {userFullName}!
               </h1>
-              <p className="text-sm text-muted-foreground font-normal">
+              <p className="text-sm md:text-base text-muted-foreground font-normal">
                 Clinical trainee mentorship, bench practical guidance, viva voce defense preparation and Q&A support.
               </p>
             </>
@@ -174,7 +174,7 @@ export default function StudentDashboardPage() {
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                 Welcome back, {userFullName}!
               </h1>
-              <p className="text-sm text-muted-foreground font-normal">
+              <p className="text-sm md:text-base text-muted-foreground font-normal">
                 Real-time study progress, syllabus coverage, competency tracking and more.
               </p>
 
@@ -206,12 +206,14 @@ export default function StudentDashboardPage() {
         <div className="flex items-center gap-2 shrink-0 self-start sm:self-center">
           <RoleSwitcherModal />
           <ThemeToggle />
-          <NotificationBell />
+          <div className="hidden md:block">
+            <NotificationBell />
+          </div>
           <Link href="/student/profile">
             <Button
               size="sm"
               variant="outline"
-              className="text-xs sm:text-sm rounded-xl font-medium min-h-[38px] border-border/80 hover:border-primary/50 text-foreground"
+              className="text-sm rounded-xl font-medium min-h-[38px] border-border/80 hover:border-primary/50 text-foreground"
             >
               <User className="h-4 w-4 mr-1.5 text-primary" />
               Edit Profile
@@ -227,71 +229,71 @@ export default function StudentDashboardPage() {
         <div className="space-y-6 animate-in fade-in">
           {/* Infographic KPI Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
+            <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
               <div className="flex items-center justify-between pb-2">
-                <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide">
                   Total Users
                 </span>
-                <div className="h-8 w-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <div className="h-8 w-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
                   <Users className="h-4 w-4" />
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl sm:text-3xl font-bold text-foreground">{safeUsers.length}</div>
-                <div className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1.5 flex-wrap">
-                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">{studentCount} Students</span> •
+                <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{safeUsers.length}</div>
+                <div className="text-[12.5px] sm:text-sm font-medium text-muted-foreground flex items-center gap-1.5 flex-wrap pt-0.5">
+                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{studentCount} Students</span> •
                   <span>{mentorCount} Mentors</span> •
                   <span>{adminCount} Admins</span>
                 </div>
               </div>
             </Card>
 
-            <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
+            <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
               <div className="flex items-center justify-between pb-2">
-                <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide">
                   Curriculum Subjects
                 </span>
-                <div className="h-8 w-8 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
                   <BookOpen className="h-4 w-4" />
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl sm:text-3xl font-bold text-foreground">{safeCoursesCatalog.length}</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">
+                <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{safeCoursesCatalog.length}</div>
+                <div className="text-[12.5px] sm:text-sm font-medium text-muted-foreground pt-0.5">
                   Diploma 4-Year & B.Sc. 4-Year Structured
                 </div>
               </div>
             </Card>
 
-            <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
+            <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
               <div className="flex items-center justify-between pb-2">
-                <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide">
                   Question Bank Papers
                 </span>
-                <div className="h-8 w-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                   <FileQuestion className="h-4 w-4" />
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl sm:text-3xl font-bold text-foreground">{safeQuestions.length}</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">
+                <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{safeQuestions.length}</div>
+                <div className="text-[12.5px] sm:text-sm font-medium text-muted-foreground pt-0.5">
                   {safeQuestions.reduce((acc, q) => acc + (q?.downloadCount || 0), 0)} Total Student Downloads
                 </div>
               </div>
             </Card>
 
-            <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
+            <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
               <div className="flex items-center justify-between pb-2">
-                <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide">
                   System Health
                 </span>
-                <div className="h-8 w-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                   <Activity className="h-4 w-4" />
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400">99.9%</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">
+                <div className="text-3xl sm:text-4xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight">99.9%</div>
+                <div className="text-[12.5px] sm:text-sm font-medium text-muted-foreground pt-0.5">
                   Zero critical incidents • All services active
                 </div>
               </div>
@@ -310,7 +312,7 @@ export default function StudentDashboardPage() {
                     <h3 className="text-sm sm:text-base font-semibold text-foreground group-hover:text-primary transition-colors">
                       User Management
                     </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Permissions, roles & verification</p>
+                    <p className="text-sm md:text-base text-muted-foreground">Permissions, roles & verification</p>
                   </div>
                 </div>
               </Card>
@@ -326,7 +328,7 @@ export default function StudentDashboardPage() {
                     <h3 className="text-sm sm:text-base font-semibold text-foreground group-hover:text-primary transition-colors">
                       Module Management
                     </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Toggle visibility & arrange</p>
+                    <p className="text-sm md:text-base text-muted-foreground">Toggle visibility & arrange</p>
                   </div>
                 </div>
               </Card>
@@ -342,7 +344,7 @@ export default function StudentDashboardPage() {
                     <h3 className="text-sm sm:text-base font-semibold text-foreground group-hover:text-primary transition-colors">
                       String Management
                     </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Edit UI texts & banners</p>
+                    <p className="text-sm md:text-base text-muted-foreground">Edit UI texts & banners</p>
                   </div>
                 </div>
               </Card>
@@ -358,7 +360,7 @@ export default function StudentDashboardPage() {
                     <h3 className="text-sm sm:text-base font-semibold text-foreground group-hover:text-primary transition-colors">
                       Real-time Data Log
                     </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Audit trail & user actions</p>
+                    <p className="text-sm md:text-base text-muted-foreground">Audit trail & user actions</p>
                   </div>
                 </div>
               </Card>
@@ -371,27 +373,26 @@ export default function StudentDashboardPage() {
               <div>
                 <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
                   <Activity className="h-4 w-4 text-primary" />
-                  Real-Time Audit Activity Feed
+                  Platform Audit Stream
                 </CardTitle>
                 <CardDescription className="text-xs sm:text-sm">
-                  Live user actions, curriculum edits, and governance updates across the application
+                  Live, immutable event ledger tracking user registrations, role updates, and system events.
                 </CardDescription>
               </div>
               <Link href="/student/admin/logs">
-                <Button size="sm" variant="outline" className="text-xs sm:text-sm h-8 rounded-xl font-medium">
-                  View Full Logs →
+                <Button variant="ghost" size="sm" className="text-xs sm:text-sm h-8 text-primary">
+                  View All &rarr;
                 </Button>
               </Link>
             </CardHeader>
-            <CardContent className="p-4 divide-y divide-border/60">
-              {logs.slice(0, 5).map((log) => (
-                <div key={log.id} className="py-2.5 flex items-center justify-between text-xs sm:text-sm gap-3">
-                  <div className="flex items-center space-x-3 min-w-0">
-                    <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
-                    <div className="truncate">
-                      <span className="font-semibold text-foreground">{log.performedBy}</span>
-                      <span className="text-muted-foreground ml-1.5 font-normal">({log.action})</span>
-                      <p className="text-xs sm:text-sm text-muted-foreground truncate">{log.details}</p>
+            <CardContent className="p-0 divide-y divide-border">
+              {safeLogs.slice(0, 5).map((log) => (
+                <div key={log.id} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center space-x-3">
+                    <div className="h-2 w-2 rounded-full bg-primary shrink-0" />
+                    <div>
+                      <span className="text-xs sm:text-sm font-medium text-foreground">{log.action}</span>
+                      <p className="text-sm md:text-base text-muted-foreground truncate">{log.details}</p>
                     </div>
                   </div>
                   <div className="text-right shrink-0">
@@ -413,45 +414,45 @@ export default function StudentDashboardPage() {
         <div className="space-y-6 animate-in fade-in">
           {/* Admin KPIs */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
-              <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+            <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
+              <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide block mb-1">
                 Pending Certificates
               </span>
-              <div className="text-2xl sm:text-3xl font-bold text-foreground">{pendingCertificates}</div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{pendingCertificates}</div>
+              <p className="text-sm md:text-base font-medium text-muted-foreground mt-1">
                 {pendingCertificates > 0 ? "Awaiting your faculty verification" : "All requests up-to-date"}
               </p>
               {pendingCertificates > 0 && (
                 <Link href="/student/certificates" className="inline-block mt-2">
-                  <Button size="sm" className="h-8 text-xs sm:text-sm bg-primary text-primary-foreground rounded-lg px-3">
+                  <Button size="sm" className="h-9 text-sm bg-primary text-primary-foreground rounded-xl px-3.5 font-semibold">
                     Review Now
                   </Button>
                 </Link>
               )}
             </Card>
 
-            <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
-              <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+            <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
+              <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide block mb-1">
                 Total Enrolled Students
               </span>
-              <div className="text-2xl sm:text-3xl font-bold text-foreground">{studentCount}</div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">Across 4 Diploma & B.Sc. Years</p>
+              <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{studentCount}</div>
+              <p className="text-sm md:text-base font-medium text-muted-foreground mt-1">Across 4 Diploma & B.Sc. Years</p>
             </Card>
 
-            <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
-              <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+            <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
+              <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide block mb-1">
                 Practical SOP Protocols
               </span>
-              <div className="text-2xl sm:text-3xl font-bold text-foreground">{safePracticals.length}</div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">All Clinical Laboratory Disciplines</p>
+              <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{safePracticals.length}</div>
+              <p className="text-sm md:text-base font-medium text-muted-foreground mt-1">All Clinical Laboratory Disciplines</p>
             </Card>
 
-            <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
-              <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+            <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
+              <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide block mb-1">
                 Active Job Postings
               </span>
-              <div className="text-2xl sm:text-3xl font-bold text-foreground">{safeJobs.filter((j) => j?.isActive).length}</div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">Hospital & Diagnostic Opportunities</p>
+              <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{safeJobs.filter((j) => j?.isActive).length}</div>
+              <p className="text-sm md:text-base font-medium text-muted-foreground mt-1">Hospital & Diagnostic Opportunities</p>
             </Card>
           </div>
 
@@ -486,36 +487,36 @@ export default function StudentDashboardPage() {
         <div className="space-y-6 animate-in fade-in">
           {/* Mentor KPIs */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
-              <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+            <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
+              <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide block mb-1">
                 Question Bank Papers
               </span>
-              <div className="text-2xl sm:text-3xl font-bold text-foreground">{safeQuestions.length}</div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">Official faculty papers with solutions</p>
+              <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{safeQuestions.length}</div>
+              <p className="text-sm md:text-base font-medium text-muted-foreground mt-1">Official faculty papers with solutions</p>
             </Card>
 
-            <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
-              <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+            <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
+              <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide block mb-1">
                 Practical SOP Guides
               </span>
-              <div className="text-2xl sm:text-3xl font-bold text-foreground">{safePracticals.length}</div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">Step-by-step diagnostic procedures</p>
+              <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{safePracticals.length}</div>
+              <p className="text-sm md:text-base font-medium text-muted-foreground mt-1">Step-by-step diagnostic procedures</p>
             </Card>
 
-            <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
-              <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+            <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
+              <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide block mb-1">
                 Clinical Inquiries
               </span>
-              <div className="text-2xl sm:text-3xl font-bold text-foreground">14</div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">Study Center & Practical Q&A queries</p>
+              <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">14</div>
+              <p className="text-sm md:text-base font-medium text-muted-foreground mt-1">Study Center & Practical Q&A queries</p>
             </Card>
 
-            <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
-              <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
+            <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
+              <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide block mb-1">
                 Active Job Offers
               </span>
-              <div className="text-2xl sm:text-3xl font-bold text-foreground">{safeJobs.length}</div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1">Shared with graduating trainees</p>
+              <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{safeJobs.length}</div>
+              <p className="text-sm md:text-base font-medium text-muted-foreground mt-1">Shared with graduating trainees</p>
             </Card>
           </div>
 
@@ -550,18 +551,18 @@ export default function StudentDashboardPage() {
         <div className="space-y-6 animate-in fade-in">
           {/* 4 Core Progress & Analytics KPI Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
+            <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
               <div className="flex items-center justify-between pb-2">
-                <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide">
                   Syllabus Progress
                 </span>
-                <div className="h-8 w-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <div className="h-8 w-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
                   <TrendingUp className="h-4 w-4" />
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl sm:text-3xl font-bold text-foreground">{avgProgress}%</div>
-                <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{avgProgress}%</div>
+                <div className="w-full bg-muted rounded-full h-2 overflow-hidden mt-2">
                   <div
                     className="bg-primary h-full transition-all duration-500 rounded-full"
                     style={{ width: `${avgProgress}%` }}
@@ -570,50 +571,56 @@ export default function StudentDashboardPage() {
               </div>
             </Card>
 
-            <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
+            <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
               <div className="flex items-center justify-between pb-2">
-                <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide">
                   Lessons Covered
                 </span>
-                <div className="h-8 w-8 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
                   <BookOpen className="h-4 w-4" />
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl sm:text-3xl font-bold text-foreground">
+                <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
                   {completedLessons} / {totalLessons}
                 </div>
-                <p className="text-xs sm:text-sm text-muted-foreground">Topics completed this academic year</p>
+                <p className="text-sm md:text-base font-medium text-muted-foreground leading-snug pt-0.5">
+                  Topics completed this academic year
+                </p>
               </div>
             </Card>
 
-            <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
+            <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
               <div className="flex items-center justify-between pb-2">
-                <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide">
                   Question Bank
                 </span>
-                <div className="h-8 w-8 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
                   <FileQuestion className="h-4 w-4" />
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl sm:text-3xl font-bold text-foreground">{safeQuestions.length}</div>
-                <p className="text-xs sm:text-sm text-muted-foreground">Solved board papers available</p>
+                <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{safeQuestions.length}</div>
+                <p className="text-sm md:text-base font-medium text-muted-foreground leading-snug pt-0.5">
+                  Solved board papers available
+                </p>
               </div>
             </Card>
 
-            <Card className="p-4 rounded-2xl border-border/80 bg-card shadow-xs">
+            <Card className="p-4 sm:p-5 rounded-2xl border-border/80 bg-card shadow-xs">
               <div className="flex items-center justify-between pb-2">
-                <span className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                <span className="text-[13px] sm:text-sm font-bold text-muted-foreground uppercase tracking-wide">
                   Practical SOPs
                 </span>
-                <div className="h-8 w-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
                   <FlaskConical className="h-4 w-4" />
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl sm:text-3xl font-bold text-foreground">{safePracticals.length}</div>
-                <p className="text-xs sm:text-sm text-muted-foreground">Bench training modules</p>
+                <div className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">{safePracticals.length}</div>
+                <p className="text-sm md:text-base font-medium text-muted-foreground leading-snug pt-0.5">
+                  Bench training modules
+                </p>
               </div>
             </Card>
           </div>
@@ -622,20 +629,20 @@ export default function StudentDashboardPage() {
           <div className="space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-1">
               <div className="flex items-center gap-2.5 flex-wrap">
-                <div className="h-8 w-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 shadow-2xs">
-                  <BookOpen className="h-4 w-4" />
+                <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 shadow-2xs">
+                  <BookOpen className="h-5 w-5" />
                 </div>
-                <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground flex items-center gap-1.5 flex-wrap">
+                <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2 flex-wrap">
                   <span className="font-extrabold text-foreground">
                     {safeSubjects.length} {safeSubjects.length === 1 ? "subject" : "subjects"}
                   </span>
                   <span className="text-muted-foreground font-normal">in your</span>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 font-semibold text-xs sm:text-sm">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 font-bold text-xs sm:text-sm">
                     {programShortLabel} • {ordinalYear} Year
                   </span>
                 </h2>
               </div>
-              <Link href="/student/curriculum" className="text-xs sm:text-sm text-primary font-semibold hover:underline shrink-0 flex items-center gap-1">
+              <Link href="/student/curriculum" className="text-sm sm:text-base text-primary font-bold hover:underline shrink-0 flex items-center gap-1">
                 View Full Curriculum →
               </Link>
             </div>
@@ -644,32 +651,33 @@ export default function StudentDashboardPage() {
               {safeSubjects.map((subject) => (
                 <Card
                   key={subject.code}
-                  className="rounded-2xl border-border/80 p-4 hover:border-primary/50 transition-all hover:shadow-xs flex flex-col justify-between space-y-3"
+                  className="rounded-2xl border-border/80 p-4 sm:p-5 hover:border-primary/50 transition-all hover:shadow-xs flex flex-col justify-between space-y-3"
                 >
-                  <div className="space-y-2">
+                  <div className="space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs sm:text-sm font-bold text-primary px-2.5 py-0.5 rounded-md bg-muted">
+                      <span className="font-mono text-sm font-bold text-primary px-3 py-1 rounded-lg bg-muted">
                         {subject.code}
                       </span>
-                      <span className="text-xs sm:text-sm text-muted-foreground font-semibold">
+                      <span className="text-sm sm:text-base text-muted-foreground font-bold">
                         {subject.progress}%
                       </span>
                     </div>
-                    <h3 className="text-base font-semibold text-foreground leading-snug">
+                    <h3 className="text-base sm:text-lg font-bold text-foreground leading-snug">
                       {subject.name}
                     </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 font-normal leading-relaxed">
+                    <p className="text-sm md:text-base text-muted-foreground line-clamp-2 font-normal leading-relaxed">
                       {subject.description}
                     </p>
                   </div>
 
-                  <div className="pt-2 border-t border-border flex items-center justify-between text-xs sm:text-sm">
+                  <div className="pt-2.5 border-t border-border flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap text-[12.5px] sm:text-sm">
                     <span className="text-muted-foreground font-medium">
                       {subject.units} Modules • {subject.lessons} Lessons
                     </span>
                     <Link href={`/student/study-center?subject=${subject.code}`}>
-                      <Button size="sm" className="h-8 text-xs sm:text-sm px-3 bg-primary text-primary-foreground rounded-lg font-medium">
-                        Study →
+                      <Button size="sm" className="h-9 text-sm px-3.5 bg-primary text-primary-foreground rounded-xl font-semibold inline-flex items-center gap-1.5 shrink-0 shadow-xs hover:opacity-95 transition-all">
+                        <span>Continue Study</span>
+                        <ArrowRight className="h-4 w-4" />
                       </Button>
                     </Link>
                   </div>
@@ -690,7 +698,7 @@ export default function StudentDashboardPage() {
               <Bell className="h-4 w-4 text-primary" />
               Announcements & Notices
             </CardTitle>
-            <CardDescription className="text-xs sm:text-sm">
+            <CardDescription className="text-sm md:text-base">
               Official faculty notifications, examination routines, and academic circulars
             </CardDescription>
           </div>
@@ -717,7 +725,7 @@ export default function StudentDashboardPage() {
                   <span className="text-muted-foreground text-xs font-mono">{notice.createdAt}</span>
                 </div>
                 <h4 className="font-semibold text-foreground text-sm sm:text-base">{notice.title}</h4>
-                <p className="text-muted-foreground text-xs sm:text-sm line-clamp-1 font-normal">{notice.content.replace(/<[^>]*>/g, "")}</p>
+                <p className="text-muted-foreground text-sm md:text-base line-clamp-1 font-normal">{notice.content.replace(/<[^>]*>/g, "")}</p>
               </div>
 
               {notice.attachmentUrl && (

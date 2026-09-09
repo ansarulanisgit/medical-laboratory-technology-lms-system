@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Microscope, Bell, User, ShieldCheck } from "lucide-react";
+import { Microscope, User } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAcademicProfile } from "@/lib/curriculum/academic-context";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 
 export function StudentMobileHeader() {
   const { profile } = useAcademicProfile();
@@ -44,13 +45,10 @@ export function StudentMobileHeader() {
       </Link>
 
       <div className="flex items-center space-x-2">
-        <div className="inline-flex items-center space-x-1.5 rounded-lg border border-primary/20 bg-primary/5 px-2.5 py-1 text-xs font-semibold text-primary">
-          <ShieldCheck className="h-3.5 w-3.5" />
-          <span>{roleBadgeLabel}</span>
-        </div>
+        <NotificationBell />
         <Link
           href="/student/profile"
-          className="inline-flex min-h-[38px] min-w-[38px] items-center justify-center rounded-lg border border-border bg-card p-1.5 text-foreground"
+          className="inline-flex min-h-[38px] min-w-[38px] items-center justify-center rounded-xl border border-border bg-card p-1.5 text-foreground hover:bg-muted/60 transition-colors shadow-2xs"
           aria-label="Student Profile"
         >
           <User className="h-4 w-4" />
