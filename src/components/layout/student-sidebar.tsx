@@ -290,7 +290,7 @@ export function StudentSidebar() {
                   className={cn(
                     "flex items-center rounded-xl text-sm transition-all duration-150 relative group cursor-pointer",
                     isCollapsed
-                      ? "h-9 w-9 justify-center mx-auto my-0.5"
+                      ? "h-[34px] w-[34px] justify-center mx-auto my-0.5"
                       : "w-full space-x-3 px-3.5 py-2",
                     isActive
                       ? "bg-primary text-primary-foreground shadow-xs font-semibold ring-1 ring-primary/30"
@@ -300,7 +300,7 @@ export function StudentSidebar() {
                   <Icon
                     className={cn(
                       "shrink-0 transition-transform group-hover:scale-105",
-                      isCollapsed ? "h-4.5 w-4.5" : "h-4 w-4"
+                      isCollapsed ? "h-4 w-4" : "h-4 w-4"
                     )}
                   />
                   {!isCollapsed && <span className="truncate">{item.label}</span>}
@@ -351,9 +351,9 @@ export function StudentSidebar() {
                 });
               }}
               onMouseLeave={() => setTooltip(null)}
-              className="h-9 w-9 rounded-xl text-muted-foreground hover:text-destructive hover:border-destructive/30 border-border/80 hover:bg-muted/60 shrink-0 cursor-pointer"
+              className="h-[34px] w-[34px] rounded-xl text-muted-foreground hover:text-destructive hover:border-destructive/30 border-border/80 hover:bg-muted/60 shrink-0 cursor-pointer"
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className="h-3.5 w-3.5" />
             </Button>
             <Button
               variant="outline"
@@ -369,9 +369,9 @@ export function StudentSidebar() {
               onMouseLeave={() => setTooltip(null)}
               title="Expand sidebar"
               aria-label="Expand sidebar"
-              className="h-9 w-9 mx-auto rounded-xl text-muted-foreground hover:text-foreground border-border/80 hover:bg-muted/60 shrink-0 cursor-pointer"
+              className="h-[34px] w-[34px] mx-auto rounded-xl text-muted-foreground hover:text-foreground border-border/80 hover:bg-muted/60 shrink-0 cursor-pointer"
             >
-              <ChevronsRight className="h-4 w-4" />
+              <ChevronsRight className="h-3.5 w-3.5" />
             </Button>
           </div>
         )}
